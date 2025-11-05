@@ -1,3 +1,16 @@
+#' Extract model coefficients from a Hospital-Specific Report (HSR)
+#'
+#' @param file A file path to a report
+#' @param cohort The program cohort to extract the model for
+#'
+#' @return A tibble
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' my_report <- "Readmissions_HSR.xlsx"
+#' hsr_extract_coefficients(my_report, "AMI")
+#' }
 hsr_extract_coefficients <-
   function(file, cohort) {
     # Check arguments
@@ -34,7 +47,7 @@ hsr_extract_coefficients <-
 
       # Send down the rows
       tidyr::pivot_longer(
-        cols = everything(),
+        cols = dplyr::everything(),
         names_to = "Factor",
         values_to = "Value"
       ) |>

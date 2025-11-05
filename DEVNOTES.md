@@ -8,4 +8,20 @@ Contains daily notes with details about how things were developed. Primarily fol
 * Then created _New Folder from Git_ in Positron, cloning that repo
 * Then used `usethis::create_package(getwd())` to initialize package template
 * Added this file `DEVNOTES.md` to `.Rbuildignore`
-* Ran `usethis::use_r("hsr_extract_coefficients")` to create the packages first function, which extracts the list of model coefficients from a CMS Hospital Specific Report (HSR) for a specified cohort.
+* Ran `usethis::use_r("hsr_extract_coefficients")` to create the packages first function, which extracts the list of model coefficients from a CMS Hospital Specific Report (HSR) for a specified cohort. Added argument checks.
+* Used `devtools::load_all()` to test it (works on locally downloaded report).
+* Did initial `devtools::check()` and got various warnings/notes, which is expected because nothing was configured yet.
+* Edited the `DESCRIPTION` file (with possibly to change over time as package evolves), and added MIT license with `usethis::use_mit_license()`
+* Added `roxygen2` documentation to function. Used `devtools::document()` to document it. Added `\dontrun` to roxygen for function as example doesn't work yet. Need to put external data in the package.
+* Still have warning/note as I haven't declared dependencies, so will do that soon.
+```
+❯ checking R code for possible problems ... NOTE
+  hsr_extract_coefficients: no visible binding for global variable
+    ‘Value’
+  Undefined global functions or variables:
+    Value
+
+0 errors ✔ | 1 warning ✖ | 1 note ✖
+```
+
+Starting [here](https://r-pkgs.org/whole-game.html#install) next...
