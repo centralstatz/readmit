@@ -19,6 +19,8 @@ Contains daily notes with details about how things were developed. Primarily fol
 * Added NEWS.md with `use_news_md()`
 * Added badges (in anticipation): `use_cran_badge()`, `use_coverage()`, `use_github_action("check-standard")`
 * Added logo (created with [hexmake](https://connect.thinkr.fr/hexmake/) + ChatGPT): `use_logo()`
+* Started package website with `use_pkgdown()` and `pkgdown::build_site()` to get initial site
+* Then used `usethis::use_pkgdown_github_pages()` to create GitHub Actions workflow to update site on commit/push. This automatically configures on GitHub (the branch is created and my Pages are configured). But I need to push the site because no `pkgdown` stuff is there yet.
 
 # 11/5/2025
 
