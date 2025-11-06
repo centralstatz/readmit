@@ -7,20 +7,29 @@ Contains daily notes with details about how things were developed. Primarily fol
 * Added package dependencies for `readxl`, `stringr`, `dplyr`, `tidyr`, `rlang` with `use_package()`
 * Added unit testing structure with `use_testthat()`; created initial (toy) test for `use_test("hsr_extract_coefficients")`
 * Added a README file with `usethis::use_readme_rmd()` and built default `.md` file with `build_readme()`
-* Did final `check()`, still one (expected) note (will resolve later)
-```
-  hsr_extract_coefficients: no visible binding for global variable
-    ‘Value’
-  Undefined global functions or variables:
-    Value
-
-0 errors ✔ | 0 warnings ✔ | 1 note ✖
-```
 * Added NEWS.md with `use_news_md()`
 * Added badges (in anticipation): `use_cran_badge()`, `use_coverage()`, `use_github_action("check-standard")`
 * Added logo (created with [hexmake](https://connect.thinkr.fr/hexmake/) + ChatGPT): `use_logo()`
 * Started package website with `use_pkgdown()` and `pkgdown::build_site()` to get initial site
 * Then used `usethis::use_pkgdown_github_pages()` to create GitHub Actions workflow to update site on commit/push. This automatically configures on GitHub (the branch is created and my Pages are configured). But I need to push the site because no `pkgdown` stuff is there yet.
+* Added example HSR report to package, following steps here: https://r-pkgs.org/data.html#sec-data-extdata
+  + Made the `inst/extdata/` directory
+  + Went to QualityNet and downloaded the FY 2025 HSR (https://qualitynet.cms.gov/inpatient/hrrp/reports#tab3) (as of 11/8/2025 @ 11:56 AM CST). Added this file to the above directory.
+  + As suggested (https://r-pkgs.org/data.html#sec-data-example-path-helper) I created a new helper function `hsr_example()` to help identify this file for users. `use_r("hsr_example")`. I then copied their exact function definition (with changes to reflect the current package). Added documentation. Added unit test to ensure that example file exists in user file system.
+  * Did final `check()`, still one (expected) note (will resolve later)
+```
+❯ checking package subdirectories ... NOTE
+  Problems with news in ‘NEWS.md’:
+  No news entries found.
+
+❯ checking R code for possible problems ... NOTE
+  hsr_extract_coefficients: no visible binding for global variable
+    ‘Value’
+  Undefined global functions or variables:
+    Value
+
+0 errors ✔ | 0 warnings ✔ | 2 notes ✖
+```
 
 # 11/5/2025
 
