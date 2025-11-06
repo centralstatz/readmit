@@ -43,14 +43,7 @@
 </li>
 <li>Added a README file with <code>usethis::use_readme_rmd()</code> and built default <code>.md</code> file with <code>build_readme()</code>
 </li>
-<li>Did final <code>check()</code>, still one (expected) note (will resolve later)</li>
-</ul><pre><code>  hsr_extract_coefficients: no visible binding for global variable
-    ‘Value’
-  Undefined global functions or variables:
-    Value
-
-0 errors ✔ | 0 warnings ✔ | 1 note ✖</code></pre>
-<ul><li>Added NEWS.md with <code>use_news_md()</code>
+<li>Added NEWS.md with <code>use_news_md()</code>
 </li>
 <li>Added badges (in anticipation): <code>use_cran_badge()</code>, <code>use_coverage()</code>, <code>use_github_action("check-standard")</code>
 </li>
@@ -58,29 +51,29 @@
 </li>
 <li>Started package website with <code>use_pkgdown()</code> and <code><a href="https://pkgdown.r-lib.org/reference/build_site.html" class="external-link">pkgdown::build_site()</a></code> to get initial site</li>
 <li>Then used <code>usethis::use_pkgdown_github_pages()</code> to create GitHub Actions workflow to update site on commit/push. This automatically configures on GitHub (the branch is created and my Pages are configured). But I need to push the site because no <code>pkgdown</code> stuff is there yet.</li>
-</ul></div>
-<div class="section level1">
-<h1 id="id_1152025">11/5/2025<a class="anchor" aria-label="anchor" href="#id_1152025"></a></h1>
-<ul><li>Initialized package by creating repo here: <a href="https://github.com/centralstatz/readmit" class="external-link uri">https://github.com/centralstatz/readmit</a>
-</li>
-<li>Then created <em>New Folder from Git</em> in Positron, cloning that repo</li>
-<li>Then used <code>usethis::create_package(getwd())</code> to initialize package template</li>
-<li>Added this file <code>DEVNOTES.md</code> to <code>.Rbuildignore</code>
-</li>
-<li>Ran <code>usethis::use_r("hsr_extract_coefficients")</code> to create the packages first function, which extracts the list of model coefficients from a CMS Hospital Specific Report (HSR) for a specified cohort. Added argument checks.</li>
-<li>Used <code>devtools::load_all()</code> to test it (works on locally downloaded report).</li>
-<li>Did initial <code>devtools::check()</code> and got various warnings/notes, which is expected because nothing was configured yet.</li>
-<li>Edited the <code>DESCRIPTION</code> file (with possibly to change over time as package evolves), and added MIT license with <code>usethis::use_mit_license()</code>
-</li>
-<li>Added <code>roxygen2</code> documentation to function. Used <code>devtools::document()</code> to document it. Added <code>\dontrun</code> to roxygen for function as example doesn’t work yet. Need to put external data in the package.</li>
-<li>Still have warning/note as I haven’t declared dependencies, so will do that soon.</li>
-</ul><pre><code>❯ checking R code for possible problems ... NOTE
-  hsr_extract_coefficients: no visible binding for global variable
-    ‘Value’
-  Undefined global functions or variables:
-    Value
+<li>Added example HSR report to package, following steps here: <a href="https://r-pkgs.org/data.html#sec-data-extdata" class="external-link uri">https://r-pkgs.org/data.html#sec-data-extdata</a>
+<ul><li>Made the <code>inst/extdata/</code> directory</li>
+<li>Went to QualityNet and downloaded the FY 2025 HSR (<a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab3" class="external-link uri">https://qualitynet.cms.gov/inpatient/hrrp/reports#tab3</a>) (as of 11/8/2025 @ 11:56 AM CST). Added this file to the above directory.</li>
+<li>As suggested (<a href="https://r-pkgs.org/data.html#sec-data-example-path-helper" class="external-link uri">https://r-pkgs.org/data.html#sec-data-example-path-helper</a>) I created a new helper function <code><a href="reference/hsr_example.html">hsr_example()</a></code> to help identify this file for users. <code>use_r("hsr_example")</code>. I then copied their exact function definition (with changes to reflect the current package). Added documentation. Added unit test to ensure that example file exists in user file system.</li>
+<li>Did final <code>check()</code>, still one (expected) note (will resolve later) ``` ❯ checking package subdirectories … NOTE Problems with news in ‘NEWS.md’: No news entries found.</li>
+</ul></li>
+</ul><p>❯ checking R code for possible problems … NOTE hsr_extract_coefficients: no visible binding for global variable ‘Value’ Undefined global functions or variables: Value</p>
+<p>0 errors ✔ | 0 warnings ✔ | 2 notes ✖</p>
+<pre><code>
+# 11/5/2025
 
-0 errors ✔ | 1 warning ✖ | 1 note ✖</code></pre>
+* Initialized package by creating repo here: https://github.com/centralstatz/readmit
+* Then created _New Folder from Git_ in Positron, cloning that repo
+* Then used `usethis::create_package(getwd())` to initialize package template
+* Added this file `DEVNOTES.md` to `.Rbuildignore`
+* Ran `usethis::use_r("hsr_extract_coefficients")` to create the packages first function, which extracts the list of model coefficients from a CMS Hospital Specific Report (HSR) for a specified cohort. Added argument checks.
+* Used `devtools::load_all()` to test it (works on locally downloaded report).
+* Did initial `devtools::check()` and got various warnings/notes, which is expected because nothing was configured yet.
+* Edited the `DESCRIPTION` file (with possibly to change over time as package evolves), and added MIT license with `usethis::use_mit_license()`
+* Added `roxygen2` documentation to function. Used `devtools::document()` to document it. Added `\dontrun` to roxygen for function as example doesn't work yet. Need to put external data in the package.
+* Still have warning/note as I haven't declared dependencies, so will do that soon.</code></pre>
+<p>❯ checking R code for possible problems … NOTE hsr_extract_coefficients: no visible binding for global variable ‘Value’ Undefined global functions or variables: Value</p>
+<p>0 errors ✔ | 1 warning ✖ | 1 note ✖ ```</p>
 <p>Starting <a href="https://r-pkgs.org/whole-game.html#install" class="external-link">here</a> next…</p>
 </div>
 
