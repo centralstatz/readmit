@@ -54,12 +54,13 @@
 <li>Added example HSR report to package, following steps here: <a href="https://r-pkgs.org/data.html#sec-data-extdata" class="external-link uri">https://r-pkgs.org/data.html#sec-data-extdata</a>
 <ul><li>Made the <code>inst/extdata/</code> directory</li>
 <li>Went to QualityNet and downloaded the FY 2025 HSR (<a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab3" class="external-link uri">https://qualitynet.cms.gov/inpatient/hrrp/reports#tab3</a>) (as of 11/8/2025 @ 11:56 AM CST). Added this file to the above directory.</li>
-<li>As suggested (<a href="https://r-pkgs.org/data.html#sec-data-example-path-helper" class="external-link uri">https://r-pkgs.org/data.html#sec-data-example-path-helper</a>) I created a new helper function <code><a href="reference/hsr_example.html">hsr_example()</a></code> to help identify this file for users. <code>use_r("hsr_example")</code>. I then copied their exact function definition (with changes to reflect the current package). Added documentation. Added unit test to ensure that example file exists in user file system.</li>
+<li>As suggested (<a href="https://r-pkgs.org/data.html#sec-data-example-path-helper" class="external-link uri">https://r-pkgs.org/data.html#sec-data-example-path-helper</a>) I created a new helper function <code>hsr_example()</code> to help identify this file for users. <code>use_r("hsr_example")</code>. I then copied their exact function definition (with changes to reflect the current package). Added documentation. Added unit test to ensure that example file exists in user file system.</li>
 <li>Did final <code>check()</code>, still one (expected) note (will resolve later) ``` ❯ checking package subdirectories … NOTE Problems with news in ‘NEWS.md’: No news entries found.</li>
 </ul></li>
 </ul><p>❯ checking R code for possible problems … NOTE hsr_extract_coefficients: no visible binding for global variable ‘Value’ Undefined global functions or variables: Value</p>
 <p>0 errors ✔ | 0 warnings ✔ | 2 notes ✖</p>
-<pre><code>
+<pre><code>* Added all FY mock reports to `extdata`. Used `rename_files("hsr_example", "hsr_mock_reports")` to rename the function to be more explicit. Changed all required areas to accomodate change.
+
 # 11/5/2025
 
 * Initialized package by creating repo here: https://github.com/centralstatz/readmit
