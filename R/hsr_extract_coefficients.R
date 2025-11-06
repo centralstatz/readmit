@@ -1,9 +1,9 @@
 #' Extract model coefficients from a Hospital-Specific Report (HSR)
 #'
-#' @param file A file path to a report
-#' @param cohort The program cohort to extract the model for
+#' @param file File path to a report
+#' @param cohort Program cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}
 #'
-#' @return A tibble
+#' @return A \code{\link[tibble]{tibble}}
 #' @export
 #'
 #' @examples
@@ -14,12 +14,12 @@
 hsr_extract_coefficients <-
   function(file, cohort) {
     # Check arguments
-    if (missing(file)) {
+    if (rlang::is_missing(file)) {
       stop("Specify path to a CMS HRRP Hospital-Specific Report (HSR)")
     }
-    cohort <- match.arg(
+    cohort <- rlang::arg_match(
       cohort,
-      choices = c("AMI", "COPD", "HF", "PN", "CABG", "HK")
+      values = c("AMI", "COPD", "HF", "PN", "CABG", "HK")
     )
 
     # Sheet names extracted from the report

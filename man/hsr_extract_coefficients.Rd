@@ -7,12 +7,12 @@
 hsr_extract_coefficients(file, cohort)
 }
 \arguments{
-\item{file}{A file path to a report}
+\item{file}{File path to a report}
 
-\item{cohort}{The program cohort to extract the model for}
+\item{cohort}{Program cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}}
 }
 \value{
-A tibble
+A \code{\link[tibble]{tibble}}
 }
 \description{
 Extract model coefficients from a Hospital-Specific Report (HSR)

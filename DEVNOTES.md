@@ -2,6 +2,21 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 11/6/2025
+
+* Added package dependencies for `readxl`, `stringr`, `dplyr`, `tidyr`, `rlang` with `use_package()`
+* Added unit testing structure with `use_testthat()`; created initial (toy) test for `use_test("hsr_extract_coefficients")`
+* Added a README file with `usethis::use_readme_rmd()` and built default `.md` file with `build_readme()`
+* Did final `check()`, still one (expected) note (will resolve later)
+```
+  hsr_extract_coefficients: no visible binding for global variable
+    ‘Value’
+  Undefined global functions or variables:
+    Value
+
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
+```
+
 # 11/5/2025
 
 * Initialized package by creating repo here: https://github.com/centralstatz/readmit

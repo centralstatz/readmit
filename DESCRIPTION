@@ -1,5 +1,5 @@
 Package: readmit
-Title: Tools for managing hospital readmissions
+Title: Tools for navigating, managing, and analyzing hospital readmissions
 Version: 0.0.0.9000
 Authors@R: 
     person("Alex", "Zajichek", , "alex@centralstatz.com", role = c("aut", "cre"))
@@ -8,3 +8,12 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Imports: 
+    dplyr,
+    readxl,
+    rlang,
+    stringr,
+    tidyr
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
