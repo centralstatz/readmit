@@ -3,3 +3,5 @@
 ^DEVNOTES\.md$
 ^LICENSE\.md$
 ^README\.Rmd$
+^codecov\.yml$
+^\.github$

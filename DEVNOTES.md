@@ -16,6 +16,9 @@ Contains daily notes with details about how things were developed. Primarily fol
 
 0 errors ✔ | 0 warnings ✔ | 1 note ✖
 ```
+* Added NEWS.md with `use_news_md()`
+* Added badges (in anticipation): `use_cran_badge()`, `use_coverage()`, `use_github_action("check-standard")`
+* Added logo (created with [hexmake](https://connect.thinkr.fr/hexmake/) + ChatGPT): `use_logo()`
 
 # 11/5/2025
 
