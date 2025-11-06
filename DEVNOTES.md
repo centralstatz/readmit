@@ -30,6 +30,7 @@ Contains daily notes with details about how things were developed. Primarily fol
 
 0 errors ✔ | 0 warnings ✔ | 2 notes ✖
 ```
+* Added all FY mock reports to `extdata`. Used `rename_files("hsr_example", "hsr_mock_reports")` to rename the function to be more explicit. Changed all required areas to accomodate change.
 
 # 11/5/2025
 
