@@ -1,9 +1,11 @@
 #' Extract model coefficients from a Hospital-Specific Report (HSR)
 #'
 #' @param file File path to a report
-#' @param cohort Program cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}
+#' @param cohort Cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}
 #'
-#' @return A \code{\link[tibble]{tibble}}
+#' @description Parses out the regression coefficients from the logistic regression model used by CMS to estimate discharge-level readmission risk, including the hospital-level and hospital average intercept terms.
+#'
+#' @return A \code{\link[tibble]{tibble}} containing the columns \code{Factor} and \code{Value} for the model term and coefficient value, respectively (on the linear-predictor scale).
 #' @export
 #'
 #' @examples

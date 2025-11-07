@@ -9,13 +9,13 @@ hsr_extract_coefficients(file, cohort)
 \arguments{
 \item{file}{File path to a report}
 
-\item{cohort}{Program cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}}
+\item{cohort}{Cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}}
 }
 \value{
-A \code{\link[tibble]{tibble}}
+A \code{\link[tibble]{tibble}} containing the columns \code{Factor} and \code{Value} for the model term and coefficient value, respectively (on the linear-predictor scale).
 }
 \description{
-Extract model coefficients from a Hospital-Specific Report (HSR)
+Parses out the regression coefficients from the logistic regression model used by CMS to estimate discharge-level readmission risk, including the hospital-level and hospital average intercept terms.
 }
 \examples{
 \dontrun{

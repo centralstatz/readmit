@@ -2,6 +2,23 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 11/7/2025
+
+* Initialized functions to explore/import data directory from the [Provider Data Catalog](https://data.cms.gov/provider-data/). These were adapted from a previous package I already started (https://github.com/zajichek/carecompare/blob/main/R/FUNCTIONS.R). `pdc_topics`, `pdc_datasets`, `pdc_read`. Also initialized unit test files for them.
+  + Added dependencies as well: `httr`, `readr`, `tibble`
+  + Added inital tests for all functions
+* Still have some notes about global bindings
+```
+  hsr_extract_coefficients: no visible binding for global variable
+    ‘Value’
+  pdc_datasets: no visible binding for global variable ‘issued’
+  pdc_datasets: no visible binding for global variable ‘modified’
+  Undefined global functions or variables:
+    Value issued modified
+
+0 errors ✔ | 0 warnings ✔ | 2 notes ✖
+```
+
 # 11/6/2025
 
 * Added package dependencies for `readxl`, `stringr`, `dplyr`, `tidyr`, `rlang` with `use_package()`

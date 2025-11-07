@@ -2,3 +2,6 @@
 
 export(hsr_extract_coefficients)
 export(hsr_mock_reports)
+export(pdc_datasets)
+export(pdc_read)
+export(pdc_topics)
