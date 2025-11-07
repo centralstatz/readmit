@@ -1,0 +1,19 @@
+# Authors and Citation
+
+## Authors
+
+- **Alex Zajichek**. Author, maintainer.
+
+## Citation
+
+Zajichek A (2025). *readmit: Tools for navigating, managing, and
+analyzing hospital readmissions*. R package version 0.0.0.9000,
+<https://centralstatz.github.io/readmit/>.
+
+    @Manual{,
+      title = {readmit: Tools for navigating, managing, and analyzing hospital readmissions},
+      author = {Alex Zajichek},
+      year = {2025},
+      note = {R package version 0.0.0.9000},
+      url = {https://centralstatz.github.io/readmit/},
+    }
