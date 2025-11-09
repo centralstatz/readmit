@@ -18,8 +18,6 @@ A \code{\link[tibble]{tibble}} containing the columns \code{Factor} and \code{Va
 Parses out the regression coefficients from the logistic regression model used by CMS to estimate discharge-level readmission risk, including the hospital-level and hospital average intercept terms.
 }
 \examples{
-\dontrun{
-my_report <- "Readmissions_HSR.xlsx"
+my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
 hsr_extract_coefficients(my_report, "AMI")
-}
 }

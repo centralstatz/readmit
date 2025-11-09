@@ -9,10 +9,8 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' my_report <- "Readmissions_HSR.xlsx"
+#' my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
 #' hsr_extract_coefficients(my_report, "AMI")
-#' }
 hsr_extract_coefficients <-
   function(file, cohort) {
     # Check arguments
