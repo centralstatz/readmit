@@ -30,8 +30,20 @@ coefficient value, respectively (on the linear-predictor scale).
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-my_report <- "Readmissions_HSR.xlsx"
+my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
 hsr_extract_coefficients(my_report, "AMI")
-} # }
+#> # A tibble: 33 × 2
+#>    Factor                                                                Value
+#>    <chr>                                                                 <dbl>
+#>  1 "Age Minus 65"                                                      0.00998
+#>  2 "Male"                                                             -0.0937 
+#>  3 "Anterior Myocardial Infarction \r\n"                               0.272  
+#>  4 "Non-Anterior Location of Myocardial Infarction"                    0.0160 
+#>  5 "History of Coronary Artery Bypass Graft (CABG) Surgery"            0.00330
+#>  6 "History of Percutaneous Transluminal Coronary Angioplasty (PTCA)" -0.0108 
+#>  7 "Severe Infection; Other Infectious Diseases"                       0.0181 
+#>  8 "Metastatic Cancer and Acute Leukemia"                              0.247  
+#>  9 "Cancer"                                                            0.0309 
+#> 10 "Diabetes Mellitus (DM) or DM Complications"                        0.181  
+#> # ℹ 23 more rows
 ```

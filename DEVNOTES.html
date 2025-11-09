@@ -36,6 +36,10 @@
 <p>Contains daily notes with details about how things were developed. Primarily following <a href="https://r-pkgs.org/" class="external-link uri">https://r-pkgs.org/</a>.</p>
 </div>
 <div class="section level1">
+<h1 id="id_1192025">11/9/2025<a class="anchor" aria-label="anchor" href="#id_1192025"></a></h1>
+<ul><li>Created functions to extract Table 1 HSR components: <code>hsr_extract_payment_summary</code> and individual functions. All of these are defined in the same <code>.R</code> file and are grouped in the same <code>Rd</code> file. Probably need to do some clean. Stil debating if default behavior should be a pivoted data frame or not.</li>
+</ul></div>
+<div class="section level1">
 <h1 id="id_1172025">11/7/2025<a class="anchor" aria-label="anchor" href="#id_1172025"></a></h1>
 <ul><li>Initialized functions to explore/import data directory from the <a href="https://data.cms.gov/provider-data/" class="external-link">Provider Data Catalog</a>. These were adapted from a previous package I already started (<a href="https://github.com/zajichek/carecompare/blob/main/R/FUNCTIONS.R" class="external-link uri">https://github.com/zajichek/carecompare/blob/main/R/FUNCTIONS.R</a>). <code>pdc_topics</code>, <code>pdc_datasets</code>, <code>pdc_read</code>. Also initialized unit test files for them.
 <ul><li>Added dependencies as well: <code>httr</code>, <code>readr</code>, <code>tibble</code>

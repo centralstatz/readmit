@@ -3,6 +3,14 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 11/9/2025
+
+- Created functions to extract Table 1 HSR components:
+  `hsr_extract_payment_summary` and individual functions. All of these
+  are defined in the same `.R` file and are grouped in the same `Rd`
+  file. Probably need to do some clean. Stil debating if default
+  behavior should be a pivoted data frame or not.
+
 # 11/7/2025
 
 - Initialized functions to explore/import data directory from the
