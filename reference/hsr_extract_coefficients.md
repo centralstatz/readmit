@@ -1,4 +1,4 @@
-# Extract model coefficients from a Hospital-Specific Report (HSR)
+# Extract risk model coefficients from a Hospital-Specific Report (HSR)
 
 Parses out the regression coefficients from the logistic regression
 model used by CMS to estimate discharge-level readmission risk,
@@ -23,9 +23,13 @@ hsr_extract_coefficients(file, cohort)
 
 ## Value
 
-A [`tibble`](https://tibble.tidyverse.org/reference/tibble.html)
-containing the columns `Factor` and `Value` for the model term and
-coefficient value, respectively (on the linear-predictor scale).
+A
+[`tibble::tibble()`](https://tibble.tidyverse.org/reference/tibble.html)
+containing the columns:
+
+- `Factor`: The model term name (as listed in the file)
+
+- `Value`: The model coefficient value (on the linear predictor scale)
 
 ## Examples
 

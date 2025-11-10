@@ -1,4 +1,4 @@
-# Get path to mock Hospital-Specific Reports (HSR)
+# Retrieve file location of mock Hospital-Specific Reports (HSR)
 
 Provides the location of mock HSRs downloaded from QualityNet that come
 with the package that users can import. These files are a representation
@@ -8,7 +8,7 @@ real data for national level results (e.g., model coefficients). Thus,
 it gives user ability to practice/explore package functions and
 translate them to their own hospital reports. Files include fiscal years
 (FY) 2019-2025 and were downloaded on 11/8/2025 from
-https://qualitynet.cms.gov/inpatient/hrrp/reports. File names were
+<https://qualitynet.cms.gov/inpatient/hrrp/reports>. File names were
 changed for better identifiability.
 
 ## Usage
@@ -23,6 +23,11 @@ hsr_mock_reports(path = NULL)
 
   Name of file. If NULL, all files will be listed.
 
+## Details
+
+This function was adapted from
+[`readxl::readxl_example()`](https://readxl.tidyverse.org/reference/readxl_example.html).
+
 ## Examples
 
 ``` r
@@ -33,4 +38,14 @@ hsr_mock_reports()
 #> [7] "FY2025_HRRP_MockHSR.xlsx"
 hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #> [1] "/home/runner/work/_temp/Library/readmit/extdata/FY2025_HRRP_MockHSR.xlsx"
+hsr_extract_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
+#> # A tibble: 1 × 7
+#>   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`
+#>                               <dbl>                  <dbl>                 <dbl>
+#> 1                               186                    856                 0.217
+#> # ℹ abbreviated names: ¹​`Number of Dually Eligible Stays (Numerator) [a]`,
+#> #   ²​`Total Number of Stays(Denominator) [b]`
+#> # ℹ 4 more variables: `Peer Group Assignment [d]` <dbl>,
+#> #   `Neutrality Modifier [e]` <dbl>, `Payment Reduction Percentage [f]` <dbl>,
+#> #   `Payment Adjustment Factor [g]` <dbl>
 ```

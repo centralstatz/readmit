@@ -1,37 +1,65 @@
-# Import a dataset from the Provider Data Catalog (PDC)
+# Import datasets from the Provider Data Catalog (PDC)
 
-Imports a complete dataset from the CMS Provider Data Catalog (PDC)
-(https://data.cms.gov/provider-data/). Dataset identifiers can be
-discovered on the webpage and/or with
-[`pdc_datasets`](https://centralstatz.github.io/readmit/reference/pdc_datasets.md).
+Explore and import datasets directly from the [CMS Provider Data Catalog
+(PDC)](https://data.cms.gov/provider-data/).
+
+- `pdc_topics()`: Retrieves the list of topics (subcategories) that data
+  is available for
+
+- `pdc_datasets()`: Retrieves identifiers, names, descriptions, and
+  other metadata associated with the datasets in the (optionally
+  specified) `topics`
+
+- `pdc_read()`: Imports a full dataset for the given identifier
+  (`datasetid`). These are found in `pdc_datasets()`.
 
 ## Usage
 
 ``` r
 pdc_read(datasetid, ...)
+
+pdc_datasets(topics = NULL)
+
+pdc_topics()
 ```
 
 ## Arguments
 
 - datasetid:
 
-  A dataset identifier (see
-  [`pdc_datasets`](https://centralstatz.github.io/readmit/reference/pdc_datasets.md)).
+  A dataset identifier (e.g., from `pdc_datasets()`)
 
 - ...:
 
   Additional arguments passed to
-  [`read_csv`](https://readr.tidyverse.org/reference/read_delim.html)
+  [`readr::read_csv()`](https://readr.tidyverse.org/reference/read_delim.html)
+
+- topics:
+
+  A topic to list dataset metadata for (e.g., from `pdc_topics()`)
 
 ## Value
 
-A [`tibble`](https://tibble.tidyverse.org/reference/tibble.html)
-containing the requested dataset.
+A character vector listing available data topics, or a
+[`tibble::tibble()`](https://tibble.tidyverse.org/reference/tibble.html)
+containing the requested data/metadata.
 
 ## Examples
 
 ``` r
-pdc_datasets("Hospitals") |> dplyr::filter(stringr::str_detect(title, "(?i)readmission"))
+pdc_topics()
+#>  [1] "Dialysis facilities"                   
+#>  [2] "Doctors and clinicians"                
+#>  [3] "Home health services"                  
+#>  [4] "Hospice care"                          
+#>  [5] "Hospitals"                             
+#>  [6] "Inpatient rehabilitation facilities"   
+#>  [7] "Long-term care hospitals"              
+#>  [8] "Nursing homes including rehab services"
+#>  [9] "Physician office visit costs"          
+#> [10] "Supplier directory"                    
+pdc_datasets("Hospitals") |>
+   dplyr::filter(stringr::str_detect(title, "(?i)readmission"))
 #> # A tibble: 1 × 7
 #>   datasetid topic     title        description issued     modified   downloadurl
 #>   <chr>     <chr>     <chr>        <chr>       <date>     <date>     <chr>      
