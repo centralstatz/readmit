@@ -2,7 +2,7 @@
 % Please edit documentation in R/hsr_extract_coefficients.R
 \name{hsr_extract_coefficients}
 \alias{hsr_extract_coefficients}
-\title{Extract model coefficients from a Hospital-Specific Report (HSR)}
+\title{Extract risk model coefficients from a Hospital-Specific Report (HSR)}
 \usage{
 hsr_extract_coefficients(file, cohort)
 }
@@ -12,10 +12,16 @@ hsr_extract_coefficients(file, cohort)
 \item{cohort}{Cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}}
 }
 \value{
-A \code{\link[tibble]{tibble}} containing the columns \code{Factor} and \code{Value} for the model term and coefficient value, respectively (on the linear-predictor scale).
+A \code{\link[tibble:tibble]{tibble::tibble()}} containing the columns:
+\itemize{
+\item \code{Factor}: The model term name (as listed in the file)
+\item \code{Value}: The model coefficient value (on the linear predictor scale)
+}
 }
 \description{
-Parses out the regression coefficients from the logistic regression model used by CMS to estimate discharge-level readmission risk, including the hospital-level and hospital average intercept terms.
+Parses out the regression coefficients from the logistic regression model
+used by CMS to estimate discharge-level readmission risk,
+including the hospital-level and hospital average intercept terms.
 }
 \examples{
 my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")

@@ -2,6 +2,22 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 11/10/2025
+
+* Grouping PDC functions together into common `.R` file and documentation (https://github.com/centralstatz/readmit/issues/9)
+* Updated documentation across files to better align best practices (https://r-pkgs.org/man.html#roxygen2-basics)
+* Changed the `hsr_extract_payment_summary` function to return wide format. Added helper functions (non-exported) that consolidate repeated code in convenience functions.
+* Used `use_import_from("rlang", ".data")` to resolve the global binding issue. Then in the `hsr_extract_coefficients` function, used the `.data` pronoun (`dplyr::filter(!is.na(.data$Value))`)
+* Only 1 note regarding `NEWS.md`
+
+```
+❯ checking package subdirectories ... NOTE
+  Problems with news in ‘NEWS.md’:
+  No news entries found.
+
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
+```
+
 # 11/9/2025
 
 * Created functions to extract Table 1 HSR components: `hsr_extract_payment_summary` and individual functions. All of these are defined in the same `.R` file and are grouped in the same `Rd` file. Probably need to do some clean. Stil debating if default behavior should be a pivoted data frame or not.

@@ -1,11 +1,17 @@
-#' Extract model coefficients from a Hospital-Specific Report (HSR)
+#' Extract risk model coefficients from a Hospital-Specific Report (HSR)
 #'
 #' @param file File path to a report
-#' @param cohort Cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}
+#' @param cohort Cohort to extract the coefficients for. One of `c("AMI", "COPD", "HF", "PN", "CABG", "HK")`
 #'
-#' @description Parses out the regression coefficients from the logistic regression model used by CMS to estimate discharge-level readmission risk, including the hospital-level and hospital average intercept terms.
+#' @description
+#' Parses out the regression coefficients from the logistic regression model
+#' used by CMS to estimate discharge-level readmission risk,
+#' including the hospital-level and hospital average intercept terms.
 #'
-#' @return A \code{\link[tibble]{tibble}} containing the columns \code{Factor} and \code{Value} for the model term and coefficient value, respectively (on the linear-predictor scale).
+#' @return A [tibble::tibble()] containing the columns:
+#' * `Factor`: The model term name (as listed in the file)
+#' * `Value`: The model coefficient value (on the linear predictor scale)
+#'
 #' @export
 #'
 #' @examples
@@ -53,5 +59,5 @@ hsr_extract_coefficients <-
       ) |>
 
       # Remove non-coefficient columns
-      dplyr::filter(!is.na(Value))
+      dplyr::filter(!is.na(.data$Value))
   }

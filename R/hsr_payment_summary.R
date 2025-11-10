@@ -1,15 +1,23 @@
-#' Extract payment summary information a Hospital-Specific Report (HSR)
+#' Extract payment summary information from a Hospital-Specific Report (HSR)
 #'
-#' @param file File path to a report
+#' @param file File path to a report. For convenience functions, this can also be the pre-parsed table from `hsr_extract_payment_summary()` (to minimize file I/O).
 #'
-#' @description Parses Table 1 of the Hospital-Specific Report, either altogether in a single output or each component individually.
+#' @description
+#' Parses the Table 1 payment summary from the HSR, including (but not limited to) the payment penalty,
+#' peer group the hospital was compared against, and dual proportion that determines peer group assignment.
 #'
-#' @return A \code{\link[tibble]{tibble}} containing the columns \code{Measure} and \code{Value} for the metric and value, respectively.
+#' @return
+#' * `hsr_extract_payment_summary()` returns a [tibble::tibble()] containing the full Table 1 parsed from the report.
+#' * Additional convenience functions extract specific columns from this table, and always return a numeric value.
 #' @export
 #'
 #' @examples
 #' my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
-#' hsr_extract_payment_summary(my_report)
+#' payment_summary <- hsr_extract_payment_summary(my_report)
+#' payment_summary
+#'
+#' hsr_payment_penalty(my_report)
+#' hsr_payment_penalty(payment_summary)
 hsr_extract_payment_summary <-
   function(file) {
     # Check arguments
@@ -42,13 +50,6 @@ hsr_extract_payment_summary <-
           dplyr::everything(),
           as.numeric
         )
-      ) |>
-
-      # Send down the rows
-      tidyr::pivot_longer(
-        cols = dplyr::everything(),
-        names_to = "Measure",
-        values_to = "Value"
       )
   }
 
@@ -56,114 +57,42 @@ hsr_extract_payment_summary <-
 #' @rdname hsr_extract_payment_summary
 hsr_count_dual_eligible_stays <-
   function(file) {
-    file |>
-
-      # Get the payment summary
-      hsr_extract_payment_summary() |>
-
-      # Filter to number of dually-eligible stays
-      dplyr::filter(stringr::str_detect(
-        Measure,
-        pattern = "Dual Eligible Stays"
-      )) |>
-
-      # Pull the value
-      dplyr::pull("Value")
+    hsr_get_payment_summary_column(file, "Dual Eligible Stays")
   }
 
 #' @export
 #' @rdname hsr_extract_payment_summary
 hsr_count_total_stays <-
   function(file) {
-    file |>
-
-      # Get the payment summary
-      hsr_extract_payment_summary() |>
-
-      # Filter to number of dually-eligible stays
-      dplyr::filter(stringr::str_detect(
-        Measure,
-        pattern = "Number of Stays"
-      )) |>
-
-      # Pull the value
-      dplyr::pull("Value")
+    hsr_get_payment_summary_column(file, "Number of Stays")
   }
 
 #' @export
 #' @rdname hsr_extract_payment_summary
 hsr_dual_proportion <-
   function(file) {
-    file |>
-
-      # Get the payment summary
-      hsr_extract_payment_summary() |>
-
-      # Filter to number of dually-eligible stays
-      dplyr::filter(stringr::str_detect(
-        Measure,
-        pattern = "Dual Proportion"
-      )) |>
-
-      # Pull the value
-      dplyr::pull("Value")
+    hsr_get_payment_summary_column(file, "Dual Proportion")
   }
 
 #' @export
 #' @rdname hsr_extract_payment_summary
 hsr_peer_group <-
   function(file) {
-    file |>
-
-      # Get the payment summary
-      hsr_extract_payment_summary() |>
-
-      # Filter to number of dually-eligible stays
-      dplyr::filter(stringr::str_detect(
-        Measure,
-        pattern = "Peer Group"
-      )) |>
-
-      # Pull the value
-      dplyr::pull("Value")
+    hsr_get_payment_summary_column(file, "Peer Group")
   }
 
 #' @export
 #' @rdname hsr_extract_payment_summary
 hsr_neutrality_modifier <-
   function(file) {
-    file |>
-
-      # Get the payment summary
-      hsr_extract_payment_summary() |>
-
-      # Filter to number of dually-eligible stays
-      dplyr::filter(stringr::str_detect(
-        Measure,
-        pattern = "Neutrality Modifier"
-      )) |>
-
-      # Pull the value
-      dplyr::pull("Value")
+    hsr_get_payment_summary_column(file, "Neutrality Modifier")
   }
 
 #' @export
 #' @rdname hsr_extract_payment_summary
 hsr_payment_adjustment_factor <-
   function(file) {
-    file |>
-
-      # Get the payment summary
-      hsr_extract_payment_summary() |>
-
-      # Filter to number of dually-eligible stays
-      dplyr::filter(stringr::str_detect(
-        Measure,
-        pattern = "Adjustment Factor"
-      )) |>
-
-      # Pull the value
-      dplyr::pull("Value")
+    hsr_get_payment_summary_column(file, "Adjustment Factor")
   }
 
 #' @export
@@ -172,3 +101,29 @@ hsr_payment_penalty <- function(file) {
   # Use existing extraction (not all reports have the percentage)
   1 - hsr_payment_adjustment_factor(file)
 }
+
+# Helper function to retrieve the table
+hsr_get_payment_summary_table <-
+  function(file) {
+    # If it's a string, then import the file; otherwise it's already the table
+    if (is.character(file)) {
+      file <- hsr_extract_payment_summary(file)
+    }
+
+    file
+  }
+
+# Helper function to extract the individual column value from the table
+hsr_get_payment_summary_column <-
+  function(file, col) {
+    file |>
+
+      # Get the payment summary
+      hsr_get_payment_summary_table() |>
+
+      # Select dual-eligible stays
+      dplyr::select(dplyr::matches(col)) |>
+
+      # Pull the value
+      dplyr::pull(1)
+  }

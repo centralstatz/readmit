@@ -1,15 +1,21 @@
-#' Import a dataset from the Provider Data Catalog (PDC)
+#' Import datasets from the Provider Data Catalog (PDC)
 #'
-#' @param datasetid A dataset identifier (see \code{\link{pdc_datasets}}).
-#' @param ... Additional arguments passed to \code{\link[readr]{read_csv}}
+#' @param datasetid A dataset identifier (e.g., from `pdc_datasets()`)
+#' @param ... Additional arguments passed to [readr::read_csv()]
 #'
-#' @description Imports a complete dataset from the CMS Provider Data Catalog (PDC) (https://data.cms.gov/provider-data/). Dataset identifiers can be discovered on the webpage and/or with \code{\link{pdc_datasets}}.
+#' @description
+#' Explore and import datasets directly from the [CMS Provider Data Catalog (PDC)](https://data.cms.gov/provider-data/).
+#' * `pdc_topics()`: Retrieves the list of topics (subcategories) that data is available for
+#' * `pdc_datasets()`: Retrieves identifiers, names, descriptions, and other metadata associated with the datasets in the (optionally specified) `topics`
+#' * `pdc_read()`: Imports a full dataset for the given identifier (`datasetid`). These are found in `pdc_datasets()`.
 #'
-#' @return A \code{\link[tibble]{tibble}} containing the requested dataset.
+#' @return A character vector listing available data topics, or a [tibble::tibble()] containing the requested data/metadata.
 #' @export
 #'
 #' @examples
-#' pdc_datasets("Hospitals") |> dplyr::filter(stringr::str_detect(title, "(?i)readmission"))
+#' pdc_topics()
+#' pdc_datasets("Hospitals") |>
+#'    dplyr::filter(stringr::str_detect(title, "(?i)readmission"))
 #' pdc_read("9n3s-kdb3")
 pdc_read <-
   function(datasetid, ...) {
@@ -36,4 +42,100 @@ pdc_read <-
       file = downloadurl,
       ...
     )
+  }
+
+#' @export
+#' @param topics A topic to list dataset metadata for (e.g., from `pdc_topics()`)
+#' @rdname pdc_read
+pdc_datasets <-
+  function(
+    topics = NULL # Collection of topics to return dataset information for; returns all if left NULL
+  ) {
+    # Check for input topics
+    if (is.null(topics)) {
+      topics <- pdc_topics()
+    }
+
+    # Iterate to import metadata
+    dataset_list <- list()
+    for (i in seq_along(topics)) {
+      # Extract this topic
+      this_topic <- topics[i]
+
+      # Make the url
+      url <- paste0(
+        "https://data.cms.gov/provider-data/api/1/search?sort=title&page=1&page-size=100&sort-order=asc&facets=0&theme=",
+        stringr::str_replace_all(this_topic, " ", "%20")
+      )
+
+      # Request results, extract contents
+      request <- httr::content(httr::GET(url))
+
+      # Extract the needed component
+      results <- request$results
+
+      # Iterate the response to extract metadata for each dataset
+      temp_dataset_list <- list()
+      for (j in seq_along(results)) {
+        temp_dataset_list[[j]] <- tibble::tibble(
+          datasetid = results[[j]]$identifier,
+          topic = this_topic,
+          title = results[[j]]$title,
+          description = results[[j]]$description,
+          issued = results[[j]]$issued,
+          modified = results[[j]]$modified,
+          downloadurl = results[[j]]$distribution[[1]]$downloadURL
+        )
+      }
+
+      # Bind rows
+      temp_dataset_list <- dplyr::bind_rows(temp_dataset_list)
+
+      # Add to master list
+      dataset_list[[i]] <- temp_dataset_list
+    }
+
+    dataset_list |>
+
+      # Bind rows and return
+      dplyr::bind_rows() |>
+
+      # Convert dates
+      dplyr::mutate(
+        dplyr::across(
+          dplyr::all_of(c("issued", "modified")),
+          as.Date
+        )
+      )
+  }
+
+#' @export
+#' @rdname pdc_read
+pdc_topics <-
+  function() {
+    # URL to query
+    url <- "https://data.cms.gov/provider-data/api/1/search?fulltext=theme&page=1&page-size=20&sort-order=desc&facets=theme"
+
+    # Request results
+    request <- httr::GET(url)
+
+    # Check for success
+    if (request$status_code != 200) {
+      stop("Request did not return a successful status code.")
+    }
+
+    # Extract the content
+    request <- httr::content(request)
+
+    # Extract needed components
+    results <- request$facets
+
+    # Iterate result, collect topic names
+    topics <- c()
+    for (i in seq_along(results)) {
+      topics <- c(topics, results[[i]]$name)
+    }
+
+    # Return the topics
+    topics
   }

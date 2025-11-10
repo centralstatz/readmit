@@ -2,7 +2,7 @@
 % Please edit documentation in R/hsr_mock_reports.R
 \name{hsr_mock_reports}
 \alias{hsr_mock_reports}
-\title{Get path to mock Hospital-Specific Reports (HSR)}
+\title{Retrieve file location of mock Hospital-Specific Reports (HSR)}
 \usage{
 hsr_mock_reports(path = NULL)
 }
@@ -10,9 +10,18 @@ hsr_mock_reports(path = NULL)
 \item{path}{Name of file. If NULL, all files will be listed.}
 }
 \description{
-Provides the location of mock HSRs downloaded from QualityNet that come with the package that users can import. These files are a representation of what a hospital's real report looks like when received from CMS. They contain mock data for sensitive fields (discharge level data, etc.), but real data for national level results (e.g., model coefficients). Thus, it gives user ability to practice/explore package functions and translate them to their own hospital reports. Files include fiscal years (FY) 2019-2025 and were downloaded on 11/8/2025 from https://qualitynet.cms.gov/inpatient/hrrp/reports. File names were changed for better identifiability.
+Provides the location of mock HSRs downloaded from QualityNet that come with the package that users can import.
+These files are a representation of what a hospital's real report looks like when received from CMS.
+They contain mock data for sensitive fields (discharge level data, etc.), but real data for national level results (e.g., model coefficients).
+Thus, it gives user ability to practice/explore package functions and translate them to their own hospital reports.
+Files include fiscal years (FY) 2019-2025 and were downloaded on 11/8/2025 from \url{https://qualitynet.cms.gov/inpatient/hrrp/reports}.
+File names were changed for better identifiability.
+}
+\details{
+This function was adapted from \code{\link[readxl:readxl_example]{readxl::readxl_example()}}.
 }
 \examples{
 hsr_mock_reports()
 hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+hsr_extract_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
 }

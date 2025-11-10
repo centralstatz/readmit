@@ -9,7 +9,7 @@
 \alias{hsr_neutrality_modifier}
 \alias{hsr_payment_adjustment_factor}
 \alias{hsr_payment_penalty}
-\title{Extract payment summary information a Hospital-Specific Report (HSR)}
+\title{Extract payment summary information from a Hospital-Specific Report (HSR)}
 \usage{
 hsr_extract_payment_summary(file)
 
@@ -28,15 +28,23 @@ hsr_payment_adjustment_factor(file)
 hsr_payment_penalty(file)
 }
 \arguments{
-\item{file}{File path to a report}
+\item{file}{File path to a report. For convenience functions, this can also be the pre-parsed table from \code{hsr_extract_payment_summary()} (to minimize file I/O).}
 }
 \value{
-A \code{\link[tibble]{tibble}} containing the columns \code{Measure} and \code{Value} for the metric and value, respectively.
+\itemize{
+\item \code{hsr_extract_payment_summary()} returns a \code{\link[tibble:tibble]{tibble::tibble()}} containing the full Table 1 parsed from the report.
+\item Additional convenience functions extract specific columns from this table, and always return a numeric value.
+}
 }
 \description{
-Parses Table 1 of the Hospital-Specific Report, either altogether in a single output or each component individually.
+Parses the Table 1 payment summary from the HSR, including (but not limited to) the payment penalty,
+peer group the hospital was compared against, and dual proportion that determines peer group assignment.
 }
 \examples{
 my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
-hsr_extract_payment_summary(my_report)
+payment_summary <- hsr_extract_payment_summary(my_report)
+payment_summary
+
+hsr_payment_penalty(my_report)
+hsr_payment_penalty(payment_summary)
 }

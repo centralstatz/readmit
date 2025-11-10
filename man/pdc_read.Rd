@@ -2,22 +2,37 @@
 % Please edit documentation in R/pdc_read.R
 \name{pdc_read}
 \alias{pdc_read}
-\title{Import a dataset from the Provider Data Catalog (PDC)}
+\alias{pdc_datasets}
+\alias{pdc_topics}
+\title{Import datasets from the Provider Data Catalog (PDC)}
 \usage{
 pdc_read(datasetid, ...)
+
+pdc_datasets(topics = NULL)
+
+pdc_topics()
 }
 \arguments{
-\item{datasetid}{A dataset identifier (see \code{\link{pdc_datasets}}).}
+\item{datasetid}{A dataset identifier (e.g., from \code{pdc_datasets()})}
 
-\item{...}{Additional arguments passed to \code{\link[readr]{read_csv}}}
+\item{...}{Additional arguments passed to \code{\link[readr:read_delim]{readr::read_csv()}}}
+
+\item{topics}{A topic to list dataset metadata for (e.g., from \code{pdc_topics()})}
 }
 \value{
-A \code{\link[tibble]{tibble}} containing the requested dataset.
+A character vector listing available data topics, or a \code{\link[tibble:tibble]{tibble::tibble()}} containing the requested data/metadata.
 }
 \description{
-Imports a complete dataset from the CMS Provider Data Catalog (PDC) (https://data.cms.gov/provider-data/). Dataset identifiers can be discovered on the webpage and/or with \code{\link{pdc_datasets}}.
+Explore and import datasets directly from the \href{https://data.cms.gov/provider-data/}{CMS Provider Data Catalog (PDC)}.
+\itemize{
+\item \code{pdc_topics()}: Retrieves the list of topics (subcategories) that data is available for
+\item \code{pdc_datasets()}: Retrieves identifiers, names, descriptions, and other metadata associated with the datasets in the (optionally specified) \code{topics}
+\item \code{pdc_read()}: Imports a full dataset for the given identifier (\code{datasetid}). These are found in \code{pdc_datasets()}.
+}
 }
 \examples{
-pdc_datasets("Hospitals") |> dplyr::filter(stringr::str_detect(title, "(?i)readmission"))
+pdc_topics()
+pdc_datasets("Hospitals") |>
+   dplyr::filter(stringr::str_detect(title, "(?i)readmission"))
 pdc_read("9n3s-kdb3")
 }
