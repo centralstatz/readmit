@@ -5,6 +5,9 @@
 - [`hsr_extract_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_extract_coefficients.md)
   : Extract risk model coefficients from a Hospital-Specific Report
   (HSR)
+- [`hsr_extract_cohort_summary()`](https://centralstatz.github.io/readmit/reference/hsr_extract_cohort_summary.md)
+  : Extract cohort summary information from a Hospital-Specific Report
+  (HSR)
 - [`hsr_extract_payment_summary()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
   [`hsr_count_dual_eligible_stays()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
   [`hsr_count_total_stays()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)

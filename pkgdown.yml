@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-11-10T17:56Z
+last_built: 2025-11-11T12:58Z
 urls:
   reference: https://centralstatz.github.io/readmit/reference
   article: https://centralstatz.github.io/readmit/articles
