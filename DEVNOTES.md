@@ -2,6 +2,10 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 11/11/2025
+
+
+
 # 11/10/2025
 
 * Grouping PDC functions together into common `.R` file and documentation (https://github.com/centralstatz/readmit/issues/9)
