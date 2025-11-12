@@ -1,6 +1,9 @@
 # Package index
 
-## All functions
+## Hospital-Specific Reports (HSR)
+
+Functions for extracting and analyzing data from [CMS Hospital-Specific
+Reports](https://qualitynet.cms.gov/inpatient/hrrp/reports).
 
 - [`hsr_extract_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_extract_coefficients.md)
   : Extract risk model coefficients from a Hospital-Specific Report
@@ -20,6 +23,12 @@
   (HSR)
 - [`hsr_mock_reports()`](https://centralstatz.github.io/readmit/reference/hsr_mock_reports.md)
   : Retrieve file location of mock Hospital-Specific Reports (HSR)
+
+## Provider Data Catalog (PDC)
+
+Functions for importing data from the [CMS Provider Data
+Catalog](https://data.cms.gov/provider-data/).
+
 - [`pdc_read()`](https://centralstatz.github.io/readmit/reference/pdc_read.md)
   [`pdc_datasets()`](https://centralstatz.github.io/readmit/reference/pdc_read.md)
   [`pdc_topics()`](https://centralstatz.github.io/readmit/reference/pdc_read.md)
