@@ -3,7 +3,20 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 11/12/2025
+
+- Added formatted reference index to the package website. See [this
+  issue](https://github.com/centralstatz/readmit/issues/15).
+- Added function (`hsr_extract_discharges`) to import discharges for a
+  specified cohort. Also gives the ability to keep certain columns
+  (e.g., PHI, risk factors) and certain rows (e.g., eligible discharges
+  only).
+
 # 11/11/2025
+
+- Created function to extract cohort summary
+  (`hsr_extract_cohort_summary`). See [this
+  issue](https://github.com/centralstatz/readmit/issues/10)
 
 # 11/10/2025
 

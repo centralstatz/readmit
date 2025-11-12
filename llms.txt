@@ -26,6 +26,8 @@ Reports](https://qualitynet.cms.gov/inpatient/hrrp/reports).
 - [`hsr_extract_cohort_summary()`](https://centralstatz.github.io/readmit/reference/hsr_extract_cohort_summary.md)
   : Extract cohort summary information from a Hospital-Specific Report
   (HSR)
+- [`hsr_extract_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_extract_discharges.md)
+  : Extract discharge-level data from a Hospital-Specific Report (HSR)
 - [`hsr_extract_payment_summary()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
   [`hsr_count_dual_eligible_stays()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
   [`hsr_count_total_stays()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
