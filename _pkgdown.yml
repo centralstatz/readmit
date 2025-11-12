@@ -2,3 +2,18 @@ url: https://centralstatz.github.io/readmit/
 template:
   bootstrap: 5
 
+reference:
+- title: Hospital-Specific Reports (HSR)
+  desc: >
+    Functions for extracting and analyzing data from
+    [CMS Hospital-Specific Reports](https://qualitynet.cms.gov/inpatient/hrrp/reports).
+  contents:
+  - starts_with("hsr_")
+
+- title: Provider Data Catalog (PDC)
+  desc: >
+    Functions for importing data from the
+    [CMS Provider Data Catalog](https://data.cms.gov/provider-data/).
+  contents:
+  - starts_with("pdc_")
+
