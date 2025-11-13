@@ -73,49 +73,49 @@ in
 ## Examples
 
 ``` r
-my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
+my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 hsr_extract_discharges(my_report, "HF")
-#> # A tibble: 139 × 18
-#>    `ID Number` HICNO      `MBI [a]`   `Medical Record Number` `Beneficiary DOB`
-#>          <int> <chr>      <chr>       <chr>                   <chr>            
-#>  1           1 999999999A 9999999999M MR999999999             99/99/9999       
-#>  2           2 999999999A 9999999999M MR999999999             99/99/9999       
-#>  3           3 999999999A 9999999999M MR999999999             99/99/9999       
-#>  4           4 999999999A 9999999999M MR999999999             99/99/9999       
-#>  5           5 999999999A 9999999999M MR999999999             99/99/9999       
-#>  6           6 999999999A 9999999999M MR999999999             99/99/9999       
-#>  7           7 999999999A 9999999999M MR999999999             99/99/9999       
-#>  8           8 999999999A 9999999999M MR999999999             99/99/9999       
-#>  9           9 999999999A 9999999999M MR999999999             99/99/9999       
-#> 10          10 999999999A 9999999999M MR999999999             99/99/9999       
-#> # ℹ 129 more rows
+#> # A tibble: 30 × 17
+#>    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`
+#>          <int> <chr>       <chr>                   <chr>            
+#>  1           1 9AA9AA9AA99 99999A                  99/99/9999       
+#>  2           2 9AA9AA9AA99 99999A                  99/99/9999       
+#>  3           3 9AA9AA9AA99 99999A                  99/99/9999       
+#>  4           4 9AA9AA9AA99 99999A                  99/99/9999       
+#>  5           5 9AA9AA9AA99 99999A                  99/99/9999       
+#>  6           6 9AA9AA9AA99 99999A                  99/99/9999       
+#>  7           7 9AA9AA9AA99 99999A                  99/99/9999       
+#>  8           8 9AA9AA9AA99 99999A                  99/99/9999       
+#>  9           9 9AA9AA9AA99 99999A                  99/99/9999       
+#> 10          10 9AA9AA9AA99 99999A                  99/99/9999       
+#> # ℹ 20 more rows
 #> # ℹ 13 more variables: `Admission Date of Index Stay` <chr>,
-#> #   `Discharge Date of Index Stay [b]` <chr>,
+#> #   `Discharge Date of Index Stay` <chr>,
 #> #   `Cohort Inclusion/Exclusion Indicator` <chr>, `Index Stay (Yes/No)` <chr>,
 #> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
 #> #   `Discharge Destination` <chr>,
-#> #   `Unplanned Readmission within 30 Days (Yes/No)` <chr>, …
+#> #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` <chr>, …
 hsr_extract_discharges(my_report, "HF", eligible_only = TRUE)
-#> # A tibble: 27 × 18
-#>    `ID Number` HICNO      `MBI [a]`   `Medical Record Number` `Beneficiary DOB`
-#>          <int> <chr>      <chr>       <chr>                   <chr>            
-#>  1           1 999999999A 9999999999M MR999999999             99/99/9999       
-#>  2           2 999999999A 9999999999M MR999999999             99/99/9999       
-#>  3           3 999999999A 9999999999M MR999999999             99/99/9999       
-#>  4           4 999999999A 9999999999M MR999999999             99/99/9999       
-#>  5           5 999999999A 9999999999M MR999999999             99/99/9999       
-#>  6           6 999999999A 9999999999M MR999999999             99/99/9999       
-#>  7           7 999999999A 9999999999M MR999999999             99/99/9999       
-#>  8           8 999999999A 9999999999M MR999999999             99/99/9999       
-#>  9           9 999999999A 9999999999M MR999999999             99/99/9999       
-#> 10          10 999999999A 9999999999M MR999999999             99/99/9999       
-#> # ℹ 17 more rows
+#> # A tibble: 25 × 17
+#>    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`
+#>          <int> <chr>       <chr>                   <chr>            
+#>  1           1 9AA9AA9AA99 99999A                  99/99/9999       
+#>  2           2 9AA9AA9AA99 99999A                  99/99/9999       
+#>  3           3 9AA9AA9AA99 99999A                  99/99/9999       
+#>  4           4 9AA9AA9AA99 99999A                  99/99/9999       
+#>  5           5 9AA9AA9AA99 99999A                  99/99/9999       
+#>  6           6 9AA9AA9AA99 99999A                  99/99/9999       
+#>  7           7 9AA9AA9AA99 99999A                  99/99/9999       
+#>  8           8 9AA9AA9AA99 99999A                  99/99/9999       
+#>  9           9 9AA9AA9AA99 99999A                  99/99/9999       
+#> 10          10 9AA9AA9AA99 99999A                  99/99/9999       
+#> # ℹ 15 more rows
 #> # ℹ 13 more variables: `Admission Date of Index Stay` <chr>,
-#> #   `Discharge Date of Index Stay [b]` <chr>,
+#> #   `Discharge Date of Index Stay` <chr>,
 #> #   `Cohort Inclusion/Exclusion Indicator` <chr>, `Index Stay (Yes/No)` <chr>,
 #> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
 #> #   `Discharge Destination` <chr>,
-#> #   `Unplanned Readmission within 30 Days (Yes/No)` <chr>, …
+#> #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` <chr>, …
 hsr_extract_discharges(
    file = my_report,
    cohort = "HF",
@@ -123,37 +123,37 @@ hsr_extract_discharges(
    risk_factors = TRUE,
    eligible_only = TRUE
 )
-#> # A tibble: 27 × 38
-#>    `ID Number` `Age Minus 65`  Male History of Coronary Artery Bypass Graft (C…¹
-#>          <int>          <dbl> <dbl>                                        <dbl>
-#>  1           1              3     0                                            1
-#>  2           2             24     0                                            0
-#>  3           3              8     1                                            0
-#>  4           4             14     0                                            0
-#>  5           5             11     1                                            0
-#>  6           6             30     1                                            0
-#>  7           7              3     1                                            0
-#>  8           8              2     0                                            1
-#>  9           9              7     0                                            0
-#> 10          10              7     0                                            0
-#> # ℹ 17 more rows
+#> # A tibble: 25 × 39
+#>    `ID Number` `Years Over 65 (continuous)`  Male History of Coronary Artery B…¹
+#>          <int>                        <dbl> <dbl>                          <dbl>
+#>  1           1                            8     1                              0
+#>  2           2                           25     1                              1
+#>  3           3                            9     0                              0
+#>  4           4                            9     0                              0
+#>  5           5                           30     0                              0
+#>  6           6                           13     0                              0
+#>  7           7                           12     1                              1
+#>  8           8                            7     1                              1
+#>  9           9                           25     1                              0
+#> 10          10                           22     0                              0
+#> # ℹ 15 more rows
 #> # ℹ abbreviated name: ¹​`History of Coronary Artery Bypass Graft (CABG) Surgery`
-#> # ℹ 34 more variables: `Metastatic Cancer and Acute Leukemia` <dbl>,
-#> #   Cancer <dbl>, `Diabetes Mellitus (DM) or DM Complications` <dbl>,
+#> # ℹ 35 more variables: `History of COVID-19` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>, Cancer <dbl>,
+#> #   `Diabetes Mellitus (DM) or DM Complications` <dbl>,
 #> #   `Protein-Calorie Malnutrition` <dbl>,
-#> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/\r\nAcid-base Balance` <dbl>,
-#> #   `Liver or Biliary Disease` <dbl>, …
+#> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/\r\nAcid-base Balance` <dbl>, …
 # Row count matches denominator for HF
 hsr_extract_cohort_summary(my_report)
 #> # A tibble: 6 × 10
 #>   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹
 #>   <chr>                                       <dbl>                        <dbl>
-#> 1 AMI                                            16                            2
-#> 2 COPD                                           11                            4
-#> 3 HF                                             27                            6
-#> 4 Pneumonia                                      17                            2
+#> 1 AMI                                             2                            0
+#> 2 COPD                                           18                            3
+#> 3 HF                                             25                            2
+#> 4 Pneumonia                                      32                            5
 #> 5 CABG                                           NA                           NA
-#> 6 THA/TKA                                        12                            0
+#> 6 THA/TKA                                        45                            0
 #> # ℹ abbreviated name: ¹​`Number of Readmissions Among Eligible Discharges [c]`
 #> # ℹ 7 more variables: `Predicted Readmission Rate [d]` <dbl>,
 #> #   `Expected Readmission Rate [e]` <dbl>,

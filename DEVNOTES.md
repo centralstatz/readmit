@@ -3,6 +3,12 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 11/13/2025
+
+- Created function to extract the dually-eligible stays
+  (`hsr_extract_dual_stays`).
+- Changing all examples to use the FY2025 mock report.
+
 # 11/12/2025
 
 - Added formatted reference index to the package website. See [this

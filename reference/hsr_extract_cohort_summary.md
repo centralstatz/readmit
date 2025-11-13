@@ -25,18 +25,18 @@ containing the full Table 2 parsed from the report.
 ## Examples
 
 ``` r
-my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
+my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 cohort_summary <- hsr_extract_cohort_summary(my_report)
 cohort_summary
 #> # A tibble: 6 × 10
 #>   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹
 #>   <chr>                                       <dbl>                        <dbl>
-#> 1 AMI                                            16                            2
-#> 2 COPD                                           11                            4
-#> 3 HF                                             27                            6
-#> 4 Pneumonia                                      17                            2
+#> 1 AMI                                             2                            0
+#> 2 COPD                                           18                            3
+#> 3 HF                                             25                            2
+#> 4 Pneumonia                                      32                            5
 #> 5 CABG                                           NA                           NA
-#> 6 THA/TKA                                        12                            0
+#> 6 THA/TKA                                        45                            0
 #> # ℹ abbreviated name: ¹​`Number of Readmissions Among Eligible Discharges [c]`
 #> # ℹ 7 more variables: `Predicted Readmission Rate [d]` <dbl>,
 #> #   `Expected Readmission Rate [e]` <dbl>,

@@ -34,20 +34,20 @@ containing the columns:
 ## Examples
 
 ``` r
-my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
-hsr_extract_coefficients(my_report, "AMI")
-#> # A tibble: 33 × 2
-#>    Factor                                                                Value
-#>    <chr>                                                                 <dbl>
-#>  1 "Age Minus 65"                                                      0.00998
-#>  2 "Male"                                                             -0.0937 
-#>  3 "Anterior Myocardial Infarction \r\n"                               0.272  
-#>  4 "Non-Anterior Location of Myocardial Infarction"                    0.0160 
-#>  5 "History of Coronary Artery Bypass Graft (CABG) Surgery"            0.00330
-#>  6 "History of Percutaneous Transluminal Coronary Angioplasty (PTCA)" -0.0108 
-#>  7 "Severe Infection; Other Infectious Diseases"                       0.0181 
-#>  8 "Metastatic Cancer and Acute Leukemia"                              0.247  
-#>  9 "Cancer"                                                            0.0309 
-#> 10 "Diabetes Mellitus (DM) or DM Complications"                        0.181  
-#> # ℹ 23 more rows
+my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+hsr_extract_coefficients(my_report, "HF")
+#> # A tibble: 40 × 2
+#>    Factor                                                                  Value
+#>    <chr>                                                                   <dbl>
+#>  1 "Years Over 65 (continuous)"                                         -0.00589
+#>  2 "Male"                                                               -0.0359 
+#>  3 "History of Coronary Artery Bypass Graft (CABG) Surgery"              0.0199 
+#>  4 "History of COVID-19"                                                -0.00239
+#>  5 "Metastatic Cancer and Acute Leukemia"                                0.149  
+#>  6 "Cancer"                                                              0.0126 
+#>  7 "Diabetes Mellitus (DM) or DM Complications"                          0.0968 
+#>  8 "Protein-Calorie Malnutrition"                                        0.0856 
+#>  9 "Other Significant Endocrine and Metabolic Disorders; Disorders of …  0.163  
+#> 10 "Liver or Biliary Disease"                                            0.0865 
+#> # ℹ 30 more rows
 ```

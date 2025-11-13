@@ -44,20 +44,21 @@ hsr_payment_penalty(file)
 ## Examples
 
 ``` r
-my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
+my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 payment_summary <- hsr_extract_payment_summary(my_report)
 payment_summary
-#> # A tibble: 1 × 6
-#>   Number of Dual Eligible Stays (…¹ Total Number of Stay…² `Dual Proportion [c]`
+#> # A tibble: 1 × 7
+#>   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`
 #>                               <dbl>                  <dbl>                 <dbl>
-#> 1                              2932                  27178                 0.108
-#> # ℹ abbreviated names: ¹​`Number of Dual Eligible Stays (Numerator) [a]`,
+#> 1                               186                    856                 0.217
+#> # ℹ abbreviated names: ¹​`Number of Dually Eligible Stays (Numerator) [a]`,
 #> #   ²​`Total Number of Stays(Denominator) [b]`
-#> # ℹ 3 more variables: `Peer Group Assignment [d]` <dbl>,
-#> #   `Neutrality Modifier [e]` <dbl>, `Payment Adjustment Factor [f]` <dbl>
+#> # ℹ 4 more variables: `Peer Group Assignment [d]` <dbl>,
+#> #   `Neutrality Modifier [e]` <dbl>, `Payment Reduction Percentage [f]` <dbl>,
+#> #   `Payment Adjustment Factor [g]` <dbl>
 
 hsr_payment_penalty(my_report)
-#> [1] 2e-04
+#> [1] 7e-04
 hsr_payment_penalty(payment_summary)
-#> [1] 2e-04
+#> [1] 7e-04
 ```

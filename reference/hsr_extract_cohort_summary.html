@@ -58,18 +58,18 @@ predicted/expected readmission rates, peer group medians, and DRG ratios.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">my_report</span> <span class="op">&lt;-</span> <span class="fu"><a href="hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="st">"FY2021_HRRP_MockHSR.xlsx"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">my_report</span> <span class="op">&lt;-</span> <span class="fu"><a href="hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="st">"FY2025_HRRP_MockHSR.xlsx"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cohort_summary</span> <span class="op">&lt;-</span> <span class="fu">hsr_extract_cohort_summary</span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cohort_summary</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 10</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> AMI                                            16                            2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> COPD                                           11                            4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> HF                                             27                            6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Pneumonia                                      17                            2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> AMI                                             2                            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> COPD                                           18                            3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> HF                                             25                            2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Pneumonia                                      32                            5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> CABG                                           <span style="color: #BB0000;">NA</span>                           <span style="color: #BB0000;">NA</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> THA/TKA                                        12                            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> THA/TKA                                        45                            0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ abbreviated name: ¹​`Number of Readmissions Among Eligible Discharges [c]`</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 7 more variables: `Predicted Readmission Rate [d]` &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `Expected Readmission Rate [e]` &lt;dbl&gt;,</span></span>
