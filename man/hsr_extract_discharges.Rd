@@ -45,7 +45,7 @@ Setting \code{eligible_only = TRUE} will filter the returned result to only thos
 displayed in \code{\link[=hsr_extract_cohort_summary]{hsr_extract_cohort_summary()}}.
 }
 \examples{
-my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
+my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 hsr_extract_discharges(my_report, "HF")
 hsr_extract_discharges(my_report, "HF", eligible_only = TRUE)
 hsr_extract_discharges(

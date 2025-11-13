@@ -41,7 +41,7 @@ Parses the Table 1 payment summary from the HSR, including (but not limited to) 
 peer group the hospital was compared against, and dual proportion that determines peer group assignment.
 }
 \examples{
-my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
+my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 payment_summary <- hsr_extract_payment_summary(my_report)
 payment_summary
 

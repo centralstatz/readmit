@@ -12,7 +12,7 @@
 #' @export
 #'
 #' @examples
-#' my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
+#' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #' payment_summary <- hsr_extract_payment_summary(my_report)
 #' payment_summary
 #'

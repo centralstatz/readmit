@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples
-#' my_report <- hsr_mock_reports("FY2021_HRRP_MockHSR.xlsx")
+#' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #' cohort_summary <- hsr_extract_cohort_summary(my_report)
 #' cohort_summary
 hsr_extract_cohort_summary <-
