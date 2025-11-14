@@ -24,6 +24,9 @@ used by CMS to estimate discharge-level readmission risk,
 including the hospital-level and hospital average intercept terms.
 }
 \examples{
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+# Show coefficients for heart failure model
 hsr_extract_coefficients(my_report, "HF")
 }

@@ -45,9 +45,18 @@ Setting \code{eligible_only = TRUE} will filter the returned result to only thos
 displayed in \code{\link[=hsr_extract_cohort_summary]{hsr_extract_cohort_summary()}}.
 }
 \examples{
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+# All discharges
 hsr_extract_discharges(my_report, "HF")
+
+
+# Discharges eligible for HRRP
 hsr_extract_discharges(my_report, "HF", eligible_only = TRUE)
+
+
+# Only show risk factors for eligible discharges
 hsr_extract_discharges(
    file = my_report,
    cohort = "HF",
@@ -55,6 +64,7 @@ hsr_extract_discharges(
    risk_factors = TRUE,
    eligible_only = TRUE
 )
+
 # Row count matches denominator for HF
 hsr_extract_cohort_summary(my_report)
 }

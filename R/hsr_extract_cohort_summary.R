@@ -10,9 +10,11 @@
 #' @export
 #'
 #' @examples
+#' # Access a report
 #' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
-#' cohort_summary <- hsr_extract_cohort_summary(my_report)
-#' cohort_summary
+#'
+#' # Extract the cohort summary as a dataset
+#' hsr_extract_cohort_summary(my_report)
 hsr_extract_cohort_summary <-
   function(file) {
     # Check arguments

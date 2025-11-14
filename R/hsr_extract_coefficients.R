@@ -15,7 +15,10 @@
 #' @export
 #'
 #' @examples
+#' # Access a report
 #' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+#'
+#' # Show coefficients for heart failure model
 #' hsr_extract_coefficients(my_report, "HF")
 hsr_extract_coefficients <-
   function(file, cohort) {

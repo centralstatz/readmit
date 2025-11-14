@@ -17,7 +17,9 @@ Parses the Table 2 cohort summary from the HSR, including (but not limited to) t
 predicted/expected readmission rates, peer group medians, and DRG ratios.
 }
 \examples{
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
-cohort_summary <- hsr_extract_cohort_summary(my_report)
-cohort_summary
+
+# Extract the cohort summary as a dataset
+hsr_extract_cohort_summary(my_report)
 }

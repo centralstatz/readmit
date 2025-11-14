@@ -26,6 +26,9 @@ on the share of Medicare beneficiaries who were also eligible for Medicaid benef
 in the hospital population. \code{hsr_extract_dual_stays()} extracts the list of discharges accounting for the numerator of this ratio.
 }
 \examples{
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+# Extract dually-eligible stays as a dataset
 hsr_extract_dual_stays(my_report)
 }

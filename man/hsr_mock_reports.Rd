@@ -21,7 +21,12 @@ File names were changed for better identifiability.
 This function was adapted from \code{\link[readxl:readxl_example]{readxl::readxl_example()}}.
 }
 \examples{
+# Show all available mock reports
 hsr_mock_reports()
+
+# Show path to a single report
 hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+# Use mock report for testing package functions
 hsr_extract_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
 }

@@ -13,9 +13,25 @@
 #' @export
 #'
 #' @examples
+#' # 1. See list of available data topics
 #' pdc_topics()
-#' pdc_datasets("Hospitals") |>
-#'    dplyr::filter(stringr::str_detect(title, "(?i)readmission"))
+#'
+#'
+#' # 2. See list of datasets available for a topic
+#' hospital_data <- pdc_datasets("Hospitals")
+#' hospital_data
+#'
+#' # Find a dataset you want
+#' hospital_data |>
+#'    dplyr::filter(
+#'       stringr::str_detect(
+#'          title,
+#'          pattern = "(?i)readmission"
+#'       )
+#'    )
+#'
+#'
+#' # 3. Use that data set ID to import
 #' pdc_read("9n3s-kdb3")
 pdc_read <-
   function(datasetid, ...) {
