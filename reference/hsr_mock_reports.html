@@ -70,13 +70,18 @@ File names were changed for better identifiability.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">hsr_mock_reports</span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Show all available mock reports</span></span></span>
+<span class="r-in"><span><span class="fu">hsr_mock_reports</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3] "FY2021_HRRP_MockHSR.xlsx" "FY2022_HRRP_MockHSR.xlsx"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "FY2023_HRRP_MockHSR.xlsx" "FY2024_HRRP_MockHSR.xlsx"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [7] "FY2025_HRRP_MockHSR.xlsx"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Show path to a single report</span></span></span>
 <span class="r-in"><span><span class="fu">hsr_mock_reports</span><span class="op">(</span><span class="st">"FY2025_HRRP_MockHSR.xlsx"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/home/runner/work/_temp/Library/readmit/extdata/FY2025_HRRP_MockHSR.xlsx"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use mock report for testing package functions</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="hsr_extract_payment_summary.html">hsr_extract_payment_summary</a></span><span class="op">(</span><span class="fu">hsr_mock_reports</span><span class="op">(</span><span class="st">"FY2025_HRRP_MockHSR.xlsx"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 7</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`</span>

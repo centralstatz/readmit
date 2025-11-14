@@ -44,7 +44,10 @@ hsr_payment_penalty(file)
 ## Examples
 
 ``` r
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+# Full payment summary table
 payment_summary <- hsr_extract_payment_summary(my_report)
 payment_summary
 #> # A tibble: 1 × 7
@@ -57,8 +60,12 @@ payment_summary
 #> #   `Neutrality Modifier [e]` <dbl>, `Payment Reduction Percentage [f]` <dbl>,
 #> #   `Payment Adjustment Factor [g]` <dbl>
 
+
+# Extract individual components (from file)
 hsr_payment_penalty(my_report)
 #> [1] 7e-04
+
+# Or existing extract
 hsr_payment_penalty(payment_summary)
 #> [1] 7e-04
 ```

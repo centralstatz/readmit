@@ -31,13 +31,18 @@ This function was adapted from
 ## Examples
 
 ``` r
+# Show all available mock reports
 hsr_mock_reports()
 #> [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"
 #> [3] "FY2021_HRRP_MockHSR.xlsx" "FY2022_HRRP_MockHSR.xlsx"
 #> [5] "FY2023_HRRP_MockHSR.xlsx" "FY2024_HRRP_MockHSR.xlsx"
 #> [7] "FY2025_HRRP_MockHSR.xlsx"
+
+# Show path to a single report
 hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #> [1] "/home/runner/work/_temp/Library/readmit/extdata/FY2025_HRRP_MockHSR.xlsx"
+
+# Use mock report for testing package functions
 hsr_extract_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
 #> # A tibble: 1 × 7
 #>   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`

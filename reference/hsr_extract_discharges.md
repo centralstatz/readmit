@@ -73,7 +73,10 @@ in
 ## Examples
 
 ``` r
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+# All discharges
 hsr_extract_discharges(my_report, "HF")
 #> # A tibble: 30 × 17
 #>    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`
@@ -95,6 +98,9 @@ hsr_extract_discharges(my_report, "HF")
 #> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
 #> #   `Discharge Destination` <chr>,
 #> #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` <chr>, …
+
+
+# Discharges eligible for HRRP
 hsr_extract_discharges(my_report, "HF", eligible_only = TRUE)
 #> # A tibble: 25 × 17
 #>    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`
@@ -116,6 +122,9 @@ hsr_extract_discharges(my_report, "HF", eligible_only = TRUE)
 #> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
 #> #   `Discharge Destination` <chr>,
 #> #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` <chr>, …
+
+
+# Only show risk factors for eligible discharges
 hsr_extract_discharges(
    file = my_report,
    cohort = "HF",
@@ -143,6 +152,7 @@ hsr_extract_discharges(
 #> #   `Diabetes Mellitus (DM) or DM Complications` <dbl>,
 #> #   `Protein-Calorie Malnutrition` <dbl>,
 #> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/\r\nAcid-base Balance` <dbl>, …
+
 # Row count matches denominator for HF
 hsr_extract_cohort_summary(my_report)
 #> # A tibble: 6 × 10

@@ -34,7 +34,10 @@ containing the columns:
 ## Examples
 
 ``` r
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+# Show coefficients for heart failure model
 hsr_extract_coefficients(my_report, "HF")
 #> # A tibble: 40 × 2
 #>    Factor                                                                  Value

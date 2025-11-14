@@ -3,6 +3,10 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 11/14/2025
+
+- Spacing out examples so they render better in documentation/website
+
 # 11/13/2025
 
 - Created function to extract the dually-eligible stays

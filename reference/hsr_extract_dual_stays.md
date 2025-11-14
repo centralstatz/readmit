@@ -38,7 +38,10 @@ for the numerator of this ratio.
 ## Examples
 
 ``` r
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+# Extract dually-eligible stays as a dataset
 hsr_extract_dual_stays(my_report)
 #> # A tibble: 186 × 6
 #>    `ID Number` MBI         `Beneficiary DOB` `Admission Date` `Discharge Date`

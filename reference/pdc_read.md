@@ -47,6 +47,7 @@ containing the requested data/metadata.
 ## Examples
 
 ``` r
+# 1. See list of available data topics
 pdc_topics()
 #>  [1] "Dialysis facilities"                   
 #>  [2] "Doctors and clinicians"                
@@ -58,12 +59,41 @@ pdc_topics()
 #>  [8] "Nursing homes including rehab services"
 #>  [9] "Physician office visit costs"          
 #> [10] "Supplier directory"                    
-pdc_datasets("Hospitals") |>
-   dplyr::filter(stringr::str_detect(title, "(?i)readmission"))
+
+
+# 2. See list of datasets available for a topic
+hospital_data <- pdc_datasets("Hospitals")
+hospital_data
+#> # A tibble: 67 × 7
+#>    datasetid topic     title       description issued     modified   downloadurl
+#>    <chr>     <chr>     <chr>       <chr>       <date>     <date>     <chr>      
+#>  1 wue8-3vwe Hospitals Ambulatory… This file … 2025-07-16 2025-06-27 https://da…
+#>  2 4jcv-atw7 Hospitals Ambulatory… A list of … 2025-07-16 2025-06-27 https://da…
+#>  3 axe7-s95e Hospitals Ambulatory… This file … 2025-07-16 2025-06-27 https://da…
+#>  4 hbf-map   Hospitals Birthing F… A list of … 2025-07-09 2025-07-16 https://da…
+#>  5 muwa-iene Hospitals CMS Medica… This data … 2020-12-10 2025-07-16 https://da…
+#>  6 ynj2-r877 Hospitals Complicati… Complicati… 2023-07-05 2025-07-16 https://da…
+#>  7 qqw3-t4ie Hospitals Complicati… Complicati… 2020-12-10 2025-07-16 https://da…
+#>  8 bs2r-24vh Hospitals Complicati… Complicati… 2020-12-10 2025-07-16 https://da…
+#>  9 z8ax-x9j1 Hospitals Complicati… Prospectiv… 2024-07-31 2025-07-16 https://da…
+#> 10 jfnd-nl7s Hospitals Complicati… Prospectiv… 2024-07-31 2025-07-16 https://da…
+#> # ℹ 57 more rows
+
+# Find a dataset you want
+hospital_data |>
+   dplyr::filter(
+      stringr::str_detect(
+         title,
+         pattern = "(?i)readmission"
+      )
+   )
 #> # A tibble: 1 × 7
 #>   datasetid topic     title        description issued     modified   downloadurl
 #>   <chr>     <chr>     <chr>        <chr>       <date>     <date>     <chr>      
 #> 1 9n3s-kdb3 Hospitals Hospital Re… In October… 2020-12-10 2025-01-08 https://da…
+
+
+# 3. Use that data set ID to import
 pdc_read("9n3s-kdb3")
 #> Rows: 18510 Columns: 12
 #> ── Column specification ────────────────────────────────────────────────────────

@@ -25,9 +25,11 @@ containing the full Table 2 parsed from the report.
 ## Examples
 
 ``` r
+# Access a report
 my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
-cohort_summary <- hsr_extract_cohort_summary(my_report)
-cohort_summary
+
+# Extract the cohort summary as a dataset
+hsr_extract_cohort_summary(my_report)
 #> # A tibble: 6 × 10
 #>   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹
 #>   <chr>                                       <dbl>                        <dbl>
