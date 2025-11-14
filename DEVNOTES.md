@@ -5,7 +5,29 @@ Contains daily notes with details about how things were developed. Primarily fol
 # 11/14/2025
 
 * Spacing out examples so they render better in documentation/website
+* Adding function to create individual-level readmission risks (predicted and expected). Have the global binding issue to deal with again:
 
+```
+❯ checking R code for possible problems ... NOTE
+  hsr_readmission_risks: no visible binding for global variable ‘Value’
+  hsr_readmission_risks: no visible binding for global variable ‘Factor’
+  hsr_readmission_risks: no visible binding for global variable ‘Weight’
+  hsr_readmission_risks: no visible binding for global variable ‘ID
+    Number’
+  hsr_readmission_risks: no visible binding for global variable ‘LP’
+  hsr_readmission_risks: no visible binding for global variable
+    ‘Predicted’
+  hsr_readmission_risks: no visible binding for global variable
+    ‘Expected’
+  Undefined global functions or variables:
+    Expected Factor ID Number LP Predicted Value Weight
+
+0 errors ✔ | 0 warnings ✔ | 2 notes ✖
+```
+
+But we'll carry on for now.
+
+* Also, discovered there are nuances in column names in the reports, such that some headers will have annoying special characters, so need to create more robust approach for specifiying headers (without drastically changing their source names). 
 
 # 11/13/2025
 
