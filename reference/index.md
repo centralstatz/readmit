@@ -28,6 +28,9 @@ Reports](https://qualitynet.cms.gov/inpatient/hrrp/reports).
   (HSR)
 - [`hsr_mock_reports()`](https://centralstatz.github.io/readmit/reference/hsr_mock_reports.md)
   : Retrieve file location of mock Hospital-Specific Reports (HSR)
+- [`hsr_readmission_risks()`](https://centralstatz.github.io/readmit/reference/hsr_readmission_risks.md)
+  : Compute discharge-level readmission risks in a Hospital-Specific
+  Report (HSR)
 
 ## Provider Data Catalog (PDC)
 
