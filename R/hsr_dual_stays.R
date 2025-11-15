@@ -13,7 +13,7 @@
 #'
 #' The peer group allocation done by [CMS](https://www.cms.gov/) is determined by creating hospital groupings based
 #' on the share of Medicare beneficiaries who were also eligible for Medicaid benefits, a marker of socioeconomic status
-#' in the hospital population. `hsr_extract_dual_stays()` extracts the list of discharges accounting for the numerator of this ratio.
+#' in the hospital population. `hsr_dual_stays()` extracts the list of discharges accounting for the numerator of this ratio.
 #'
 #' @return A [tibble::tibble()]
 #'
@@ -24,8 +24,8 @@
 #' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #'
 #' # Extract dually-eligible stays as a dataset
-#' hsr_extract_dual_stays(my_report)
-hsr_extract_dual_stays <-
+#' hsr_dual_stays(my_report)
+hsr_dual_stays <-
   function(file) {
     # Check arguments
     if (rlang::is_missing(file)) {

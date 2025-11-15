@@ -28,6 +28,7 @@ Contains daily notes with details about how things were developed. Primarily fol
 But we'll carry on for now.
 
 * Also, discovered there are nuances in column names in the reports, such that some headers will have annoying special characters, so need to create more robust approach for specifiying headers (without drastically changing their source names). 
+* Renaming `_extract_` functions without prefix because it isn't needed
 
 # 11/13/2025
 

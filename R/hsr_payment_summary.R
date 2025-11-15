@@ -7,7 +7,7 @@
 #' peer group the hospital was compared against, and dual proportion that determines peer group assignment.
 #'
 #' @return
-#' * `hsr_extract_payment_summary()` returns a [tibble::tibble()] containing the full Table 1 parsed from the report.
+#' * `hsr_payment_summary()` returns a [tibble::tibble()] containing the full Table 1 parsed from the report.
 #' * Additional convenience functions extract specific columns from this table, and always return a numeric value.
 #' @export
 #'
@@ -16,7 +16,7 @@
 #' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #'
 #' # Full payment summary table
-#' payment_summary <- hsr_extract_payment_summary(my_report)
+#' payment_summary <- hsr_payment_summary(my_report)
 #' payment_summary
 #'
 #'
@@ -25,7 +25,7 @@
 #'
 #' # Or existing extract
 #' hsr_payment_penalty(payment_summary)
-hsr_extract_payment_summary <-
+hsr_payment_summary <-
   function(file) {
     # Check arguments
     if (rlang::is_missing(file)) {
@@ -61,49 +61,49 @@ hsr_extract_payment_summary <-
   }
 
 #' @export
-#' @rdname hsr_extract_payment_summary
-hsr_count_dual_eligible_stays <-
+#' @rdname hsr_payment_summary
+hsr_count_dual_stays <-
   function(file) {
     hsr_get_payment_summary_column(file, "Dual Eligible Stays")
   }
 
 #' @export
-#' @rdname hsr_extract_payment_summary
+#' @rdname hsr_payment_summary
 hsr_count_total_stays <-
   function(file) {
     hsr_get_payment_summary_column(file, "Number of Stays")
   }
 
 #' @export
-#' @rdname hsr_extract_payment_summary
+#' @rdname hsr_payment_summary
 hsr_dual_proportion <-
   function(file) {
     hsr_get_payment_summary_column(file, "Dual Proportion")
   }
 
 #' @export
-#' @rdname hsr_extract_payment_summary
+#' @rdname hsr_payment_summary
 hsr_peer_group <-
   function(file) {
     hsr_get_payment_summary_column(file, "Peer Group")
   }
 
 #' @export
-#' @rdname hsr_extract_payment_summary
+#' @rdname hsr_payment_summary
 hsr_neutrality_modifier <-
   function(file) {
     hsr_get_payment_summary_column(file, "Neutrality Modifier")
   }
 
 #' @export
-#' @rdname hsr_extract_payment_summary
+#' @rdname hsr_payment_summary
 hsr_payment_adjustment_factor <-
   function(file) {
     hsr_get_payment_summary_column(file, "Adjustment Factor")
   }
 
 #' @export
-#' @rdname hsr_extract_payment_summary
+#' @rdname hsr_payment_summary
 hsr_payment_penalty <- function(file) {
   # Use existing extraction (not all reports have the percentage)
   1 - hsr_payment_adjustment_factor(file)
@@ -114,7 +114,7 @@ hsr_get_payment_summary_table <-
   function(file) {
     # If it's a string, then import the file; otherwise it's already the table
     if (is.character(file)) {
-      file <- hsr_extract_payment_summary(file)
+      file <- hsr_payment_summary(file)
     }
 
     file

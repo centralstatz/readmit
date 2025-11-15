@@ -24,7 +24,7 @@
 #'
 #' @return A [tibble::tibble()] containing the following columns:
 #'
-#' * `ID Number`: The unique discharge identifier (see [hsr_extract_discharges()])
+#' * `ID Number`: The unique discharge identifier (see [hsr_discharges()])
 #' * `Predicted`: The predicted readmission risk for the discharge
 #' * `Expected`: The expected readmission risk for the discharge
 #'
@@ -49,7 +49,7 @@
 #'
 #'
 #' # Check that this matches the report table
-#' hsr_extract_cohort_summary(my_report) |>
+#' hsr_cohort_summary(my_report) |>
 #'  dplyr::select(
 #'   dplyr::matches(
 #'      paste0(
@@ -65,7 +65,7 @@ hsr_readmission_risks <-
   function(file, cohort) {
     # Extract the discharges
     discharges <-
-      hsr_extract_discharges(
+      hsr_discharges(
         file = file,
         cohort = cohort,
         discharge_phi = FALSE,
@@ -75,7 +75,7 @@ hsr_readmission_risks <-
 
     # Extract model coefficients
     model_weights <-
-      hsr_extract_coefficients(
+      hsr_coefficients(
         file = file,
         cohort = cohort
       ) |>

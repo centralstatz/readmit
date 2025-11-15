@@ -14,7 +14,7 @@ hsr_readmission_risks(file, cohort)
 \value{
 A \code{\link[tibble:tibble]{tibble::tibble()}} containing the following columns:
 \itemize{
-\item \verb{ID Number}: The unique discharge identifier (see \code{\link[=hsr_extract_discharges]{hsr_extract_discharges()}})
+\item \verb{ID Number}: The unique discharge identifier (see \code{\link[=hsr_discharges]{hsr_discharges()}})
 \item \code{Predicted}: The predicted readmission risk for the discharge
 \item \code{Expected}: The expected readmission risk for the discharge
 }
@@ -58,7 +58,7 @@ hf_risks |>
 
 
 # Check that this matches the report table
-hsr_extract_cohort_summary(my_report) |>
+hsr_cohort_summary(my_report) |>
  dplyr::select(
   dplyr::matches(
      paste0(

@@ -16,13 +16,13 @@
 #'
 #' The risk factors contain the discharge-level clinical information used for individual risk adjustment by
 #' CMS to estimate individual level readmission rates. These can be useful to explore to understand risk factor
-#' distributions and prevalence, especially in combination with [hsr_extract_coefficients()] which indicates the
+#' distributions and prevalence, especially in combination with [hsr_coefficients()] which indicates the
 #' risk factors most heavily-weighted in the readmission risk calculation.
 #'
 #' The HSR contains discharges that were not necessarily included/eligible to be counted in the
 #' [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp).
 #' Setting `eligible_only = TRUE` will filter the returned result to only those that are eligible, and thus should match the denominator
-#' displayed in [hsr_extract_cohort_summary()].
+#' displayed in [hsr_cohort_summary()].
 #'
 #' @return A [tibble::tibble()]
 #'
@@ -33,15 +33,15 @@
 #' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #'
 #' # All discharges
-#' hsr_extract_discharges(my_report, "HF")
+#' hsr_discharges(my_report, "HF")
 #'
 #'
 #' # Discharges eligible for HRRP
-#' hsr_extract_discharges(my_report, "HF", eligible_only = TRUE)
+#' hsr_discharges(my_report, "HF", eligible_only = TRUE)
 #'
 #'
 #' # Only show risk factors for eligible discharges
-#' hsr_extract_discharges(
+#' hsr_discharges(
 #'    file = my_report,
 #'    cohort = "HF",
 #'    discharge_phi = FALSE,
@@ -50,8 +50,8 @@
 #' )
 #'
 #' # Row count matches denominator for HF
-#' hsr_extract_cohort_summary(my_report)
-hsr_extract_discharges <-
+#' hsr_cohort_summary(my_report)
+hsr_discharges <-
   function(
     file,
     cohort,

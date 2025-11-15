@@ -14,8 +14,8 @@
 #' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #'
 #' # Extract the cohort summary as a dataset
-#' hsr_extract_cohort_summary(my_report)
-hsr_extract_cohort_summary <-
+#' hsr_cohort_summary(my_report)
+hsr_cohort_summary <-
   function(file) {
     # Check arguments
     if (rlang::is_missing(file)) {

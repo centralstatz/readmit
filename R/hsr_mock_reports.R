@@ -23,7 +23,7 @@
 #' hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #'
 #' # Use mock report for testing package functions
-#' hsr_extract_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
+#' hsr_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
 hsr_mock_reports <- function(path = NULL) {
   if (is.null(path)) {
     dir(system.file("extdata", package = "readmit"))

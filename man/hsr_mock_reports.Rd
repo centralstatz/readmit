@@ -28,5 +28,5 @@ hsr_mock_reports()
 hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 
 # Use mock report for testing package functions
-hsr_extract_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
+hsr_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
 }
