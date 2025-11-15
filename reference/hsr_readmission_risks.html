@@ -54,7 +54,7 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code> containing the following columns:</p><ul><li><p><code>ID Number</code>: The unique discharge identifier (see <code><a href="hsr_extract_discharges.html">hsr_extract_discharges()</a></code>)</p></li>
+    <p>A <code><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble::tibble()</a></code> containing the following columns:</p><ul><li><p><code>ID Number</code>: The unique discharge identifier (see <code><a href="hsr_discharges.html">hsr_discharges()</a></code>)</p></li>
 <li><p><code>Predicted</code>: The predicted readmission risk for the discharge</p></li>
 <li><p><code>Expected</code>: The expected readmission risk for the discharge</p></li>
 </ul></div>
@@ -110,7 +110,7 @@ is then used as the cohort-specific comparison metric. Thus, it is a comparative
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check that this matches the report table</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="hsr_extract_cohort_summary.html">hsr_extract_cohort_summary</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="hsr_cohort_summary.html">hsr_cohort_summary</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">matches</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>     <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span></span>

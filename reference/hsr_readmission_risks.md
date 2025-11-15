@@ -27,7 +27,7 @@ A
 containing the following columns:
 
 - `ID Number`: The unique discharge identifier (see
-  [`hsr_extract_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_extract_discharges.md))
+  [`hsr_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_discharges.md))
 
 - `Predicted`: The predicted readmission risk for the discharge
 
@@ -102,7 +102,7 @@ hf_risks |>
 
 
 # Check that this matches the report table
-hsr_extract_cohort_summary(my_report) |>
+hsr_cohort_summary(my_report) |>
  dplyr::select(
   dplyr::matches(
      paste0(

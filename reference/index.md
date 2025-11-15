@@ -5,29 +5,29 @@
 Functions for extracting and analyzing data from [CMS Hospital-Specific
 Reports](https://qualitynet.cms.gov/inpatient/hrrp/reports).
 
-- [`hsr_extract_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_extract_coefficients.md)
+- [`hsr_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_coefficients.md)
   : Extract risk model coefficients from a Hospital-Specific Report
   (HSR)
-- [`hsr_extract_cohort_summary()`](https://centralstatz.github.io/readmit/reference/hsr_extract_cohort_summary.md)
+- [`hsr_cohort_summary()`](https://centralstatz.github.io/readmit/reference/hsr_cohort_summary.md)
   : Extract cohort summary information from a Hospital-Specific Report
   (HSR)
-- [`hsr_extract_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_extract_discharges.md)
+- [`hsr_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_discharges.md)
   : Extract discharge-level data from a Hospital-Specific Report (HSR)
-- [`hsr_extract_dual_stays()`](https://centralstatz.github.io/readmit/reference/hsr_extract_dual_stays.md)
+- [`hsr_dual_stays()`](https://centralstatz.github.io/readmit/reference/hsr_dual_stays.md)
   : Extract dually-eligible discharges from a Hospital-Specific Report
-  (HSR)
-- [`hsr_extract_payment_summary()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
-  [`hsr_count_dual_eligible_stays()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
-  [`hsr_count_total_stays()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
-  [`hsr_dual_proportion()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
-  [`hsr_peer_group()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
-  [`hsr_neutrality_modifier()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
-  [`hsr_payment_adjustment_factor()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
-  [`hsr_payment_penalty()`](https://centralstatz.github.io/readmit/reference/hsr_extract_payment_summary.md)
-  : Extract payment summary information from a Hospital-Specific Report
   (HSR)
 - [`hsr_mock_reports()`](https://centralstatz.github.io/readmit/reference/hsr_mock_reports.md)
   : Retrieve file location of mock Hospital-Specific Reports (HSR)
+- [`hsr_payment_summary()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+  [`hsr_count_dual_stays()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+  [`hsr_count_total_stays()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+  [`hsr_dual_proportion()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+  [`hsr_peer_group()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+  [`hsr_neutrality_modifier()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+  [`hsr_payment_adjustment_factor()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+  [`hsr_payment_penalty()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+  : Extract payment summary information from a Hospital-Specific Report
+  (HSR)
 - [`hsr_readmission_risks()`](https://centralstatz.github.io/readmit/reference/hsr_readmission_risks.md)
   : Compute discharge-level readmission risks in a Hospital-Specific
   Report (HSR)

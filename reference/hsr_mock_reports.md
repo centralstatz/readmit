@@ -43,7 +43,7 @@ hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
 #> [1] "/home/runner/work/_temp/Library/readmit/extdata/FY2025_HRRP_MockHSR.xlsx"
 
 # Use mock report for testing package functions
-hsr_extract_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
+hsr_payment_summary(hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx"))
 #> # A tibble: 1 × 7
 #>   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`
 #>                               <dbl>                  <dbl>                 <dbl>
