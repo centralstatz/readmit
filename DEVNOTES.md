@@ -2,6 +2,19 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 11/21/2025
+* Adding an extenal dataset containing key dates for HRRP (https://r-pkgs.org/data.html#sec-data-data). This will be available to users but also available internally to my functions.
+
+
+# 11/17/2025
+
+* Decided not to do a timeline function because it's static output; can just direct people to CMS docs in documentation
+* Instead, just having a single function `hrrp_program_year` that actually returns program year for a vector of inputs which can be useful for a dataset
+
+# 11/15/2025
+
+* Making a function called `hrrp_timeline` which will take one or more dates and return import dates in context to that date around the HRRP program. Default to current date.
+
 # 11/14/2025
 
 * Spacing out examples so they render better in documentation/website
