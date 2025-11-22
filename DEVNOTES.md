@@ -2,7 +2,12 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 11/22/2025
+
+* Changed timeline function to be `hrrp_get_dates`. For now, it just takes one date object and returns a subset of the included tables based on input setttings. Sufficient for now until different functionality needed.
+
 # 11/21/2025
+
 * Adding an extenal dataset containing key dates for HRRP (https://r-pkgs.org/data.html#sec-data-data). This will be available to users but also available internally to my functions.
 
 
