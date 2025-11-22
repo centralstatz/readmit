@@ -17,3 +17,10 @@ reference:
   contents:
   - starts_with("pdc_")
 
+- title: Hospital Readmissions Reduction Program (hrrp)
+  desc: >
+    Datasets and functions for extracting key dates from the
+    [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
+  contents:
+  - starts_with("hrrp_")
+
