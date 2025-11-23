@@ -9,7 +9,7 @@ hrrp_get_dates(ref, period = c("payment", "performance"), discharge = TRUE)
 \arguments{
 \item{ref}{A \code{Date} object}
 
-\item{period}{The program period to extract dates for. One of \code{c("payment", "performance", "review")}.}
+\item{period}{The program period to extract dates for. One of \code{c("payment", "performance")}.}
 
 \item{discharge}{Should the \code{ref} date be taken as a \emph{discharge} date? Defaults to \code{TRUE}. If \code{FALSE}, it's taken to be a penalty/program date.}
 }

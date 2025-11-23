@@ -1,7 +1,7 @@
 #' Find relevant dates from the Hospital Readmissions Reduction Program (HRRP)
 #'
 #' @param ref A `Date` object
-#' @param period The program period to extract dates for. One of `c("payment", "performance", "review")`.
+#' @param period The program period to extract dates for. One of `c("payment", "performance")`.
 #' @param discharge Should the `ref` date be taken as a _discharge_ date? Defaults to `TRUE`. If `FALSE`, it's taken to be a penalty/program date.
 #'
 #' @description
@@ -87,12 +87,4 @@ hrrp_get_dates <-
 
       # Filter to previously-found years
       dplyr::filter(ProgramYear %in% program_years)
-
-    # 4 possibilities to return a date (range)
-    # 1. If period is payment
-    # a. If type = discharge; return the dates where payments would occur for that discharge
-    # b. If type = program; return the dates corresponding to the current payment period that overlaps that date
-    # 2. If period is performance
-    # a. If type = discharge; return dates that correspond to the performance period capturing that discharge date
-    # b. If type = program; return the performance period for the program year in the entered reference date
   }

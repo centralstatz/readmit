@@ -1,8 +1,24 @@
 url: https://centralstatz.github.io/readmit/
 template:
   bootstrap: 5
+  bslib:
+    bg: "#F6E2BE"
+    fg: "#4E6E57"
+    primary: "#4E6E57"
+    border-color: "#4E6E57"
+    navbar-bg: "#F2D197"
+    base_font: {google: "Lexend"}
+    heading_font: {google: "Tomorrow"}
+    code_font: {google: "JetBrains Mono"}
 
 reference:
+- title: Hospital Readmissions Reduction Program (hrrp)
+  desc: >
+    Datasets and functions for extracting key dates from the
+    [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
+  contents:
+  - starts_with("hrrp_")
+
 - title: Hospital-Specific Reports (HSR)
   desc: >
     Functions for extracting and analyzing data from
@@ -16,11 +32,4 @@ reference:
     [CMS Provider Data Catalog](https://data.cms.gov/provider-data/).
   contents:
   - starts_with("pdc_")
-
-- title: Hospital Readmissions Reduction Program (hrrp)
-  desc: >
-    Datasets and functions for extracting key dates from the
-    [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
-  contents:
-  - starts_with("hrrp_")
 
