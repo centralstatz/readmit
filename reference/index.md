@@ -1,5 +1,22 @@
 # Package index
 
+## Hospital Readmissions Reduction Program (hrrp)
+
+Datasets and functions for extracting key dates from the [Hospital
+Readmissions Reduction Program
+(HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
+
+- [`hrrp_get_dates()`](https://centralstatz.github.io/readmit/reference/hrrp_get_dates.md)
+  : Find relevant dates from the Hospital Readmissions Reduction Program
+  (HRRP)
+- [`hrrp_keydates`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
+  [`hrrp_performance_periods`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
+  [`hrrp_payment_periods`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
+  [`hrrp_review_periods`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
+  [`hrrp_snapshot_dates`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
+  [`hrrp_cohort_inclusion`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
+  : Key dates from the Hospital Readmissions Reduction Program (HRRP)
+
 ## Hospital-Specific Reports (HSR)
 
 Functions for extracting and analyzing data from [CMS Hospital-Specific
@@ -41,20 +58,3 @@ Catalog](https://data.cms.gov/provider-data/).
   [`pdc_datasets()`](https://centralstatz.github.io/readmit/reference/pdc_read.md)
   [`pdc_topics()`](https://centralstatz.github.io/readmit/reference/pdc_read.md)
   : Import datasets from the Provider Data Catalog (PDC)
-
-## Hospital Readmissions Reduction Program (hrrp)
-
-Datasets and functions for extracting key dates from the [Hospital
-Readmissions Reduction Program
-(HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
-
-- [`hrrp_get_dates()`](https://centralstatz.github.io/readmit/reference/hrrp_get_dates.md)
-  : Find relevant dates from the Hospital Readmissions Reduction Program
-  (HRRP)
-- [`hrrp_keydates`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
-  [`hrrp_performance_periods`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
-  [`hrrp_payment_periods`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
-  [`hrrp_review_periods`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
-  [`hrrp_snapshot_dates`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
-  [`hrrp_cohort_inclusion`](https://centralstatz.github.io/readmit/reference/hrrp_keydates.md)
-  : Key dates from the Hospital Readmissions Reduction Program (HRRP)

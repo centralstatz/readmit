@@ -22,7 +22,7 @@ hrrp_get_dates(ref, period = c("payment", "performance"), discharge = TRUE)
 - period:
 
   The program period to extract dates for. One of
-  `c("payment", "performance", "review")`.
+  `c("payment", "performance")`.
 
 - discharge:
 

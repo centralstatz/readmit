@@ -3,6 +3,12 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 11/23/2025
+
+- Added a custom color scheme to package site. Used HEX color picker and
+  uploaded package logo, then used those colors to specify
+  background/font colors, and used Google fonts.
+
 # 11/22/2025
 
 - Changed timeline function to be `hrrp_get_dates`. For now, it just
