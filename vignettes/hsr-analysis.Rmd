@@ -1,0 +1,23 @@
+---
+title: "Investigating a Hospital-Specific Report (HSR)"
+subtitle: "Analysis ideas for gaining insight into HRRP program results"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{hsr-analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+_Work in progress_
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(readmit)
+hsr_mock_reports()
+```

@@ -18,9 +18,12 @@ Imports:
     tibble,
     tidyr
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://centralstatz.github.io/readmit/
 Depends: 
     R (>= 3.5)
 LazyData: true
+VignetteBuilder: knitr

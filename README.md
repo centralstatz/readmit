@@ -13,8 +13,9 @@ coverage](https://codecov.io/gh/centralstatz/readmit/graph/badge.svg)](https://a
 [![R-CMD-check](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of readmit is to provide tools to make navigating, managing,
-and analyzing hospital readmissions easier and more transparent.
+The goal of `readmit` is to make components of navigating, managing, and
+analyzing hospital readmissions easier and more transparent. Ultimately,
+keeping patients out of the hospital.
 
 ## Installation
 
@@ -24,4 +25,471 @@ You can install the development version of readmit from
 ``` r
 # install.packages("pak")
 pak::pak("centralstatz/readmit")
+```
+
+# Background
+
+A *readmission* occurs when a patient is admitted to the hospital,
+again, after they were recently discharged (where 30 days is the typical
+time frame used between hospitalizations). First and foremost, it is an
+obvious burden to patients for multiple reasons (i.e., psychologically,
+financially, etc.).
+
+Additionally, hospitals across the United States are
+[penalized](https://qualitynet.cms.gov/inpatient/hrrp/methodology) by
+the [Centers for Medicare & Medicaid Services
+(CMS)](https://www.cms.gov/) on an annual basis in what is called the
+[Hospital Readmissions Reduction Program
+(HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp).
+In this program, up to 3% of Medicare reimbursement is witheld from
+hospitals for the duration of a [fiscal
+year](https://www.usa.gov/federal-budget-process) depending on the
+volume of [excess
+readmissions](https://qualitynet.cms.gov/inpatient/hrrp/measures#:~:text=Planned%20Readmission%20Algorithm.-,Excess%20Readmission%20Ratio,-The%20excess%20readmission)
+in [select patient
+populations](https://www.cms.gov/medicare/quality/value-based-programs/hospital-readmissions#:~:text=What%20measures%20are%20included%20in%20the%20Hospital%20Readmissions%20Reduction%20Program%3F)
+during a preceding [performance
+period](https://qualitynet.cms.gov/inpatient/hrrp/resources).
+Readmissions also show up in other payer contracts, such as commericial
+insurers. Thus, it is a key area of focus for hospitals and part of the
+general measure of overall health of clinical and financial operations.
+
+Typically, cross-functional teams are deployed within health systems to
+monitor and develop initiatives, interventions, and overall strategy to
+manage and prevent readmissions. This includes things like care
+coordination and patient outreach, as well as how to incorporate
+technology such as predictive analytics to identify high-risk patients
+and prevent readmissions before they occur.
+
+## The Problems
+
+The issues in doing this flawlessly are multi-factorial, but we’ll list
+a few that we see relevant to this package:
+
+- **Reporting lineage**: It is often difficult to have seamless line of
+  sight and reconcile hospital-wide metrics (e.g., overall readmission
+  rates, penalty amounts, etc.) down to individual patients and their
+  associated impact. There are many reasons for this: some may be
+  technical (e.g., reporting tools, data collection, systems/personnel
+  constraints), but some are due to complexities of hospital operations:
+  varying definitions of metrics (e.g., how do we define readmissions?),
+  diverse patient populations (e.g., which patients should/should not be
+  included in the rates?), differential impact on outcomes (e.g., only
+  Medicare patients contribute to the penalty but the hospital cares
+  about readmissions for all patients). <br>
+
+- **Payor Contracts/Reimbursement**: Readmissions have different
+  implications depending on whose paying for the service (among other
+  things). It is difficult to disentangle and account for these nuances
+  (especially in reporting/metrics) when developing readmission
+  prevention strategies while optimizing financial health. <br>
+
+- **Oversaturation of research**: Readmissions has a [large body of
+  research](https://pubmed.ncbi.nlm.nih.gov/?term=predicting+readmissions).
+  As a result, hospitals are thrown all kinds of “evidence” about how
+  they should prevent readmissions, but it’s difficult to confidently
+  translate and distill that to a localized, optimized, actionable
+  program for any one hospital, especially when it’s conflicting. <br>
+
+- **Over-reliance of risk tools**: Especially in the hype of AI, machine
+  learning (ML), etc., there are various vendor platforms and risk tools
+  that purport to predict readmissions. The issue comes with how they
+  are implemented into clinical workflows. These models may be good
+  *statistically*, but must be implemented with intention and
+  cross-functional teamwork for them to actually be useful. AI is not
+  magic! <br>
+
+- **Complexity of government programs**: The
+  [HRRP](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
+  has many moving parts and details that make it difficult to track
+  what’s really going on. This includes the timing of the discharges
+  that are actually counted in the program relative to when payment
+  penalties are applied, the diagnosis codes and claims documentation
+  used to identify patients to include, the statistical methodology
+  behind the scenes that power program metrics, and the way all of that
+  rolls up into a penalty percentage amount administered to the
+  hospital, among other things. Each of these details have deep nuances
+  that have tangible impact.
+
+<br>
+
+This package is meant to provide tools to help with components of these
+issues. In particular, the current state of the package focuses on the
+last item, making it easier to analyze information related to the
+[HRRP](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp).
+Over time, we hope this scope widens.
+
+# Examples
+
+Here are a few ways to use the package.
+
+``` r
+library(readmit)
+```
+
+## Extracting key dates from the HRRP
+
+An important piece of the
+[HRRP](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
+is to understand the timelines and dates associated with the program. We
+provide built-in datasets to conveniently access these dates (see
+`?hrrp_keydates`). For example, `hrrp_performance_periods` provides the
+date ranges for discharges that are included in each program year:
+
+``` r
+hrrp_performance_periods
+#>    ProgramYear  StartDate    EndDate
+#> 1         2027 2023-07-01 2025-06-30
+#> 2         2026 2021-07-01 2024-06-30
+#> 3         2025 2020-07-01 2023-06-30
+#> 4         2024 2019-07-01 2019-12-01
+#> 5         2024 2020-07-01 2022-06-30
+#> 6         2023 2018-07-01 2019-12-01
+#> 7         2023 2020-07-01 2021-06-30
+#> 8         2022 2017-07-01 2019-12-01
+#> 9         2021 2016-07-01 2019-06-30
+#> 10        2020 2015-07-01 2018-06-30
+#> 11        2019 2014-07-01 2017-06-30
+```
+
+And `hrrp_snapshot_dates` provides the date that CMS took the extract of
+claims data for each program year:
+
+``` r
+hrrp_snapshot_dates
+#>   ProgramYear SnapshotDate
+#> 1        2027   2025-09-30
+#> 2        2026   2024-10-22
+#> 3        2025   2023-10-13
+#> 4        2024   2022-09-30
+#> 5        2023   2021-09-24
+#> 6        2022   2020-09-25
+#> 7        2021   2019-09-27
+#> 8        2020   2018-09-28
+#> 9        2019   2017-09-29
+```
+
+Or, all of the individual `hrrp_*` datasets are pre-joined in
+`hrrp_keydates`:
+
+``` r
+hrrp_keydates
+#>    ProgramYear PerformanceStartDate PerformanceEndDate PaymentStartDate
+#> 1         2027           2023-07-01         2025-06-30       2026-10-01
+#> 2         2026           2021-07-01         2024-06-30       2025-10-01
+#> 3         2025           2020-07-01         2023-06-30       2024-10-01
+#> 4         2024           2019-07-01         2019-12-01       2023-10-01
+#> 5         2024           2020-07-01         2022-06-30       2023-10-01
+#> 6         2023           2018-07-01         2019-12-01       2022-10-01
+#> 7         2023           2020-07-01         2021-06-30       2022-10-01
+#> 8         2022           2017-07-01         2019-12-01       2021-10-01
+#> 9         2021           2016-07-01         2019-06-30       2020-10-01
+#> 10        2020           2015-07-01         2018-06-30       2019-10-01
+#> 11        2019           2014-07-01         2017-06-30       2018-10-01
+#>    PaymentEndDate ReviewStartDate ReviewEndDate SnapshotDate AMI COPD HF PN
+#> 1      2027-09-30            <NA>          <NA>   2025-09-30   1    1  1  1
+#> 2      2026-09-30      2025-08-12    2025-09-10   2024-10-22   1    1  1  1
+#> 3      2025-09-30      2024-08-12    2024-09-10   2023-10-13   1    1  1  1
+#> 4      2024-09-30      2023-08-08    2023-09-07   2022-09-30   1    1  1  1
+#> 5      2024-09-30      2023-08-08    2023-09-07   2022-09-30   1    1  1  1
+#> 6      2023-09-30      2022-08-08    2022-09-07   2021-09-24   1    1  1  0
+#> 7      2023-09-30      2022-08-08    2022-09-07   2021-09-24   1    1  1  0
+#> 8      2022-09-30      2021-08-09    2021-09-08   2020-09-25   1    1  1  1
+#> 9      2021-09-30      2020-08-10    2020-09-09   2019-09-27   1    1  1  1
+#> 10     2020-09-30      2019-08-09    2019-09-09   2018-09-28   1    1  1  1
+#> 11     2019-09-30      2018-08-06    2018-09-05   2017-09-29   1    1  1  1
+#>    CABG HK
+#> 1     1  1
+#> 2     1  1
+#> 3     1  1
+#> 4     1  1
+#> 5     1  1
+#> 6     1  1
+#> 7     1  1
+#> 8     1  1
+#> 9     1  1
+#> 10    1  1
+#> 11    1  1
+```
+
+### Finding relevant program dates
+
+We can also use the `hrrp_get_dates()` function to extract relevant time
+periods for an inputted date. For example:
+
+- *“What is the performance period for payments my hospital is currently
+  being penalized for?”*
+
+``` r
+hrrp_get_dates(Sys.Date(), "performance", discharge = FALSE)
+#> # A tibble: 1 × 3
+#>   ProgramYear StartDate  EndDate   
+#>         <dbl> <chr>      <chr>     
+#> 1        2026 2021-07-01 2024-06-30
+```
+
+- *“What payment periods did a discharge from 1/1/2022 impact?”*
+
+``` r
+hrrp_get_dates(as.Date("2022-01-01"), "payment", discharge = TRUE)
+#> # A tibble: 3 × 3
+#>   ProgramYear StartDate  EndDate   
+#>         <int> <date>     <date>    
+#> 1        2026 2025-10-01 2026-09-30
+#> 2        2025 2024-10-01 2025-09-30
+#> 3        2024 2023-10-01 2024-09-30
+```
+
+We can see that not only are the discharges that impact *today’s*
+payment reductions multiple years old, but also individual discharges
+(and their associated readmissions) can impact the program result for
+three (3) years in a row.
+
+## Analyzing hospital reports
+
+[CMS](https://www.cms.gov/) sends out [Hospital-Specific Reports
+(HSR)](https://qualitynet.cms.gov/inpatient/hrrp/reports) each program
+year detailing the calculations of the payment reduction for the
+upcoming fiscal year (hospitals are given a 1-month period to review and
+submit corrections, the dates of which can be accessed with
+`hrrp_review_periods`). These reports contain the penalty amount down to
+the individual, line-item discharges that were included in the program.
+The package functions prefixed like `hsr_*` are meant to be used with
+them. For example, we can use the `hsr_discharges` function to extract
+discharge-level data for the heart failure cohort included in the
+readmission denominator into a clean data frame:
+
+``` r
+# Mock report from QualityNet
+my_hsr <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+
+hsr_discharges(
+  file = my_hsr,
+  cohort = "HF",
+  eligible_only = TRUE
+)
+#> # A tibble: 25 × 17
+#>    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`
+#>          <int> <chr>       <chr>                   <chr>            
+#>  1           1 9AA9AA9AA99 99999A                  99/99/9999       
+#>  2           2 9AA9AA9AA99 99999A                  99/99/9999       
+#>  3           3 9AA9AA9AA99 99999A                  99/99/9999       
+#>  4           4 9AA9AA9AA99 99999A                  99/99/9999       
+#>  5           5 9AA9AA9AA99 99999A                  99/99/9999       
+#>  6           6 9AA9AA9AA99 99999A                  99/99/9999       
+#>  7           7 9AA9AA9AA99 99999A                  99/99/9999       
+#>  8           8 9AA9AA9AA99 99999A                  99/99/9999       
+#>  9           9 9AA9AA9AA99 99999A                  99/99/9999       
+#> 10          10 9AA9AA9AA99 99999A                  99/99/9999       
+#> # ℹ 15 more rows
+#> # ℹ 13 more variables: `Admission Date of Index Stay` <chr>,
+#> #   `Discharge Date of Index Stay` <chr>,
+#> #   `Cohort Inclusion/Exclusion Indicator` <chr>, `Index Stay (Yes/No)` <chr>,
+#> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
+#> #   `Discharge Destination` <chr>,
+#> #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` <chr>, …
+```
+
+We could also extract the risk factors for each patient used in the
+statistical models developed by CMS to estimate adjusted readmission
+risk:
+
+``` r
+hsr_discharges(
+  file = my_hsr,
+  cohort = "HF",
+  eligible_only = TRUE,
+  risk_factors = TRUE,
+  discharge_phi = FALSE
+)
+#> # A tibble: 25 × 39
+#>    `ID Number` `Years Over 65 (continuous)`  Male History of Coronary Artery B…¹
+#>          <int>                        <dbl> <dbl>                          <dbl>
+#>  1           1                            8     1                              0
+#>  2           2                           25     1                              1
+#>  3           3                            9     0                              0
+#>  4           4                            9     0                              0
+#>  5           5                           30     0                              0
+#>  6           6                           13     0                              0
+#>  7           7                           12     1                              1
+#>  8           8                            7     1                              1
+#>  9           9                           25     1                              0
+#> 10          10                           22     0                              0
+#> # ℹ 15 more rows
+#> # ℹ abbreviated name: ¹​`History of Coronary Artery Bypass Graft (CABG) Surgery`
+#> # ℹ 35 more variables: `History of COVID-19` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>, Cancer <dbl>,
+#> #   `Diabetes Mellitus (DM) or DM Complications` <dbl>,
+#> #   `Protein-Calorie Malnutrition` <dbl>,
+#> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/\r\nAcid-base Balance` <dbl>, …
+```
+
+We could then choose to extract the actual model coefficients (weights)
+that get applied to the patient risk factors:
+
+``` r
+hsr_coefficients(
+  file = my_hsr,
+  cohort = "HF"
+)
+#> # A tibble: 40 × 2
+#>    Factor                                                                  Value
+#>    <chr>                                                                   <dbl>
+#>  1 "Years Over 65 (continuous)"                                         -0.00589
+#>  2 "Male"                                                               -0.0359 
+#>  3 "History of Coronary Artery Bypass Graft (CABG) Surgery"              0.0199 
+#>  4 "History of COVID-19"                                                -0.00239
+#>  5 "Metastatic Cancer and Acute Leukemia"                                0.149  
+#>  6 "Cancer"                                                              0.0126 
+#>  7 "Diabetes Mellitus (DM) or DM Complications"                          0.0968 
+#>  8 "Protein-Calorie Malnutrition"                                        0.0856 
+#>  9 "Other Significant Endocrine and Metabolic Disorders; Disorders of …  0.163  
+#> 10 "Liver or Biliary Disease"                                            0.0865 
+#> # ℹ 30 more rows
+```
+
+These tables can be joined together and each patient’s readmission risk
+that CMS used can be computed and analyzed. Or, we can use the
+`hsr_readmission_risks()` function to do this for us:
+
+``` r
+hsr_readmission_risks(
+  file = my_hsr,
+  cohort = "HF"
+)
+#> # A tibble: 25 × 3
+#>    `ID Number` Predicted Expected
+#>          <int>     <dbl>    <dbl>
+#>  1           1    0.258    0.264 
+#>  2           2    0.186    0.192 
+#>  3           3    0.184    0.189 
+#>  4           4    0.188    0.193 
+#>  5           5    0.0857   0.0885
+#>  6           6    0.133    0.138 
+#>  7           7    0.110    0.113 
+#>  8           8    0.183    0.188 
+#>  9           9    0.163    0.168 
+#> 10          10    0.179    0.184 
+#> # ℹ 15 more rows
+```
+
+As you can see, there are many ways to use the information in these
+reports to gain insight into readmissions at your hospital. Further
+analysis strategies can be explored in the associated vignette:
+
+``` r
+vignette("hsr-analysis")
+```
+
+## Importing data from the Provider Data Catalog
+
+[CMS](https://www.cms.gov/) provides access to a large repository of
+datasets in the [Provider Data Catalog
+(PDC)](https://data.cms.gov/provider-data/), which includes, among many
+other datasets, readmission measures and HRRP program results for
+hospitals around the United States. The package functions prefixed like
+`pdc_*` are general functions to explore and import metadata/datasets
+straight from the website into clean datasets in `R` (see `?pdc_read`).
+For example, we can use `pdc_topics()` to get the collection of topics
+seen [here](https://data.cms.gov/provider-data/):
+
+``` r
+pdc_topics()
+#>  [1] "Dialysis facilities"                   
+#>  [2] "Doctors and clinicians"                
+#>  [3] "Home health services"                  
+#>  [4] "Hospice care"                          
+#>  [5] "Hospitals"                             
+#>  [6] "Inpatient rehabilitation facilities"   
+#>  [7] "Long-term care hospitals"              
+#>  [8] "Nursing homes including rehab services"
+#>  [9] "Physician office visit costs"          
+#> [10] "Supplier directory"
+```
+
+Then we can choose a topic (or topics) we want to find datasets for, and
+extract their metadata with `pdc_datasets()`:
+
+``` r
+hospital_data <- pdc_datasets("Hospitals")
+hospital_data
+#> # A tibble: 67 × 7
+#>    datasetid topic     title       description issued     modified   downloadurl
+#>    <chr>     <chr>     <chr>       <chr>       <date>     <date>     <chr>      
+#>  1 wue8-3vwe Hospitals Ambulatory… This file … 2025-07-16 2025-06-27 https://da…
+#>  2 4jcv-atw7 Hospitals Ambulatory… A list of … 2025-07-16 2025-06-27 https://da…
+#>  3 axe7-s95e Hospitals Ambulatory… This file … 2025-07-16 2025-06-27 https://da…
+#>  4 hbf-map   Hospitals Birthing F… A list of … 2025-07-09 2025-07-16 https://da…
+#>  5 muwa-iene Hospitals CMS Medica… This data … 2020-12-10 2025-07-16 https://da…
+#>  6 ynj2-r877 Hospitals Complicati… Complicati… 2023-07-05 2025-07-16 https://da…
+#>  7 qqw3-t4ie Hospitals Complicati… Complicati… 2020-12-10 2025-07-16 https://da…
+#>  8 bs2r-24vh Hospitals Complicati… Complicati… 2020-12-10 2025-07-16 https://da…
+#>  9 z8ax-x9j1 Hospitals Complicati… Prospectiv… 2024-07-31 2025-07-16 https://da…
+#> 10 jfnd-nl7s Hospitals Complicati… Prospectiv… 2024-07-31 2025-07-16 https://da…
+#> # ℹ 57 more rows
+```
+
+This result contains information on all datasets included under the
+*Hospitals* topic. We can then explore this list to find a dataset we
+want to import. For example, we can search the titles of the datasets
+relevant to readmissions:
+
+``` r
+readmission_data <- 
+  hospital_data |>
+    dplyr::filter(
+      stringr::str_detect(
+        title,
+        pattern = "(?i)readmission"
+      )
+    )
+readmission_data
+#> # A tibble: 1 × 7
+#>   datasetid topic     title        description issued     modified   downloadurl
+#>   <chr>     <chr>     <chr>        <chr>       <date>     <date>     <chr>      
+#> 1 9n3s-kdb3 Hospitals Hospital Re… In October… 2020-12-10 2025-01-08 https://da…
+```
+
+Once we find the dataset we want, we can take note of the `datasetid`,
+and use the `pdc_read()` function to import it:
+
+``` r
+hrrp_data <- pdc_read(readmission_data$datasetid)
+#> Rows: 18510 Columns: 12
+#> ── Column specification ────────────────────────────────────────────────────────
+#> Delimiter: ","
+#> chr (11): Facility Name, Facility ID, State, Measure Name, Number of Dischar...
+#> dbl  (1): Footnote
+#> 
+#> ℹ Use `spec()` to retrieve the full column specification for this data.
+#> ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+hrrp_data
+#> # A tibble: 18,510 × 12
+#>    `Facility Name`     `Facility ID` State `Measure Name` `Number of Discharges`
+#>    <chr>               <chr>         <chr> <chr>          <chr>                 
+#>  1 SOUTHEAST HEALTH M… 010001        AL    READM-30-AMI-… 296                   
+#>  2 SOUTHEAST HEALTH M… 010001        AL    READM-30-CABG… 151                   
+#>  3 SOUTHEAST HEALTH M… 010001        AL    READM-30-HF-H… 681                   
+#>  4 SOUTHEAST HEALTH M… 010001        AL    READM-30-HIP-… N/A                   
+#>  5 SOUTHEAST HEALTH M… 010001        AL    READM-30-PN-H… 490                   
+#>  6 SOUTHEAST HEALTH M… 010001        AL    READM-30-COPD… 130                   
+#>  7 MARSHALL MEDICAL C… 010005        AL    READM-30-CABG… N/A                   
+#>  8 MARSHALL MEDICAL C… 010005        AL    READM-30-HIP-… N/A                   
+#>  9 MARSHALL MEDICAL C… 010005        AL    READM-30-HF-H… 176                   
+#> 10 MARSHALL MEDICAL C… 010005        AL    READM-30-PN-H… 305                   
+#> # ℹ 18,500 more rows
+#> # ℹ 7 more variables: Footnote <dbl>, `Excess Readmission Ratio` <chr>,
+#> #   `Predicted Readmission Rate` <chr>, `Expected Readmission Rate` <chr>,
+#> #   `Number of Readmissions` <chr>, `Start Date` <chr>, `End Date` <chr>
+```
+
+And then we can use this dataset for further analysis. For example:
+
+*“How many hospitals in this dataset are located in Wisconsin?”*
+
+``` r
+hrrp_data |>
+  dplyr::filter(State == "WI") |>
+  with(data = _, dplyr::n_distinct(`Facility ID`))
+#> [1] 65
 ```
