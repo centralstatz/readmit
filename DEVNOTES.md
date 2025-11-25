@@ -3,6 +3,13 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 11/25/2025
+
+- Adding to `README` with a description of the package
+- Adding a skelaton vignette for “Investigating a Hospital-Specific
+  Report (HSR)”, as it’s linked from README. Will actually write it
+  later. Initialized it with `use_vignette("hsr-analysis")`.
+
 # 11/23/2025
 
 - Added a custom color scheme to package site. Used HEX color picker and

@@ -41,6 +41,12 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/hsr-analysis.html">Investigating a Hospital-Specific Report (HSR)</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -61,7 +67,7 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of readmit is to provide tools to make navigating, managing, and analyzing hospital readmissions easier and more transparent.</p>
+<p>The goal of <code>readmit</code> is to make components of navigating, managing, and analyzing hospital readmissions easier and more transparent. Ultimately, keeping patients out of the hospital.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -71,6 +77,324 @@
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"centralstatz/readmit"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
+<div class="section level1">
+<h1 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
+</h1>
+<p>A <em>readmission</em> occurs when a patient is admitted to the hospital, again, after they were recently discharged (where 30 days is the typical time frame used between hospitalizations). First and foremost, it is an obvious burden to patients for multiple reasons (i.e., psychologically, financially, etc.).</p>
+<p>Additionally, hospitals across the United States are <a href="https://qualitynet.cms.gov/inpatient/hrrp/methodology" class="external-link">penalized</a> by the <a href="https://www.cms.gov/" class="external-link">Centers for Medicare &amp; Medicaid Services (CMS)</a> on an annual basis in what is called the <a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp" class="external-link">Hospital Readmissions Reduction Program (HRRP)</a>. In this program, up to 3% of Medicare reimbursement is witheld from hospitals for the duration of a <a href="https://www.usa.gov/federal-budget-process" class="external-link">fiscal year</a> depending on the volume of <a href="https://qualitynet.cms.gov/inpatient/hrrp/measures#:~:text=Planned%20Readmission%20Algorithm.-,Excess%20Readmission%20Ratio,-The%20excess%20readmission" class="external-link">excess readmissions</a> in <a href="https://www.cms.gov/medicare/quality/value-based-programs/hospital-readmissions#:~:text=What%20measures%20are%20included%20in%20the%20Hospital%20Readmissions%20Reduction%20Program%3F" class="external-link">select patient populations</a> during a preceding <a href="https://qualitynet.cms.gov/inpatient/hrrp/resources" class="external-link">performance period</a>. Readmissions also show up in other payer contracts, such as commericial insurers. Thus, it is a key area of focus for hospitals and part of the general measure of overall health of clinical and financial operations.</p>
+<p>Typically, cross-functional teams are deployed within health systems to monitor and develop initiatives, interventions, and overall strategy to manage and prevent readmissions. This includes things like care coordination and patient outreach, as well as how to incorporate technology such as predictive analytics to identify high-risk patients and prevent readmissions before they occur.</p>
+<div class="section level2">
+<h2 id="the-problems">The Problems<a class="anchor" aria-label="anchor" href="#the-problems"></a>
+</h2>
+<p>The issues in doing this flawlessly are multi-factorial, but we’ll list a few that we see relevant to this package:</p>
+<ul>
+<li><p><strong>Reporting lineage</strong>: It is often difficult to have seamless line of sight and reconcile hospital-wide metrics (e.g., overall readmission rates, penalty amounts, etc.) down to individual patients and their associated impact. There are many reasons for this: some may be technical (e.g., reporting tools, data collection, systems/personnel constraints), but some are due to complexities of hospital operations: varying definitions of metrics (e.g., how do we define readmissions?), diverse patient populations (e.g., which patients should/should not be included in the rates?), differential impact on outcomes (e.g., only Medicare patients contribute to the penalty but the hospital cares about readmissions for all patients). <br></p></li>
+<li><p><strong>Payor Contracts/Reimbursement</strong>: Readmissions have different implications depending on whose paying for the service (among other things). It is difficult to disentangle and account for these nuances (especially in reporting/metrics) when developing readmission prevention strategies while optimizing financial health. <br></p></li>
+<li><p><strong>Oversaturation of research</strong>: Readmissions has a <a href="https://pubmed.ncbi.nlm.nih.gov/?term=predicting+readmissions" class="external-link">large body of research</a>. As a result, hospitals are thrown all kinds of “evidence” about how they should prevent readmissions, but it’s difficult to confidently translate and distill that to a localized, optimized, actionable program for any one hospital, especially when it’s conflicting. <br></p></li>
+<li><p><strong>Over-reliance of risk tools</strong>: Especially in the hype of AI, machine learning (ML), etc., there are various vendor platforms and risk tools that purport to predict readmissions. The issue comes with how they are implemented into clinical workflows. These models may be good <em>statistically</em>, but must be implemented with intention and cross-functional teamwork for them to actually be useful. AI is not magic! <br></p></li>
+<li><p><strong>Complexity of government programs</strong>: The <a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp" class="external-link">HRRP</a> has many moving parts and details that make it difficult to track what’s really going on. This includes the timing of the discharges that are actually counted in the program relative to when payment penalties are applied, the diagnosis codes and claims documentation used to identify patients to include, the statistical methodology behind the scenes that power program metrics, and the way all of that rolls up into a penalty percentage amount administered to the hospital, among other things. Each of these details have deep nuances that have tangible impact.</p></li>
+</ul>
+<p><br></p>
+<p>This package is meant to provide tools to help with components of these issues. In particular, the current state of the package focuses on the last item, making it easier to analyze information related to the <a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp" class="external-link">HRRP</a>. Over time, we hope this scope widens.</p>
+</div>
+</div>
+<div class="section level1">
+<h1 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h1>
+<p>Here are a few ways to use the package.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://centralstatz.github.io/readmit/">readmit</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="extracting-key-dates-from-the-hrrp">Extracting key dates from the HRRP<a class="anchor" aria-label="anchor" href="#extracting-key-dates-from-the-hrrp"></a>
+</h2>
+<p>An important piece of the <a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp" class="external-link">HRRP</a> is to understand the timelines and dates associated with the program. We provide built-in datasets to conveniently access these dates (see <code><a href="reference/hrrp_keydates.html">?hrrp_keydates</a></code>). For example, <code>hrrp_performance_periods</code> provides the date ranges for discharges that are included in each program year:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hrrp_performance_periods</span></span>
+<span><span class="co">#&gt;    ProgramYear  StartDate    EndDate</span></span>
+<span><span class="co">#&gt; 1         2027 2023-07-01 2025-06-30</span></span>
+<span><span class="co">#&gt; 2         2026 2021-07-01 2024-06-30</span></span>
+<span><span class="co">#&gt; 3         2025 2020-07-01 2023-06-30</span></span>
+<span><span class="co">#&gt; 4         2024 2019-07-01 2019-12-01</span></span>
+<span><span class="co">#&gt; 5         2024 2020-07-01 2022-06-30</span></span>
+<span><span class="co">#&gt; 6         2023 2018-07-01 2019-12-01</span></span>
+<span><span class="co">#&gt; 7         2023 2020-07-01 2021-06-30</span></span>
+<span><span class="co">#&gt; 8         2022 2017-07-01 2019-12-01</span></span>
+<span><span class="co">#&gt; 9         2021 2016-07-01 2019-06-30</span></span>
+<span><span class="co">#&gt; 10        2020 2015-07-01 2018-06-30</span></span>
+<span><span class="co">#&gt; 11        2019 2014-07-01 2017-06-30</span></span></code></pre></div>
+<p>And <code>hrrp_snapshot_dates</code> provides the date that CMS took the extract of claims data for each program year:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hrrp_snapshot_dates</span></span>
+<span><span class="co">#&gt;   ProgramYear SnapshotDate</span></span>
+<span><span class="co">#&gt; 1        2027   2025-09-30</span></span>
+<span><span class="co">#&gt; 2        2026   2024-10-22</span></span>
+<span><span class="co">#&gt; 3        2025   2023-10-13</span></span>
+<span><span class="co">#&gt; 4        2024   2022-09-30</span></span>
+<span><span class="co">#&gt; 5        2023   2021-09-24</span></span>
+<span><span class="co">#&gt; 6        2022   2020-09-25</span></span>
+<span><span class="co">#&gt; 7        2021   2019-09-27</span></span>
+<span><span class="co">#&gt; 8        2020   2018-09-28</span></span>
+<span><span class="co">#&gt; 9        2019   2017-09-29</span></span></code></pre></div>
+<p>Or, all of the individual <code>hrrp_*</code> datasets are pre-joined in <code>hrrp_keydates</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hrrp_keydates</span></span>
+<span><span class="co">#&gt;    ProgramYear PerformanceStartDate PerformanceEndDate PaymentStartDate</span></span>
+<span><span class="co">#&gt; 1         2027           2023-07-01         2025-06-30       2026-10-01</span></span>
+<span><span class="co">#&gt; 2         2026           2021-07-01         2024-06-30       2025-10-01</span></span>
+<span><span class="co">#&gt; 3         2025           2020-07-01         2023-06-30       2024-10-01</span></span>
+<span><span class="co">#&gt; 4         2024           2019-07-01         2019-12-01       2023-10-01</span></span>
+<span><span class="co">#&gt; 5         2024           2020-07-01         2022-06-30       2023-10-01</span></span>
+<span><span class="co">#&gt; 6         2023           2018-07-01         2019-12-01       2022-10-01</span></span>
+<span><span class="co">#&gt; 7         2023           2020-07-01         2021-06-30       2022-10-01</span></span>
+<span><span class="co">#&gt; 8         2022           2017-07-01         2019-12-01       2021-10-01</span></span>
+<span><span class="co">#&gt; 9         2021           2016-07-01         2019-06-30       2020-10-01</span></span>
+<span><span class="co">#&gt; 10        2020           2015-07-01         2018-06-30       2019-10-01</span></span>
+<span><span class="co">#&gt; 11        2019           2014-07-01         2017-06-30       2018-10-01</span></span>
+<span><span class="co">#&gt;    PaymentEndDate ReviewStartDate ReviewEndDate SnapshotDate AMI COPD HF PN</span></span>
+<span><span class="co">#&gt; 1      2027-09-30            &lt;NA&gt;          &lt;NA&gt;   2025-09-30   1    1  1  1</span></span>
+<span><span class="co">#&gt; 2      2026-09-30      2025-08-12    2025-09-10   2024-10-22   1    1  1  1</span></span>
+<span><span class="co">#&gt; 3      2025-09-30      2024-08-12    2024-09-10   2023-10-13   1    1  1  1</span></span>
+<span><span class="co">#&gt; 4      2024-09-30      2023-08-08    2023-09-07   2022-09-30   1    1  1  1</span></span>
+<span><span class="co">#&gt; 5      2024-09-30      2023-08-08    2023-09-07   2022-09-30   1    1  1  1</span></span>
+<span><span class="co">#&gt; 6      2023-09-30      2022-08-08    2022-09-07   2021-09-24   1    1  1  0</span></span>
+<span><span class="co">#&gt; 7      2023-09-30      2022-08-08    2022-09-07   2021-09-24   1    1  1  0</span></span>
+<span><span class="co">#&gt; 8      2022-09-30      2021-08-09    2021-09-08   2020-09-25   1    1  1  1</span></span>
+<span><span class="co">#&gt; 9      2021-09-30      2020-08-10    2020-09-09   2019-09-27   1    1  1  1</span></span>
+<span><span class="co">#&gt; 10     2020-09-30      2019-08-09    2019-09-09   2018-09-28   1    1  1  1</span></span>
+<span><span class="co">#&gt; 11     2019-09-30      2018-08-06    2018-09-05   2017-09-29   1    1  1  1</span></span>
+<span><span class="co">#&gt;    CABG HK</span></span>
+<span><span class="co">#&gt; 1     1  1</span></span>
+<span><span class="co">#&gt; 2     1  1</span></span>
+<span><span class="co">#&gt; 3     1  1</span></span>
+<span><span class="co">#&gt; 4     1  1</span></span>
+<span><span class="co">#&gt; 5     1  1</span></span>
+<span><span class="co">#&gt; 6     1  1</span></span>
+<span><span class="co">#&gt; 7     1  1</span></span>
+<span><span class="co">#&gt; 8     1  1</span></span>
+<span><span class="co">#&gt; 9     1  1</span></span>
+<span><span class="co">#&gt; 10    1  1</span></span>
+<span><span class="co">#&gt; 11    1  1</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="finding-relevant-program-dates">Finding relevant program dates<a class="anchor" aria-label="anchor" href="#finding-relevant-program-dates"></a>
+</h3>
+<p>We can also use the <code><a href="reference/hrrp_get_dates.html">hrrp_get_dates()</a></code> function to extract relevant time periods for an inputted date. For example:</p>
+<ul>
+<li><em>“What is the performance period for payments my hospital is currently being penalized for?”</em></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/hrrp_get_dates.html">hrrp_get_dates</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"performance"</span>, discharge <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span><span class="co">#&gt;   ProgramYear StartDate  EndDate   </span></span>
+<span><span class="co">#&gt;         &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;     </span></span>
+<span><span class="co">#&gt; 1        2026 2021-07-01 2024-06-30</span></span></code></pre></div>
+<ul>
+<li><em>“What payment periods did a discharge from 1/1/2022 impact?”</em></li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/hrrp_get_dates.html">hrrp_get_dates</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2022-01-01"</span><span class="op">)</span>, <span class="st">"payment"</span>, discharge <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 3</span></span>
+<span><span class="co">#&gt;   ProgramYear StartDate  EndDate   </span></span>
+<span><span class="co">#&gt;         &lt;int&gt; &lt;date&gt;     &lt;date&gt;    </span></span>
+<span><span class="co">#&gt; 1        2026 2025-10-01 2026-09-30</span></span>
+<span><span class="co">#&gt; 2        2025 2024-10-01 2025-09-30</span></span>
+<span><span class="co">#&gt; 3        2024 2023-10-01 2024-09-30</span></span></code></pre></div>
+<p>We can see that not only are the discharges that impact <em>today’s</em> payment reductions multiple years old, but also individual discharges (and their associated readmissions) can impact the program result for three (3) years in a row.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="analyzing-hospital-reports">Analyzing hospital reports<a class="anchor" aria-label="anchor" href="#analyzing-hospital-reports"></a>
+</h2>
+<p><a href="https://www.cms.gov/" class="external-link">CMS</a> sends out <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports" class="external-link">Hospital-Specific Reports (HSR)</a> each program year detailing the calculations of the payment reduction for the upcoming fiscal year (hospitals are given a 1-month period to review and submit corrections, the dates of which can be accessed with <code>hrrp_review_periods</code>). These reports contain the penalty amount down to the individual, line-item discharges that were included in the program. The package functions prefixed like <code>hsr_*</code> are meant to be used with them. For example, we can use the <code>hsr_discharges</code> function to extract discharge-level data for the heart failure cohort included in the readmission denominator into a clean data frame:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Mock report from QualityNet</span></span>
+<span><span class="va">my_hsr</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="st">"FY2025_HRRP_MockHSR.xlsx"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>  file <span class="op">=</span> <span class="va">my_hsr</span>,</span>
+<span>  cohort <span class="op">=</span> <span class="st">"HF"</span>,</span>
+<span>  eligible_only <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 25 × 17</span></span>
+<span><span class="co">#&gt;    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`</span></span>
+<span><span class="co">#&gt;          &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;                   &lt;chr&gt;            </span></span>
+<span><span class="co">#&gt;  1           1 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt;  2           2 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt;  3           3 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt;  4           4 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt;  5           5 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt;  6           6 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt;  7           7 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt;  8           8 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt;  9           9 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; 10          10 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; # ℹ 15 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 13 more variables: `Admission Date of Index Stay` &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   `Discharge Date of Index Stay` &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   `Cohort Inclusion/Exclusion Indicator` &lt;chr&gt;, `Index Stay (Yes/No)` &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   `Principal Discharge Diagnosis of Index Stay` &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   `Discharge Destination` &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` &lt;chr&gt;, …</span></span></code></pre></div>
+<p>We could also extract the risk factors for each patient used in the statistical models developed by CMS to estimate adjusted readmission risk:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>  file <span class="op">=</span> <span class="va">my_hsr</span>,</span>
+<span>  cohort <span class="op">=</span> <span class="st">"HF"</span>,</span>
+<span>  eligible_only <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  risk_factors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  discharge_phi <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 25 × 39</span></span>
+<span><span class="co">#&gt;    `ID Number` `Years Over 65 (continuous)`  Male History of Coronary Artery B…¹</span></span>
+<span><span class="co">#&gt;          &lt;int&gt;                        &lt;dbl&gt; &lt;dbl&gt;                          &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1           1                            8     1                              0</span></span>
+<span><span class="co">#&gt;  2           2                           25     1                              1</span></span>
+<span><span class="co">#&gt;  3           3                            9     0                              0</span></span>
+<span><span class="co">#&gt;  4           4                            9     0                              0</span></span>
+<span><span class="co">#&gt;  5           5                           30     0                              0</span></span>
+<span><span class="co">#&gt;  6           6                           13     0                              0</span></span>
+<span><span class="co">#&gt;  7           7                           12     1                              1</span></span>
+<span><span class="co">#&gt;  8           8                            7     1                              1</span></span>
+<span><span class="co">#&gt;  9           9                           25     1                              0</span></span>
+<span><span class="co">#&gt; 10          10                           22     0                              0</span></span>
+<span><span class="co">#&gt; # ℹ 15 more rows</span></span>
+<span><span class="co">#&gt; # ℹ abbreviated name: ¹​`History of Coronary Artery Bypass Graft (CABG) Surgery`</span></span>
+<span><span class="co">#&gt; # ℹ 35 more variables: `History of COVID-19` &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   `Metastatic Cancer and Acute Leukemia` &lt;dbl&gt;, Cancer &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   `Diabetes Mellitus (DM) or DM Complications` &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   `Protein-Calorie Malnutrition` &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/\r\nAcid-base Balance` &lt;dbl&gt;, …</span></span></code></pre></div>
+<p>We could then choose to extract the actual model coefficients (weights) that get applied to the patient risk factors:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/hsr_coefficients.html">hsr_coefficients</a></span><span class="op">(</span></span>
+<span>  file <span class="op">=</span> <span class="va">my_hsr</span>,</span>
+<span>  cohort <span class="op">=</span> <span class="st">"HF"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 40 × 2</span></span>
+<span><span class="co">#&gt;    Factor                                                                  Value</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                                                                   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 "Years Over 65 (continuous)"                                         -0.00589</span></span>
+<span><span class="co">#&gt;  2 "Male"                                                               -0.0359 </span></span>
+<span><span class="co">#&gt;  3 "History of Coronary Artery Bypass Graft (CABG) Surgery"              0.0199 </span></span>
+<span><span class="co">#&gt;  4 "History of COVID-19"                                                -0.00239</span></span>
+<span><span class="co">#&gt;  5 "Metastatic Cancer and Acute Leukemia"                                0.149  </span></span>
+<span><span class="co">#&gt;  6 "Cancer"                                                              0.0126 </span></span>
+<span><span class="co">#&gt;  7 "Diabetes Mellitus (DM) or DM Complications"                          0.0968 </span></span>
+<span><span class="co">#&gt;  8 "Protein-Calorie Malnutrition"                                        0.0856 </span></span>
+<span><span class="co">#&gt;  9 "Other Significant Endocrine and Metabolic Disorders; Disorders of …  0.163  </span></span>
+<span><span class="co">#&gt; 10 "Liver or Biliary Disease"                                            0.0865 </span></span>
+<span><span class="co">#&gt; # ℹ 30 more rows</span></span></code></pre></div>
+<p>These tables can be joined together and each patient’s readmission risk that CMS used can be computed and analyzed. Or, we can use the <code><a href="reference/hsr_readmission_risks.html">hsr_readmission_risks()</a></code> function to do this for us:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/hsr_readmission_risks.html">hsr_readmission_risks</a></span><span class="op">(</span></span>
+<span>  file <span class="op">=</span> <span class="va">my_hsr</span>,</span>
+<span>  cohort <span class="op">=</span> <span class="st">"HF"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 25 × 3</span></span>
+<span><span class="co">#&gt;    `ID Number` Predicted Expected</span></span>
+<span><span class="co">#&gt;          &lt;int&gt;     &lt;dbl&gt;    &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1           1    0.258    0.264 </span></span>
+<span><span class="co">#&gt;  2           2    0.186    0.192 </span></span>
+<span><span class="co">#&gt;  3           3    0.184    0.189 </span></span>
+<span><span class="co">#&gt;  4           4    0.188    0.193 </span></span>
+<span><span class="co">#&gt;  5           5    0.0857   0.0885</span></span>
+<span><span class="co">#&gt;  6           6    0.133    0.138 </span></span>
+<span><span class="co">#&gt;  7           7    0.110    0.113 </span></span>
+<span><span class="co">#&gt;  8           8    0.183    0.188 </span></span>
+<span><span class="co">#&gt;  9           9    0.163    0.168 </span></span>
+<span><span class="co">#&gt; 10          10    0.179    0.184 </span></span>
+<span><span class="co">#&gt; # ℹ 15 more rows</span></span></code></pre></div>
+<p>As you can see, there are many ways to use the information in these reports to gain insight into readmissions at your hospital. Further analysis strategies can be explored in the associated vignette:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"hsr-analysis"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="importing-data-from-the-provider-data-catalog">Importing data from the Provider Data Catalog<a class="anchor" aria-label="anchor" href="#importing-data-from-the-provider-data-catalog"></a>
+</h2>
+<p><a href="https://www.cms.gov/" class="external-link">CMS</a> provides access to a large repository of datasets in the <a href="https://data.cms.gov/provider-data/" class="external-link">Provider Data Catalog (PDC)</a>, which includes, among many other datasets, readmission measures and HRRP program results for hospitals around the United States. The package functions prefixed like <code>pdc_*</code> are general functions to explore and import metadata/datasets straight from the website into clean datasets in <code>R</code> (see <code><a href="reference/pdc_read.html">?pdc_read</a></code>). For example, we can use <code><a href="reference/pdc_read.html">pdc_topics()</a></code> to get the collection of topics seen <a href="https://data.cms.gov/provider-data/" class="external-link">here</a>:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/pdc_read.html">pdc_topics</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "Dialysis facilities"                   </span></span>
+<span><span class="co">#&gt;  [2] "Doctors and clinicians"                </span></span>
+<span><span class="co">#&gt;  [3] "Home health services"                  </span></span>
+<span><span class="co">#&gt;  [4] "Hospice care"                          </span></span>
+<span><span class="co">#&gt;  [5] "Hospitals"                             </span></span>
+<span><span class="co">#&gt;  [6] "Inpatient rehabilitation facilities"   </span></span>
+<span><span class="co">#&gt;  [7] "Long-term care hospitals"              </span></span>
+<span><span class="co">#&gt;  [8] "Nursing homes including rehab services"</span></span>
+<span><span class="co">#&gt;  [9] "Physician office visit costs"          </span></span>
+<span><span class="co">#&gt; [10] "Supplier directory"</span></span></code></pre></div>
+<p>Then we can choose a topic (or topics) we want to find datasets for, and extract their metadata with <code><a href="reference/pdc_read.html">pdc_datasets()</a></code>:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hospital_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pdc_read.html">pdc_datasets</a></span><span class="op">(</span><span class="st">"Hospitals"</span><span class="op">)</span></span>
+<span><span class="va">hospital_data</span></span>
+<span><span class="co">#&gt; # A tibble: 67 × 7</span></span>
+<span><span class="co">#&gt;    datasetid topic     title       description issued     modified   downloadurl</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;       &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;      </span></span>
+<span><span class="co">#&gt;  1 wue8-3vwe Hospitals Ambulatory… This file … 2025-07-16 2025-06-27 https://da…</span></span>
+<span><span class="co">#&gt;  2 4jcv-atw7 Hospitals Ambulatory… A list of … 2025-07-16 2025-06-27 https://da…</span></span>
+<span><span class="co">#&gt;  3 axe7-s95e Hospitals Ambulatory… This file … 2025-07-16 2025-06-27 https://da…</span></span>
+<span><span class="co">#&gt;  4 hbf-map   Hospitals Birthing F… A list of … 2025-07-09 2025-07-16 https://da…</span></span>
+<span><span class="co">#&gt;  5 muwa-iene Hospitals CMS Medica… This data … 2020-12-10 2025-07-16 https://da…</span></span>
+<span><span class="co">#&gt;  6 ynj2-r877 Hospitals Complicati… Complicati… 2023-07-05 2025-07-16 https://da…</span></span>
+<span><span class="co">#&gt;  7 qqw3-t4ie Hospitals Complicati… Complicati… 2020-12-10 2025-07-16 https://da…</span></span>
+<span><span class="co">#&gt;  8 bs2r-24vh Hospitals Complicati… Complicati… 2020-12-10 2025-07-16 https://da…</span></span>
+<span><span class="co">#&gt;  9 z8ax-x9j1 Hospitals Complicati… Prospectiv… 2024-07-31 2025-07-16 https://da…</span></span>
+<span><span class="co">#&gt; 10 jfnd-nl7s Hospitals Complicati… Prospectiv… 2024-07-31 2025-07-16 https://da…</span></span>
+<span><span class="co">#&gt; # ℹ 57 more rows</span></span></code></pre></div>
+<p>This result contains information on all datasets included under the <em>Hospitals</em> topic. We can then explore this list to find a dataset we want to import. For example, we can search the titles of the datasets relevant to readmissions:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">readmission_data</span> <span class="op">&lt;-</span> </span>
+<span>  <span class="va">hospital_data</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>      <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect</a></span><span class="op">(</span></span>
+<span>        <span class="va">title</span>,</span>
+<span>        pattern <span class="op">=</span> <span class="st">"(?i)readmission"</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">readmission_data</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 7</span></span>
+<span><span class="co">#&gt;   datasetid topic     title        description issued     modified   downloadurl</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;       &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;      </span></span>
+<span><span class="co">#&gt; 1 9n3s-kdb3 Hospitals Hospital Re… In October… 2020-12-10 2025-01-08 https://da…</span></span></code></pre></div>
+<p>Once we find the dataset we want, we can take note of the <code>datasetid</code>, and use the <code><a href="reference/pdc_read.html">pdc_read()</a></code> function to import it:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hrrp_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pdc_read.html">pdc_read</a></span><span class="op">(</span><span class="va">readmission_data</span><span class="op">$</span><span class="va">datasetid</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 18510 Columns: 12</span></span>
+<span><span class="co">#&gt; ── Column specification ────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Delimiter: ","</span></span>
+<span><span class="co">#&gt; chr (11): Facility Name, Facility ID, State, Measure Name, Number of Dischar...</span></span>
+<span><span class="co">#&gt; dbl  (1): Footnote</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Use `spec()` to retrieve the full column specification for this data.</span></span>
+<span><span class="co">#&gt; ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
+<span><span class="va">hrrp_data</span></span>
+<span><span class="co">#&gt; # A tibble: 18,510 × 12</span></span>
+<span><span class="co">#&gt;    `Facility Name`     `Facility ID` State `Measure Name` `Number of Discharges`</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;               &lt;chr&gt;         &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;                 </span></span>
+<span><span class="co">#&gt;  1 SOUTHEAST HEALTH M… 010001        AL    READM-30-AMI-… 296                   </span></span>
+<span><span class="co">#&gt;  2 SOUTHEAST HEALTH M… 010001        AL    READM-30-CABG… 151                   </span></span>
+<span><span class="co">#&gt;  3 SOUTHEAST HEALTH M… 010001        AL    READM-30-HF-H… 681                   </span></span>
+<span><span class="co">#&gt;  4 SOUTHEAST HEALTH M… 010001        AL    READM-30-HIP-… N/A                   </span></span>
+<span><span class="co">#&gt;  5 SOUTHEAST HEALTH M… 010001        AL    READM-30-PN-H… 490                   </span></span>
+<span><span class="co">#&gt;  6 SOUTHEAST HEALTH M… 010001        AL    READM-30-COPD… 130                   </span></span>
+<span><span class="co">#&gt;  7 MARSHALL MEDICAL C… 010005        AL    READM-30-CABG… N/A                   </span></span>
+<span><span class="co">#&gt;  8 MARSHALL MEDICAL C… 010005        AL    READM-30-HIP-… N/A                   </span></span>
+<span><span class="co">#&gt;  9 MARSHALL MEDICAL C… 010005        AL    READM-30-HF-H… 176                   </span></span>
+<span><span class="co">#&gt; 10 MARSHALL MEDICAL C… 010005        AL    READM-30-PN-H… 305                   </span></span>
+<span><span class="co">#&gt; # ℹ 18,500 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 7 more variables: Footnote &lt;dbl&gt;, `Excess Readmission Ratio` &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   `Predicted Readmission Rate` &lt;chr&gt;, `Expected Readmission Rate` &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   `Number of Readmissions` &lt;chr&gt;, `Start Date` &lt;chr&gt;, `End Date` &lt;chr&gt;</span></span></code></pre></div>
+<p>And then we can use this dataset for further analysis. For example:</p>
+<p><em>“How many hospitals in this dataset are located in Wisconsin?”</em></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hrrp_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">State</span> <span class="op">==</span> <span class="st">"WI"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span>, <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">`Facility ID`</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 65</span></span></code></pre></div>
+</div>
+</div>
+
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
