@@ -86,7 +86,7 @@
 <div class="section level2">
 <h2 id="the-problems">The Problems<a class="anchor" aria-label="anchor" href="#the-problems"></a>
 </h2>
-<p>The issues in doing this flawlessly are multi-factorial, but we’ll list a few that we see relevant to this package:</p>
+<p>The issues in doing this flawlessly are multi-factorial, but we’ll list a few that we see relevant to (and motivators for) this package:</p>
 <ul>
 <li><p><strong>Reporting lineage</strong>: It is often difficult to have seamless line of sight and reconcile hospital-wide metrics (e.g., overall readmission rates, penalty amounts, etc.) down to individual patients and their associated impact. There are many reasons for this: some may be technical (e.g., reporting tools, data collection, systems/personnel constraints), but some are due to complexities of hospital operations: varying definitions of metrics (e.g., how do we define readmissions?), diverse patient populations (e.g., which patients should/should not be included in the rates?), differential impact on outcomes (e.g., only Medicare patients contribute to the penalty but the hospital cares about readmissions for all patients). <br></p></li>
 <li><p><strong>Payor Contracts/Reimbursement</strong>: Readmissions have different implications depending on whose paying for the service (among other things). It is difficult to disentangle and account for these nuances (especially in reporting/metrics) when developing readmission prevention strategies while optimizing financial health. <br></p></li>
@@ -234,7 +234,7 @@
 <span><span class="co">#&gt; #   `Cohort Inclusion/Exclusion Indicator` &lt;chr&gt;, `Index Stay (Yes/No)` &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   `Principal Discharge Diagnosis of Index Stay` &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   `Discharge Destination` &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` &lt;chr&gt;, …</span></span></code></pre></div>
+<span><span class="co">#&gt; #   `Unplanned Readmission within 30 Days (Yes/No) [a]` &lt;chr&gt;, …</span></span></code></pre></div>
 <p>We could also extract the risk factors for each patient used in the statistical models developed by CMS to estimate adjusted readmission risk:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
@@ -263,7 +263,7 @@
 <span><span class="co">#&gt; #   `Metastatic Cancer and Acute Leukemia` &lt;dbl&gt;, Cancer &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   `Diabetes Mellitus (DM) or DM Complications` &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   `Protein-Calorie Malnutrition` &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/\r\nAcid-base Balance` &lt;dbl&gt;, …</span></span></code></pre></div>
+<span><span class="co">#&gt; #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/Acid-base Balance` &lt;dbl&gt;, …</span></span></code></pre></div>
 <p>We could then choose to extract the actual model coefficients (weights) that get applied to the patient risk factors:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/hsr_coefficients.html">hsr_coefficients</a></span><span class="op">(</span></span>
@@ -273,16 +273,16 @@
 <span><span class="co">#&gt; # A tibble: 40 × 2</span></span>
 <span><span class="co">#&gt;    Factor                                                                  Value</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;                                                                   &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 "Years Over 65 (continuous)"                                         -0.00589</span></span>
-<span><span class="co">#&gt;  2 "Male"                                                               -0.0359 </span></span>
-<span><span class="co">#&gt;  3 "History of Coronary Artery Bypass Graft (CABG) Surgery"              0.0199 </span></span>
-<span><span class="co">#&gt;  4 "History of COVID-19"                                                -0.00239</span></span>
-<span><span class="co">#&gt;  5 "Metastatic Cancer and Acute Leukemia"                                0.149  </span></span>
-<span><span class="co">#&gt;  6 "Cancer"                                                              0.0126 </span></span>
-<span><span class="co">#&gt;  7 "Diabetes Mellitus (DM) or DM Complications"                          0.0968 </span></span>
-<span><span class="co">#&gt;  8 "Protein-Calorie Malnutrition"                                        0.0856 </span></span>
-<span><span class="co">#&gt;  9 "Other Significant Endocrine and Metabolic Disorders; Disorders of …  0.163  </span></span>
-<span><span class="co">#&gt; 10 "Liver or Biliary Disease"                                            0.0865 </span></span>
+<span><span class="co">#&gt;  1 Years Over 65 (continuous)                                           -0.00589</span></span>
+<span><span class="co">#&gt;  2 Male                                                                 -0.0359 </span></span>
+<span><span class="co">#&gt;  3 History of Coronary Artery Bypass Graft (CABG) Surgery                0.0199 </span></span>
+<span><span class="co">#&gt;  4 History of COVID-19                                                  -0.00239</span></span>
+<span><span class="co">#&gt;  5 Metastatic Cancer and Acute Leukemia                                  0.149  </span></span>
+<span><span class="co">#&gt;  6 Cancer                                                                0.0126 </span></span>
+<span><span class="co">#&gt;  7 Diabetes Mellitus (DM) or DM Complications                            0.0968 </span></span>
+<span><span class="co">#&gt;  8 Protein-Calorie Malnutrition                                          0.0856 </span></span>
+<span><span class="co">#&gt;  9 Other Significant Endocrine and Metabolic Disorders; Disorders of F…  0.163  </span></span>
+<span><span class="co">#&gt; 10 Liver or Biliary Disease                                              0.0865 </span></span>
 <span><span class="co">#&gt; # ℹ 30 more rows</span></span></code></pre></div>
 <p>These tables can be joined together and each patient’s readmission risk that CMS used can be computed and analyzed. Or, we can use the <code><a href="reference/hsr_readmission_risks.html">hsr_readmission_risks()</a></code> function to do this for us:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">

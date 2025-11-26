@@ -102,7 +102,7 @@ hsr_discharges(my_report, "HF")
 #> #   `Cohort Inclusion/Exclusion Indicator` <chr>, `Index Stay (Yes/No)` <chr>,
 #> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
 #> #   `Discharge Destination` <chr>,
-#> #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` <chr>, …
+#> #   `Unplanned Readmission within 30 Days (Yes/No) [a]` <chr>, …
 
 
 # Discharges eligible for HRRP
@@ -126,7 +126,7 @@ hsr_discharges(my_report, "HF", eligible_only = TRUE)
 #> #   `Cohort Inclusion/Exclusion Indicator` <chr>, `Index Stay (Yes/No)` <chr>,
 #> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
 #> #   `Discharge Destination` <chr>,
-#> #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` <chr>, …
+#> #   `Unplanned Readmission within 30 Days (Yes/No) [a]` <chr>, …
 
 
 # Only show risk factors for eligible discharges
@@ -156,7 +156,7 @@ hsr_discharges(
 #> #   `Metastatic Cancer and Acute Leukemia` <dbl>, Cancer <dbl>,
 #> #   `Diabetes Mellitus (DM) or DM Complications` <dbl>,
 #> #   `Protein-Calorie Malnutrition` <dbl>,
-#> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/\r\nAcid-base Balance` <dbl>, …
+#> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/Acid-base Balance` <dbl>, …
 
 # Row count matches denominator for HF
 hsr_cohort_summary(my_report)
