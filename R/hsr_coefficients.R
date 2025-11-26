@@ -48,6 +48,11 @@ hsr_coefficients <-
       na = "--"
     ) |>
 
+      # Remove special (control) characters
+      dplyr::rename_with(
+        \(x) stringr::str_remove_all(x, "[[:cntrl:]]")
+      ) |>
+
       # Convert all columns to numeric
       dplyr::mutate(
         dplyr::across(

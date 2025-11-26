@@ -67,7 +67,7 @@ and prevent readmissions before they occur.
 ## The Problems
 
 The issues in doing this flawlessly are multi-factorial, but we’ll list
-a few that we see relevant to this package:
+a few that we see relevant to (and motivators for) this package:
 
 - **Reporting lineage**: It is often difficult to have seamless line of
   sight and reconcile hospital-wide metrics (e.g., overall readmission
@@ -295,7 +295,7 @@ hsr_discharges(
 #> #   `Cohort Inclusion/Exclusion Indicator` <chr>, `Index Stay (Yes/No)` <chr>,
 #> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
 #> #   `Discharge Destination` <chr>,
-#> #   `Unplanned \r\nReadmission within \r\n30 Days (Yes/No) [a]` <chr>, …
+#> #   `Unplanned Readmission within 30 Days (Yes/No) [a]` <chr>, …
 ```
 
 We could also extract the risk factors for each patient used in the
@@ -329,7 +329,7 @@ hsr_discharges(
 #> #   `Metastatic Cancer and Acute Leukemia` <dbl>, Cancer <dbl>,
 #> #   `Diabetes Mellitus (DM) or DM Complications` <dbl>,
 #> #   `Protein-Calorie Malnutrition` <dbl>,
-#> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/\r\nAcid-base Balance` <dbl>, …
+#> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/Acid-base Balance` <dbl>, …
 ```
 
 We could then choose to extract the actual model coefficients (weights)
@@ -343,16 +343,16 @@ hsr_coefficients(
 #> # A tibble: 40 × 2
 #>    Factor                                                                  Value
 #>    <chr>                                                                   <dbl>
-#>  1 "Years Over 65 (continuous)"                                         -0.00589
-#>  2 "Male"                                                               -0.0359 
-#>  3 "History of Coronary Artery Bypass Graft (CABG) Surgery"              0.0199 
-#>  4 "History of COVID-19"                                                -0.00239
-#>  5 "Metastatic Cancer and Acute Leukemia"                                0.149  
-#>  6 "Cancer"                                                              0.0126 
-#>  7 "Diabetes Mellitus (DM) or DM Complications"                          0.0968 
-#>  8 "Protein-Calorie Malnutrition"                                        0.0856 
-#>  9 "Other Significant Endocrine and Metabolic Disorders; Disorders of …  0.163  
-#> 10 "Liver or Biliary Disease"                                            0.0865 
+#>  1 Years Over 65 (continuous)                                           -0.00589
+#>  2 Male                                                                 -0.0359 
+#>  3 History of Coronary Artery Bypass Graft (CABG) Surgery                0.0199 
+#>  4 History of COVID-19                                                  -0.00239
+#>  5 Metastatic Cancer and Acute Leukemia                                  0.149  
+#>  6 Cancer                                                                0.0126 
+#>  7 Diabetes Mellitus (DM) or DM Complications                            0.0968 
+#>  8 Protein-Calorie Malnutrition                                          0.0856 
+#>  9 Other Significant Endocrine and Metabolic Disorders; Disorders of F…  0.163  
+#> 10 Liver or Biliary Disease                                              0.0865 
 #> # ℹ 30 more rows
 ```
 

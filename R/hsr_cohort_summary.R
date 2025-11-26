@@ -37,5 +37,10 @@ hsr_cohort_summary <-
       skip = 4,
       n_max = 6,
       na = c("--", "NQ")
-    )
+    ) |>
+
+      # Remove special (control) characters
+      dplyr::rename_with(
+        \(x) stringr::str_remove_all(x, "[[:cntrl:]]")
+      )
   }

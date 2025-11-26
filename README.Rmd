@@ -43,7 +43,7 @@ Typically, cross-functional teams are deployed within health systems to monitor 
 
 ## The Problems
 
-The issues in doing this flawlessly are multi-factorial, but we'll list a few that we see relevant to this package:
+The issues in doing this flawlessly are multi-factorial, but we'll list a few that we see relevant to (and motivators for) this package:
 
 * **Reporting lineage**: It is often difficult to have seamless line of sight and reconcile hospital-wide metrics (e.g., overall readmission rates, penalty amounts, etc.) down to individual patients and their associated impact. There are many reasons for this: some may be technical (e.g., reporting tools, data collection, systems/personnel constraints), but some are due to complexities of hospital operations: varying definitions of metrics (e.g., how do we define readmissions?), diverse patient populations (e.g., which patients should/should not be included in the rates?), differential impact on outcomes (e.g., only Medicare patients contribute to the penalty but the hospital cares about readmissions for all patients).
 <br>

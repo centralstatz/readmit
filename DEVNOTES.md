@@ -4,7 +4,10 @@ Contains daily notes with details about how things were developed. Primarily fol
 
 # 11/26/2025
 
-* CMS changed the HSR format for 2026. Added to documentation to note this change.
+* CMS changed the HSR format for 2026. Added to documentation to note this change in README, vignette, and function docs.
+* Changed DESCRIPTION and README package descriptions
+* Fixed global binding issues
+* Fixed special characters in columns by removing them
 
 # 11/25/2025
 

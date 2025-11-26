@@ -85,6 +85,11 @@ hsr_discharges <-
         na = c("--", "N/A")
       ) |>
 
+      # Remove special (control) characters
+      dplyr::rename_with(
+        \(x) stringr::str_remove_all(x, "[[:cntrl:]]")
+      ) |>
+
       # Always remove model intercept columns
       dplyr::select(-dplyr::matches("_EFFECT$"))
 

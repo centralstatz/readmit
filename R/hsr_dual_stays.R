@@ -48,6 +48,11 @@ hsr_dual_stays <-
       na = c("--", "N/A")
     ) |>
 
+      # Remove special (control) characters
+      dplyr::rename_with(
+        \(x) stringr::str_remove_all(x, "[[:cntrl:]]")
+      ) |>
+
       # Parse extraneous values to missing
       dplyr::mutate(
         dplyr::across(

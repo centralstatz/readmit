@@ -75,8 +75,8 @@ hrrp_get_dates <-
 
       # Keep included date range
       dplyr::filter(
-        ref >= StartDate,
-        ref <= EndDate
+        ref >= .data$StartDate,
+        ref <= .data$EndDate
       ) |>
 
       # Pull out program year
@@ -86,5 +86,5 @@ hrrp_get_dates <-
     ref_table |>
 
       # Filter to previously-found years
-      dplyr::filter(ProgramYear %in% program_years)
+      dplyr::filter(.data$ProgramYear %in% program_years)
   }

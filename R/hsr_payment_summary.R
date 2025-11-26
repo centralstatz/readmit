@@ -49,6 +49,11 @@ hsr_payment_summary <-
       na = "--"
     ) |>
 
+      # Remove special (control) characters
+      dplyr::rename_with(
+        \(x) stringr::str_remove_all(x, "[[:cntrl:]]")
+      ) |>
+
       # Convert all columns to numeric (pre-parse if needed)
       dplyr::mutate(
         dplyr::across(

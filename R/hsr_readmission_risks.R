@@ -83,13 +83,13 @@ hsr_readmission_risks <-
       ) |>
 
       # Rename for relevance
-      dplyr::rename(Weight = Value)
+      dplyr::rename(Weight = .data$Value)
 
     # Extract intercepts
     intercepts <-
       model_weights |>
-      dplyr::filter(stringr::str_detect(Factor, "_EFFECT$")) |>
-      tidyr::pivot_wider(names_from = Factor, values_from = Weight)
+      dplyr::filter(stringr::str_detect(.data$Factor, "_EFFECT$")) |>
+      tidyr::pivot_wider(names_from = .data$Factor, values_from = .data$Weight)
 
     # Compute probabilities
     discharges |>
@@ -109,20 +109,20 @@ hsr_readmission_risks <-
 
       # Compute weighted-sum
       dplyr::summarize(
-        LP = sum(Value * Weight),
-        .by = `ID Number`
+        LP = sum(.data$Value * .data$Weight),
+        .by = .data$`ID Number`
       ) |>
 
       # Add intercept terms; map to probability scale
       dplyr::mutate(
-        Predicted = LP + intercepts$HOSP_EFFECT,
-        Expected = LP + intercepts$AVG_EFFECT,
+        Predicted = .data$LP + intercepts$HOSP_EFFECT,
+        Expected = .data$LP + intercepts$AVG_EFFECT,
         dplyr::across(
-          c(Predicted, Expected),
+          c(.data$Predicted, .data$Expected),
           \(x) 1 / (1 + exp(-x))
         )
       ) |>
 
       # Remove linear predictor
-      dplyr::select(-LP)
+      dplyr::select(-.data$LP)
   }
