@@ -3,6 +3,11 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 11/26/2025
+
+- CMS changed the HSR format for 2026. Added to documentation to note
+  this change.
+
 # 11/25/2025
 
 - Adding to `README` with a description of the package

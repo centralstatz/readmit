@@ -64,7 +64,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Investigating a Hospital-Specific Report (HSR)</h1>
             <h3 data-toc-skip class="subtitle">Analysis ideas for
-gaining insight into HRRP program results</h3>
+gaining insight into HRRP program results.</h3>
             
       
 
@@ -74,14 +74,114 @@ gaining insight into HRRP program results</h3>
     
     
 <p><em>Work in progress</em></p>
+<p><em><strong>Note</strong>: CMS changed the format of
+Hospital-Specific Reports (HSRs) for FY2026 (see <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2" class="external-link">here</a>).
+The current HSR functions support Excel-based formats through
+FY2025.</em></p>
+<p>As part of the <a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp" class="external-link">Hospital
+Readmissions Reduction Program (HRRP)</a>, the <a href="https://www.cms.gov/" class="external-link">Centers for Medicare &amp; Medicaid Services
+(CMS)</a> provides a detailed, annual program summary report (called the
+<a href="https://qualitynet.cms.gov/inpatient/hrrp/reports" class="external-link">Hospital-Specific
+Report (HSR)</a>) to hospitals that includes details on the penalty
+calculation for the upcoming fiscal year, such as discharge-level data,
+dually-eligible discharge lists, cohort-level rollup, and the penalty
+amount. There is a defined <a href="">review and correction period</a>
+in which hospitals can use these reports to ensure the penalty being
+enforced by CMS is accurate. It occurs approximately 1 month before the
+new fiscal year, thus it is a time-critical event (see date ranges below
+through the built-in package datasets):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Extract date ranges</span></span>
+<span><span class="fu">readmit</span><span class="fu">::</span><span class="va"><a href="../reference/hrrp_keydates.html">hrrp_keydates</a></span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">ProgramYear</span>,</span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">matches</a></span><span class="op">(</span><span class="st">"^(Payment|Review)"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 9 × 5</span></span></span>
+<span><span class="co">#&gt;   ProgramYear PaymentStartDate PaymentEndDate ReviewStartDate ReviewEndDate</span></span>
+<span><span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>        <span style="text-decoration: underline;">2</span>027 2026-10-01       2027-09-30     <span style="color: #BB0000;">NA</span>              <span style="color: #BB0000;">NA</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>        <span style="text-decoration: underline;">2</span>026 2025-10-01       2026-09-30     2025-08-12      2025-09-10   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>        <span style="text-decoration: underline;">2</span>025 2024-10-01       2025-09-30     2024-08-12      2024-09-10   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>        <span style="text-decoration: underline;">2</span>024 2023-10-01       2024-09-30     2023-08-08      2023-09-07   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>        <span style="text-decoration: underline;">2</span>023 2022-10-01       2023-09-30     2022-08-08      2022-09-07   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>        <span style="text-decoration: underline;">2</span>022 2021-10-01       2022-09-30     2021-08-09      2021-09-08   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span>        <span style="text-decoration: underline;">2</span>021 2020-10-01       2021-09-30     2020-08-10      2020-09-09   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span>        <span style="text-decoration: underline;">2</span>020 2019-10-01       2020-09-30     2019-08-09      2019-09-09   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span>        <span style="text-decoration: underline;">2</span>019 2018-10-01       2019-09-30     2018-08-06      2018-09-05</span></span></code></pre></div>
+<p>The report file itself is a large, multi-tab Microsoft Excel document
+where the structured part of the data is ambiguously placed throughout,
+thus we need tools to parse it out into a usable format. That is what
+some functions <code>readmit</code> package are for. In this article, we
+go through the tools that are available, what they do, and then provide
+some strategies/approaches for how hospitals can use these tools to
+analyze their own HSR’s to gain deeper insight into HRRP results and
+readmissions more broadly.</p>
+<div class="section level2">
+<h2 id="the-toolbox">The Toolbox<a class="anchor" aria-label="anchor" href="#the-toolbox"></a>
+</h2>
+<p>First, we’ll start by taking a look at what relevant functions are
+available to us, what they do, and how to use them. For our purposes,
+these are all of the functions prefixed like <code>hsr_*</code>. We’ll
+do this roughly in order of how the report is laid out, and how the HRRP
+results roll up.</p>
+<div class="section level3">
+<h3 id="mock-reports">0. Mock Reports<a class="anchor" aria-label="anchor" href="#mock-reports"></a>
+</h3>
+<p>As the developer of this package, I don’t have access to hospitals’
+actual HSR’s, as they contain senstivie patient information (i.e., <a href="">PHI</a>) and thus are not publicly available. So what we have to
+work with are <em>mock</em> reports that <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2" class="external-link">CMS
+provides</a> to the public that are meant to mimick the exact format a
+hospital can expect their report to be in. It just includes fake
+data.</p>
+<ul>
+<li>Provides a nice practice environment</li>
+<li>Issues with dates, we can fix to make them more “real”</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="program-summary">1. Program Summary<a class="anchor" aria-label="anchor" href="#program-summary"></a>
+</h3>
+<ul>
+<li>Show review periods, how they overlap with payment (the timing of
+it)</li>
+<li>Emphasize validation/correction period. These are some ways to help
+validate.</li>
+</ul>
+</div>
+</div>
+<div class="section level2">
+<h2 id="analysis-strategies">Analysis Strategies<a class="anchor" aria-label="anchor" href="#analysis-strategies"></a>
+</h2>
+</div>
+<div class="section level2">
+<h2 id="reconciling-the-penalty">Reconciling the penalty<a class="anchor" aria-label="anchor" href="#reconciling-the-penalty"></a>
+</h2>
+<ul>
+<li>Start with first page, compute from there based on cohort page</li>
+<li>We can go a level deeper: how were those risks calculated? Compute
+readmission risks, reproduce Cohort quantities.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="exploring-risk-distributions">Exploring risk distributions<a class="anchor" aria-label="anchor" href="#exploring-risk-distributions"></a>
+</h2>
+<ul>
+<li>Model risk factors</li>
+<li>Risk factor prevalence</li>
+<li>Risk factor prevalence by model weight (scatterplot)</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://centralstatz.github.io/readmit/">readmit</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"</span></span>
 <span><span class="co">#&gt; [3] "FY2021_HRRP_MockHSR.xlsx" "FY2022_HRRP_MockHSR.xlsx"</span></span>
 <span><span class="co">#&gt; [5] "FY2023_HRRP_MockHSR.xlsx" "FY2024_HRRP_MockHSR.xlsx"</span></span>
 <span><span class="co">#&gt; [7] "FY2025_HRRP_MockHSR.xlsx"</span></span></code></pre></div>
-  </main>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

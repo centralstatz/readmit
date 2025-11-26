@@ -4,6 +4,11 @@ Parses the Table 1 payment summary from the HSR, including (but not
 limited to) the payment penalty, peer group the hospital was compared
 against, and dual proportion that determines peer group assignment.
 
+***Note**: CMS changed the format of Hospital-Specific Reports (HSRs)
+for FY2026 (see
+[here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The
+current HSR functions support formats through FY2025.*
+
 ## Usage
 
 ``` r

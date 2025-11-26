@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Tools for navigating, managing, and analyzing hospital readmissions • readmit</title>
+<title>Tools for Working with Hospital Readmissions Data • readmit</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -18,9 +18,9 @@
 <link href="deps/Tomorrow-0.4.10/font.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for navigating, managing, and analyzing hospital readmissions">
-<meta name="description" content="Contains toolkits and datasets to make managing hospital readmissions easier and more transparent. Particular context is given to the Hospital Readmissions Reduction Program (HRRP) by the Center for Medicare &amp; Medicaid Services (CMS) for understanding program details and analyzing reports.">
-<meta property="og:description" content="Contains toolkits and datasets to make managing hospital readmissions easier and more transparent. Particular context is given to the Hospital Readmissions Reduction Program (HRRP) by the Center for Medicare &amp; Medicaid Services (CMS) for understanding program details and analyzing reports.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for Working with Hospital Readmissions Data">
+<meta name="description" content="Contains tools for working with and analyzing hospital readmissions data. The package provides utilities for components of the Hospital Readmissions Reduction Program (HRRP), including program timeline functions, Hospital-Specific Report (HSR) helpers, and general importing tools for the Provider Data Catalog (PDC).">
+<meta property="og:description" content="Contains tools for working with and analyzing hospital readmissions data. The package provides utilities for components of the Hospital Readmissions Reduction Program (HRRP), including program timeline functions, Hospital-Specific Report (HSR) helpers, and general importing tools for the Provider Data Catalog (PDC).">
 <meta property="og:image" content="https://centralstatz.github.io/readmit/logo.png">
 </head>
 <body>
@@ -67,7 +67,7 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of <code>readmit</code> is to make components of navigating, managing, and analyzing hospital readmissions easier and more transparent. Ultimately, keeping patients out of the hospital.</p>
+<p><code>readmit</code> is an evolving R package that contains tools for working with and analyzing hospital readmissions data. Currently, it provides utilities for components of the Hospital Readmissions Reduction Program (HRRP), including program timeline functions, Hospital-Specific Report (HSR) helpers, and general importing tools for the Provider Data Catalog (PDC).</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -204,6 +204,7 @@
 <div class="section level2">
 <h2 id="analyzing-hospital-reports">Analyzing hospital reports<a class="anchor" aria-label="anchor" href="#analyzing-hospital-reports"></a>
 </h2>
+<p><em><strong>Note</strong>: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2" class="external-link">here</a>). The current HSR functions support Excel-based formats through FY2025.</em></p>
 <p><a href="https://www.cms.gov/" class="external-link">CMS</a> sends out <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports" class="external-link">Hospital-Specific Reports (HSR)</a> each program year detailing the calculations of the payment reduction for the upcoming fiscal year (hospitals are given a 1-month period to review and submit corrections, the dates of which can be accessed with <code>hrrp_review_periods</code>). These reports contain the penalty amount down to the individual, line-item discharges that were included in the program. The package functions prefixed like <code>hsr_*</code> are meant to be used with them. For example, we can use the <code>hsr_discharges</code> function to extract discharge-level data for the heart failure cohort included in the readmission denominator into a clean data frame:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mock report from QualityNet</span></span>
@@ -327,20 +328,20 @@
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hospital_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pdc_read.html">pdc_datasets</a></span><span class="op">(</span><span class="st">"Hospitals"</span><span class="op">)</span></span>
 <span><span class="va">hospital_data</span></span>
-<span><span class="co">#&gt; # A tibble: 67 × 7</span></span>
+<span><span class="co">#&gt; # A tibble: 69 × 7</span></span>
 <span><span class="co">#&gt;    datasetid topic     title       description issued     modified   downloadurl</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;       &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;      </span></span>
-<span><span class="co">#&gt;  1 wue8-3vwe Hospitals Ambulatory… This file … 2025-07-16 2025-06-27 https://da…</span></span>
-<span><span class="co">#&gt;  2 4jcv-atw7 Hospitals Ambulatory… A list of … 2025-07-16 2025-06-27 https://da…</span></span>
-<span><span class="co">#&gt;  3 axe7-s95e Hospitals Ambulatory… This file … 2025-07-16 2025-06-27 https://da…</span></span>
-<span><span class="co">#&gt;  4 hbf-map   Hospitals Birthing F… A list of … 2025-07-09 2025-07-16 https://da…</span></span>
-<span><span class="co">#&gt;  5 muwa-iene Hospitals CMS Medica… This data … 2020-12-10 2025-07-16 https://da…</span></span>
-<span><span class="co">#&gt;  6 ynj2-r877 Hospitals Complicati… Complicati… 2023-07-05 2025-07-16 https://da…</span></span>
-<span><span class="co">#&gt;  7 qqw3-t4ie Hospitals Complicati… Complicati… 2020-12-10 2025-07-16 https://da…</span></span>
-<span><span class="co">#&gt;  8 bs2r-24vh Hospitals Complicati… Complicati… 2020-12-10 2025-07-16 https://da…</span></span>
-<span><span class="co">#&gt;  9 z8ax-x9j1 Hospitals Complicati… Prospectiv… 2024-07-31 2025-07-16 https://da…</span></span>
-<span><span class="co">#&gt; 10 jfnd-nl7s Hospitals Complicati… Prospectiv… 2024-07-31 2025-07-16 https://da…</span></span>
-<span><span class="co">#&gt; # ℹ 57 more rows</span></span></code></pre></div>
+<span><span class="co">#&gt;  1 axe7-s95e Hospitals Ambulatory… This file … 2025-10-01 2025-10-01 https://da…</span></span>
+<span><span class="co">#&gt;  2 wue8-3vwe Hospitals Ambulatory… This file … 2025-10-01 2025-10-01 https://da…</span></span>
+<span><span class="co">#&gt;  3 4jcv-atw7 Hospitals Ambulatory… A list of … 2025-10-01 2025-10-01 https://da…</span></span>
+<span><span class="co">#&gt;  4 hbf-map   Hospitals Birthing F… A list of … 2025-07-09 2025-10-14 https://da…</span></span>
+<span><span class="co">#&gt;  5 muwa-iene Hospitals CMS Medica… This data … 2020-12-10 2025-10-14 https://da…</span></span>
+<span><span class="co">#&gt;  6 ynj2-r877 Hospitals Complicati… Complicati… 2023-07-05 2025-10-20 https://da…</span></span>
+<span><span class="co">#&gt;  7 qqw3-t4ie Hospitals Complicati… Complicati… 2020-12-10 2025-10-14 https://da…</span></span>
+<span><span class="co">#&gt;  8 bs2r-24vh Hospitals Complicati… Complicati… 2020-12-10 2025-10-14 https://da…</span></span>
+<span><span class="co">#&gt;  9 jfnd-nl7s Hospitals Complicati… Prospectiv… 2024-07-31 2025-10-14 https://da…</span></span>
+<span><span class="co">#&gt; 10 z8ax-x9j1 Hospitals Complicati… Prospectiv… 2024-07-31 2025-10-14 https://da…</span></span>
+<span><span class="co">#&gt; # ℹ 59 more rows</span></span></code></pre></div>
 <p>This result contains information on all datasets included under the <em>Hospitals</em> topic. We can then explore this list to find a dataset we want to import. For example, we can search the titles of the datasets relevant to readmissions:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">readmission_data</span> <span class="op">&lt;-</span> </span>

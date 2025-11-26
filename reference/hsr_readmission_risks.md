@@ -3,6 +3,11 @@
 Computes the *predicted* and *expected* readmission risks for each
 eligible discharge in the specified cohort.
 
+***Note**: CMS changed the format of Hospital-Specific Reports (HSRs)
+for FY2026 (see
+[here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The
+current HSR functions support formats through FY2025.*
+
 ## Usage
 
 ``` r

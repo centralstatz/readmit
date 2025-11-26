@@ -3,6 +3,11 @@
 Parses the discharge-level records from the HSR of patients who were
 dually-eligible for Medicare and Medicaid benefits (see details).
 
+***Note**: CMS changed the format of Hospital-Specific Reports (HSRs)
+for FY2026 (see
+[here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The
+current HSR functions support formats through FY2025.*
+
 ## Usage
 
 ``` r

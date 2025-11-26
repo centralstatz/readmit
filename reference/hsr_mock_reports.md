@@ -11,6 +11,11 @@ translate them to their own hospital reports. Files include fiscal years
 <https://qualitynet.cms.gov/inpatient/hrrp/reports>. File names were
 changed for better identifiability.
 
+***Note**: CMS changed the format of Hospital-Specific Reports (HSRs)
+for FY2026 (see
+[here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The
+current HSR functions support formats through FY2025.*
+
 ## Usage
 
 ``` r

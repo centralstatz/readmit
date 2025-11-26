@@ -3,6 +3,11 @@
 Parses out the discharge-level data for a specific program cohort that
 contributed to penalty program in the reporting fiscal year (FY).
 
+***Note**: CMS changed the format of Hospital-Specific Reports (HSRs)
+for FY2026 (see
+[here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The
+current HSR functions support formats through FY2025.*
+
 ## Usage
 
 ``` r
