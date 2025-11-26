@@ -17,9 +17,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-_**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support Excel-based formats through FY2025._
+_**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support Excel-based formats through FY2025. However, analysis strategies are still relevant._
 
-As part of the [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp), the [Centers for Medicare & Medicaid Services (CMS)](https://www.cms.gov/) provides a detailed, annual program summary report (called the [Hospital-Specific Report (HSR)](https://qualitynet.cms.gov/inpatient/hrrp/reports)) to hospitals that includes details on the penalty calculation for the upcoming fiscal year, such as discharge-level data, dually-eligible discharge lists, cohort-level rollup, and the penalty amount. There is a defined [review and correction period]() in which hospitals can use these reports to ensure the penalty being enforced by CMS is accurate. It occurs approximately 1 month before the new fiscal year, thus it is a time-critical event (see date ranges below through the built-in package datasets):
+As part of the [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp), the [Centers for Medicare & Medicaid Services (CMS)](https://www.cms.gov/) provides a detailed, annual program summary report (called the [Hospital-Specific Report (HSR)](https://qualitynet.cms.gov/inpatient/hrrp/reports)) to hospitals that includes details on the penalty calculation for the upcoming fiscal year, such as discharge-level data, dually-eligible discharge lists, cohort-level rollup, and the penalty amount. There is a defined [review and correction period](https://qualitynet.cms.gov/inpatient/hrrp/resources#tab1:~:text=FY%202026%20Hospital%20Readmissions%20Reduction%20Program%20Key%20Dates%20(08/11/25)) in which hospitals can use these reports to ensure the penalty being enforced by CMS is accurate. It occurs approximately 1 month before the new fiscal year, thus it is a time-critical event (see historical date ranges below for reference with the built-in package datasets):
 
 ```{r}
 # Extract date ranges
@@ -31,29 +31,235 @@ readmit::hrrp_keydates |>
   dplyr::distinct()
 ```
 
-The report file itself is a large, multi-tab Microsoft Excel document where the structured part of the data is ambiguously placed throughout, thus we need tools to parse it out into a usable format. That is what some functions `readmit` package are for. In this article, we go through the tools that are available, what they do, and then provide some strategies/approaches for how hospitals can use these tools to analyze their own HSR's to gain deeper insight into HRRP results and readmissions more broadly.
+The report file itself (through FY2025) is a large, multi-tab Microsoft Excel document where the structured part of the data is ambiguously placed throughout, thus we need tools to parse it out into a usable format. That is what some functions in the `readmit` package are for. In this article, we go through the tools that are available, what they do, and then provide some strategies/approaches for how hospitals can use these tools to analyze their own HSR's to gain deeper insight into HRRP results and readmissions more broadly.
 
 # The Toolbox
 
 First, we'll start by taking a look at what relevant functions are available to us, what they do, and how to use them. For our purposes, these are all of the functions prefixed like `hsr_*`. We'll do this roughly in order of how the report is laid out, and how the HRRP results roll up.
 
+```{r}
+library(readmit)
+```
+
 ## 0. Mock Reports
 
-As the developer of this package, I don't have access to hospitals' actual HSR's, as they contain senstivie patient information (i.e., [PHI]()) and thus are not publicly available. So what we have to work with are _mock_ reports that [CMS provides](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2) to the public that are meant to mimick the exact format a hospital can expect their report to be in. It just includes fake data.
+As the developer of this package, I don't have access to hospitals' actual HSR's, as they contain senstivie patient information (i.e., [PHI](https://cphs.berkeley.edu/hipaa/hipaa18.html)) and thus are not publicly available. So what we have to work with are _mock_ reports that [CMS provides](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab3) to the public that are meant to mimick the format a hospital can expect their report to be in. It just includes fake data.
 
+_**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support Excel-based formats through FY2025. However, analysis strategies are still relevant._
 
-* Provides a nice practice environment
-* Issues with dates, we can fix to make them more "real"
+Nevertheless, these provide a useful playground to analyze the mechanics of the program. We'll start by finding a report with the `hsr_mock_reports()` function:
+
+* Using no arguments lists the various mock files included in the package
+
+```{r}
+hsr_mock_reports()
+```
+
+* Entering one of the listed file names will return the complete path to the file in the packages location on your computer
+
+```{r}
+my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+my_report
+```
+
+Now we can use that HSR path with other package functions. Of course, you would just point to your own HSR when analyzing your hospital's reports.
 
 ## 1. Program Summary
 
+We'll start with high level program results. Ultimately, all of the moving parts in the HRRP roll up into a single number: the penalty amount applied to your hospital. This is typically the first table in your report. We can parse it out of the report with the `hsr_payment_summary()` function:
 
+```{r}
+my_payment_summary <- hsr_payment_summary(my_report)
+my_payment_summary
+```
 
+We now have this information in a data frame that we can manipulate as needed:
 
-* Show review periods, how they overlap with payment (the timing of it)
-* Emphasize validation/correction period. These are some ways to help validate.
+```{r}
+my_payment_summary |>
+  tidyr::pivot_longer(dplyr::everything())
+```
 
-# Analysis Strategies
+There are also helper functions to extract specific components from this table.
+
+```{r}
+hsr_payment_penalty(my_report)
+hsr_dual_proportion(my_report)
+hsr_peer_group(my_report)
+```
+
+See `?hsr_payment_summary` for all of them.
+
+## 2. Cohort Summary
+
+The overall payment penalty a hospital receives is a weighted average of penalities applied to the individual cohorts. These details are typically in the second table (tab) of the HSR, which we can import with `hsr_cohort_summary()`:
+
+```{r}
+cohort_summary <- hsr_cohort_summary(my_report)
+cohort_summary
+```
+
+We can then, for example, reconcile the overall penalty amount based on what is in this table:
+
+```{r}
+cohort_summary |>
+
+  # Filter to cohorts with a penalty
+  dplyr::filter(`Penalty Indicator (Yes/No) [h]` == "Yes") |>
+  
+  # Compute the contribution of each penalized cohort
+  dplyr::mutate(
+    Contribution = 
+      `Ratio of DRG Payments Per Measure to Total Payments [i]` *
+      (
+        `Excess Readmission Ratio (ERR) [f]` - 
+          `Peer Group Median ERR [g]`
+      )
+  ) |>
+  
+  # Roll up into final calculation
+  dplyr::summarize(
+    Penalty = sum(Contribution) * hsr_neutrality_modifier(my_report)
+  )
+```
+
+What we did here was:
+
+1. Find cohorts who received a penalty _who were eligible_
+    + A cohort must have at least 25 discharges to be eligible
+    + Then, the excess readmission ratio (ERR) must be greater than the assigned peer group's median ERR
+2. Find the difference between the hospital's ERR compared to the peer group median ERR
+3. Multiply that by the ratio of DRG payments for that cohort
+    + This is a measure of the volume of patients with this condition are treated at the hospital
+4. Sum those contributions over each cohort
+5. Multiply that by the neutrality modifier in the `hsr_payment_summary()` table
+
+That's how the penalty is computed, from cohort summary level.
+
+## 3. Discharges
+
+_Note: Because we are using mock reports, the dates in these files are erroneous and thus R doesn't interpret them as dates. However, your hospital report has real dates and thus R should automatically parse them as such._
+
+The HSR also contains discharge-level data on the individual patients that actually contributed to the program. There is a separate table/tab for each of the cohorts. We can use the `hsr_discharges()` function to import them for a specified cohort:
+
+```{r}
+hsr_discharges(my_report, "COPD")
+```
+
+We get some patient identifying information, including the specific dates associated with the index and readmission hospitalizations, whether or not the readmission occurred at the same hospital, diagnosis codes, etc., which is all very valuable information that we can explore to gain insights from (and what we'll do [later](#analysisstrategies)).
+
+There are also options available in the function to refine the result:
+
+### Eligible Cases
+
+The `eligible_only` argument can be used to only included discharges that were actually included in HRRP evaluation:
+
+```{r}
+hsr_discharges(
+  file = my_report, 
+  cohort = "COPD",
+  eligible_only = TRUE
+)
+```
+
+Notice that this row count matches what was reported as the COPD denominator in the `cohort_summary`:
+
+```{r}
+cohort_summary |>
+  dplyr::filter(`Measure [a]` == "COPD") |>
+  dplyr::pull(`Number of Eligible Discharges [b]`)
+```
+
+### Risk Factors
+
+Also included in these tables are the indicators of risk factors that are used in the statistical models to estimate individual adjusted readmission risks. We can use the `risk_factors` argument to extract those for each patient:
+
+```{r}
+hsr_discharges(
+  file = my_report, 
+  cohort = "COPD",
+  eligible_only = TRUE,
+  risk_factors = TRUE,
+  discharge_phi = FALSE
+)
+```
+
+This data can then be explored further to understand risk factor prevalence and how that relates to model weights, etc. (again, covered [later](#analysisstrategies)). Notice the `discharge_phi` argument was used to prevent the date information from being returned.
+
+## 4. Model Coefficients
+
+The ERR is calculated based on an aggregated roll up of individual adjusted readmission risks derived from a random-intercept logistic regression model. The first row in the discharge table contains the coefficients for this model. We can use the `hsr_coefficients()` function to extract them:
+
+```{r}
+copd_model <- hsr_coefficients(my_report, "COPD")
+copd_model
+```
+
+This allows us to do things like assess the relative contribution of risk factors to the estimated readmission rates or use the risk factor dataset above to compute individual level readmission risks.
+
+### Intercept Terms
+
+The _predicted_ and _expected_ readmission rates only differ in the intercept terms applied to the prediction (thus it is a constant shift for all patients). We can see these at the end of this data frame:
+
+```{r}
+copd_model |> tail()
+```
+
+## 5. Readmission Risks
+
+We could take the risk factor output from `hsr_discharges()` combined with the coefficients from `hsr_coefficients()` and reconcile each patient's _predicted_ and _expected_ readmission risk. But the `hsr_readmission_risks()` function can do all of that for us:
+
+```{r}
+risks <- hsr_readmission_risks(my_report, "COPD")
+risks
+```
+
+This just takes a weighted-sum of the risk factors and coefficients, adds the corresponding intercept, and then maps it to a probability through the logistic function.
+
+The cohort-level _predicted_ and _expected_ readmission rates are just the averages of these columns across all eligible patients:
+
+```{r}
+risks |>
+  dplyr::summarize(
+    Discharges = dplyr::n(),
+    Predicted = mean(Predicted),
+    Expected = mean(Expected),
+    ERR = Predicted / Expected
+  )
+```
+
+Again, looking at our cohort summary, we can see these match:
+
+```{r}
+cohort_summary |> 
+  dplyr::filter(
+    `Measure [a]` == "COPD"
+  ) |>
+  dplyr::select(
+    Discharges = `Number of Eligible Discharges [b]`,
+    Predicted = `Predicted Readmission Rate [d]`,
+    Expected = `Expected Readmission Rate [e]`,
+    ERR = `Excess Readmission Ratio (ERR) [f]`
+  )
+```
+
+## 6. Dual Stays
+
+CMS puts hospitals into peer groups based on the relative proportion of Medicare patients who are also eligible for Medicaid. This is a measure of socioeconomic status for the hospital population so hospitals are being compared only against other hospitals that are similar (in this regard). These aggregated quantities were found in `hsr_payment_summary()` result:
+
+```{r}
+my_payment_summary
+```
+
+The `hsr_dual_stays()` function extracts the discharge-level data corresponding to the numerator of the ratio:
+
+```{r}
+hsr_dual_stays(my_report)
+```
+
+We can see that the row count of this discharge level data matches the first number in the preceding table.
+
+# Analysis Strategies {#analysisstrategies}
 
 # Reconciling the penalty
 
