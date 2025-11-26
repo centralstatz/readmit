@@ -6,6 +6,8 @@
 #' Parses the Table 1 payment summary from the HSR, including (but not limited to) the payment penalty,
 #' peer group the hospital was compared against, and dual proportion that determines peer group assignment.
 #'
+#' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
+#'
 #' @return
 #' * `hsr_payment_summary()` returns a [tibble::tibble()] containing the full Table 1 parsed from the report.
 #' * Additional convenience functions extract specific columns from this table, and always return a numeric value.

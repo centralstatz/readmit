@@ -10,6 +10,8 @@
 #' Files include fiscal years (FY) 2019-2025 and were downloaded on 11/8/2025 from [https://qualitynet.cms.gov/inpatient/hrrp/reports](https://qualitynet.cms.gov/inpatient/hrrp/reports).
 #' File names were changed for better identifiability.
 #'
+#' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
+#'
 #' @export
 #'
 #' @details

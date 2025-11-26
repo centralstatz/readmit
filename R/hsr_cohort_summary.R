@@ -6,6 +6,8 @@
 #' Parses the Table 2 cohort summary from the HSR, including (but not limited to) the discharge/readmission volumes,
 #' predicted/expected readmission rates, peer group medians, and DRG ratios.
 #'
+#' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
+#'
 #' @return A [tibble::tibble()] containing the full Table 2 parsed from the report.
 #' @export
 #'

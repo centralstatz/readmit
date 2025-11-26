@@ -9,6 +9,8 @@
 #' @description
 #' Parses out the discharge-level data for a specific program cohort that contributed to penalty program in the reporting fiscal year (FY).
 #'
+#' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
+#'
 #' @details
 #' The first set of columns in the discharge level data (typically through column R) contain the protected health information (PHI)
 #' associated with the discharges, such as medical record identifiers, admission/discharge/readmission dates, index diagnoses, etc. which

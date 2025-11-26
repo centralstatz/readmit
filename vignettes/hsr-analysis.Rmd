@@ -1,6 +1,6 @@
 ---
 title: "Investigating a Hospital-Specific Report (HSR)"
-subtitle: "Analysis ideas for gaining insight into HRRP program results"
+subtitle: "Analysis ideas for gaining insight into HRRP program results."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{hsr-analysis}
@@ -16,6 +16,55 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+_**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support Excel-based formats through FY2025._
+
+As part of the [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp), the [Centers for Medicare & Medicaid Services (CMS)](https://www.cms.gov/) provides a detailed, annual program summary report (called the [Hospital-Specific Report (HSR)](https://qualitynet.cms.gov/inpatient/hrrp/reports)) to hospitals that includes details on the penalty calculation for the upcoming fiscal year, such as discharge-level data, dually-eligible discharge lists, cohort-level rollup, and the penalty amount. There is a defined [review and correction period]() in which hospitals can use these reports to ensure the penalty being enforced by CMS is accurate. It occurs approximately 1 month before the new fiscal year, thus it is a time-critical event (see date ranges below through the built-in package datasets):
+
+```{r}
+# Extract date ranges
+readmit::hrrp_keydates |>
+  dplyr::select(
+    ProgramYear,
+    dplyr::matches("^(Payment|Review)")
+  ) |>
+  dplyr::distinct()
+```
+
+The report file itself is a large, multi-tab Microsoft Excel document where the structured part of the data is ambiguously placed throughout, thus we need tools to parse it out into a usable format. That is what some functions `readmit` package are for. In this article, we go through the tools that are available, what they do, and then provide some strategies/approaches for how hospitals can use these tools to analyze their own HSR's to gain deeper insight into HRRP results and readmissions more broadly.
+
+# The Toolbox
+
+First, we'll start by taking a look at what relevant functions are available to us, what they do, and how to use them. For our purposes, these are all of the functions prefixed like `hsr_*`. We'll do this roughly in order of how the report is laid out, and how the HRRP results roll up.
+
+## 0. Mock Reports
+
+As the developer of this package, I don't have access to hospitals' actual HSR's, as they contain senstivie patient information (i.e., [PHI]()) and thus are not publicly available. So what we have to work with are _mock_ reports that [CMS provides](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2) to the public that are meant to mimick the exact format a hospital can expect their report to be in. It just includes fake data.
+
+
+* Provides a nice practice environment
+* Issues with dates, we can fix to make them more "real"
+
+## 1. Program Summary
+
+
+
+
+* Show review periods, how they overlap with payment (the timing of it)
+* Emphasize validation/correction period. These are some ways to help validate.
+
+# Analysis Strategies
+
+# Reconciling the penalty
+
+* Start with first page, compute from there based on cohort page
+* We can go a level deeper: how were those risks calculated? Compute readmission risks, reproduce Cohort quantities.
+
+# Exploring risk distributions
+
+* Model risk factors
+* Risk factor prevalence
+* Risk factor prevalence by model weight (scatterplot)
 
 ```{r setup}
 library(readmit)

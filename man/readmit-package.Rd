@@ -4,11 +4,11 @@
 \name{readmit-package}
 \alias{readmit}
 \alias{readmit-package}
-\title{readmit: Tools for navigating, managing, and analyzing hospital readmissions}
+\title{readmit: Tools for Working with Hospital Readmissions Data}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Contains toolkits and datasets to make managing hospital readmissions easier and more transparent. Particular context is given to the Hospital Readmissions Reduction Program (HRRP) by the Center for Medicare & Medicaid Services (CMS) for understanding program details and analyzing reports.
+Contains tools for working with and analyzing hospital readmissions data. The package provides utilities for components of the Hospital Readmissions Reduction Program (HRRP), including program timeline functions, Hospital-Specific Report (HSR) helpers, and general importing tools for the Provider Data Catalog (PDC).
 }
 \seealso{
 Useful links:

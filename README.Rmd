@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of `readmit` is to make components of navigating, managing, and analyzing hospital readmissions easier and more transparent. Ultimately, keeping patients out of the hospital.
+`readmit` is an evolving R package that contains tools for working with and analyzing hospital readmissions data. Currently, it provides utilities for components of the Hospital Readmissions Reduction Program (HRRP), including program timeline functions, Hospital-Specific Report (HSR) helpers, and general importing tools for the Provider Data Catalog (PDC).
 
 ## Installation
 
@@ -111,6 +111,8 @@ hrrp_get_dates(as.Date("2022-01-01"), "payment", discharge = TRUE)
 We can see that not only are the discharges that impact _today's_ payment reductions multiple years old, but also individual discharges (and their associated readmissions) can impact the program result for three (3) years in a row.
 
 ## Analyzing hospital reports
+
+_**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support Excel-based formats through FY2025._
 
 [CMS](https://www.cms.gov/) sends out [Hospital-Specific Reports (HSR)](https://qualitynet.cms.gov/inpatient/hrrp/reports) each program year detailing the calculations of the payment reduction for the upcoming fiscal year (hospitals are given a 1-month period to review and submit corrections, the dates of which can be accessed with `hrrp_review_periods`). These reports contain the penalty amount down to the individual, line-item discharges that were included in the program. The package functions prefixed like `hsr_*` are meant to be used with them. For example, we can use the `hsr_discharges` function to extract discharge-level data for the heart failure cohort included in the readmission denominator into a clean data frame:
 

@@ -15,6 +15,8 @@ A \code{\link[tibble:tibble]{tibble::tibble()}}
 \description{
 Parses the discharge-level records from the HSR of patients who were
 dually-eligible for Medicare and Medicaid benefits (see details).
+
+\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }
 \details{
 In the \href{https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp}{Hospital Readmissions Reduction Program (HRRP)},

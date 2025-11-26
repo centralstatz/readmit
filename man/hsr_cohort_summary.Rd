@@ -15,6 +15,8 @@ A \code{\link[tibble:tibble]{tibble::tibble()}} containing the full Table 2 pars
 \description{
 Parses the Table 2 cohort summary from the HSR, including (but not limited to) the discharge/readmission volumes,
 predicted/expected readmission rates, peer group medians, and DRG ratios.
+
+\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }
 \examples{
 # Access a report

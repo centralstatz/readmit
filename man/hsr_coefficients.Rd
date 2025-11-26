@@ -22,6 +22,8 @@ A \code{\link[tibble:tibble]{tibble::tibble()}} containing the columns:
 Parses out the regression coefficients from the logistic regression model
 used by CMS to estimate discharge-level readmission risk,
 including the hospital-level and hospital average intercept terms.
+
+\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }
 \examples{
 # Access a report

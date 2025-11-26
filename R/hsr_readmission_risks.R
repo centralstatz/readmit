@@ -6,6 +6,8 @@
 #' @description
 #' Computes the _predicted_ and _expected_ readmission risks for each eligible discharge in the specified cohort.
 #'
+#' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
+#'
 #' @details
 #' The [readmission measure](https://qualitynet.cms.gov/inpatient/measures/readmission) is what [CMS](https://www.cms.gov/) uses to grade performance
 #' in the [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp).

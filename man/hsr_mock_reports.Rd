@@ -16,6 +16,8 @@ They contain mock data for sensitive fields (discharge level data, etc.), but re
 Thus, it gives user ability to practice/explore package functions and translate them to their own hospital reports.
 Files include fiscal years (FY) 2019-2025 and were downloaded on 11/8/2025 from \url{https://qualitynet.cms.gov/inpatient/hrrp/reports}.
 File names were changed for better identifiability.
+
+\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }
 \details{
 This function was adapted from \code{\link[readxl:readxl_example]{readxl::readxl_example()}}.

@@ -39,6 +39,8 @@ hsr_payment_penalty(file)
 \description{
 Parses the Table 1 payment summary from the HSR, including (but not limited to) the payment penalty,
 peer group the hospital was compared against, and dual proportion that determines peer group assignment.
+
+\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }
 \examples{
 # Access a report

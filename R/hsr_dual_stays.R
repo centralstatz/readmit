@@ -6,6 +6,8 @@
 #' Parses the discharge-level records from the HSR of patients who were
 #' dually-eligible for Medicare and Medicaid benefits (see details).
 #'
+#' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
+#'
 #' @details
 #' In the [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp),
 #' hospitals' readmission rates are compared against a peer group of "like" hospitals, which determines whether or not they will

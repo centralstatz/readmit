@@ -28,6 +28,8 @@ A \code{\link[tibble:tibble]{tibble::tibble()}}
 }
 \description{
 Parses out the discharge-level data for a specific program cohort that contributed to penalty program in the reporting fiscal year (FY).
+
+\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }
 \details{
 The first set of columns in the discharge level data (typically through column R) contain the protected health information (PHI)

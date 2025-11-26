@@ -21,6 +21,8 @@ A \code{\link[tibble:tibble]{tibble::tibble()}} containing the following columns
 }
 \description{
 Computes the \emph{predicted} and \emph{expected} readmission risks for each eligible discharge in the specified cohort.
+
+\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }
 \details{
 The \href{https://qualitynet.cms.gov/inpatient/measures/readmission}{readmission measure} is what \href{https://www.cms.gov/}{CMS} uses to grade performance
