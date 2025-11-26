@@ -5,7 +5,8 @@
 ***Note**: CMS changed the format of Hospital-Specific Reports (HSRs)
 for FY2026 (see
 [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The
-current HSR functions support Excel-based formats through FY2025.*
+current HSR functions support Excel-based formats through FY2025.
+However, analysis strategies are still relevant.*
 
 As part of the [Hospital Readmissions Reduction Program
 (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp),
@@ -16,11 +17,12 @@ report (called the [Hospital-Specific Report
 that includes details on the penalty calculation for the upcoming fiscal
 year, such as discharge-level data, dually-eligible discharge lists,
 cohort-level rollup, and the penalty amount. There is a defined [review
-and correction period](https://centralstatz.github.io/readmit/articles/)
+and correction
+period](https://qualitynet.cms.gov/inpatient/hrrp/resources#tab1:~:text=FY%202026%20Hospital%20Readmissions%20Reduction%20Program%20Key%20Dates%20(08/11/25))
 in which hospitals can use these reports to ensure the penalty being
 enforced by CMS is accurate. It occurs approximately 1 month before the
-new fiscal year, thus it is a time-critical event (see date ranges below
-through the built-in package datasets):
+new fiscal year, thus it is a time-critical event (see historical date
+ranges below for reference with the built-in package datasets):
 
 ``` r
 # Extract date ranges
@@ -44,14 +46,14 @@ readmit::hrrp_keydates |>
 #> 9        2019 2018-10-01       2019-09-30     2018-08-06      2018-09-05
 ```
 
-The report file itself is a large, multi-tab Microsoft Excel document
-where the structured part of the data is ambiguously placed throughout,
-thus we need tools to parse it out into a usable format. That is what
-some functions `readmit` package are for. In this article, we go through
-the tools that are available, what they do, and then provide some
-strategies/approaches for how hospitals can use these tools to analyze
-their own HSR’s to gain deeper insight into HRRP results and
-readmissions more broadly.
+The report file itself (through FY2025) is a large, multi-tab Microsoft
+Excel document where the structured part of the data is ambiguously
+placed throughout, thus we need tools to parse it out into a usable
+format. That is what some functions in the `readmit` package are for. In
+this article, we go through the tools that are available, what they do,
+and then provide some strategies/approaches for how hospitals can use
+these tools to analyze their own HSR’s to gain deeper insight into HRRP
+results and readmissions more broadly.
 
 ## The Toolbox
 
@@ -61,25 +63,510 @@ these are all of the functions prefixed like `hsr_*`. We’ll do this
 roughly in order of how the report is laid out, and how the HRRP results
 roll up.
 
+``` r
+library(readmit)
+```
+
 ### 0. Mock Reports
 
 As the developer of this package, I don’t have access to hospitals’
 actual HSR’s, as they contain senstivie patient information (i.e.,
-[PHI](https://centralstatz.github.io/readmit/articles/)) and thus are
-not publicly available. So what we have to work with are *mock* reports
-that [CMS
-provides](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2) to the
-public that are meant to mimick the exact format a hospital can expect
+[PHI](https://cphs.berkeley.edu/hipaa/hipaa18.html)) and thus are not
+publicly available. So what we have to work with are *mock* reports that
+[CMS provides](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab3)
+to the public that are meant to mimick the format a hospital can expect
 their report to be in. It just includes fake data.
 
-- Provides a nice practice environment
-- Issues with dates, we can fix to make them more “real”
+***Note**: CMS changed the format of Hospital-Specific Reports (HSRs)
+for FY2026 (see
+[here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The
+current HSR functions support Excel-based formats through FY2025.
+However, analysis strategies are still relevant.*
+
+Nevertheless, these provide a useful playground to analyze the mechanics
+of the program. We’ll start by finding a report with the
+[`hsr_mock_reports()`](https://centralstatz.github.io/readmit/reference/hsr_mock_reports.md)
+function:
+
+- Using no arguments lists the various mock files included in the
+  package
+
+``` r
+hsr_mock_reports()
+#> [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"
+#> [3] "FY2021_HRRP_MockHSR.xlsx" "FY2022_HRRP_MockHSR.xlsx"
+#> [5] "FY2023_HRRP_MockHSR.xlsx" "FY2024_HRRP_MockHSR.xlsx"
+#> [7] "FY2025_HRRP_MockHSR.xlsx"
+```
+
+- Entering one of the listed file names will return the complete path to
+  the file in the packages location on your computer
+
+``` r
+my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+my_report
+#> [1] "/home/runner/work/_temp/Library/readmit/extdata/FY2025_HRRP_MockHSR.xlsx"
+```
+
+Now we can use that HSR path with other package functions. Of course,
+you would just point to your own HSR when analyzing your hospital’s
+reports.
 
 ### 1. Program Summary
 
-- Show review periods, how they overlap with payment (the timing of it)
-- Emphasize validation/correction period. These are some ways to help
-  validate.
+We’ll start with high level program results. Ultimately, all of the
+moving parts in the HRRP roll up into a single number: the penalty
+amount applied to your hospital. This is typically the first table in
+your report. We can parse it out of the report with the
+[`hsr_payment_summary()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+function:
+
+``` r
+my_payment_summary <- hsr_payment_summary(my_report)
+my_payment_summary
+#> # A tibble: 1 × 7
+#>   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`
+#>                               <dbl>                  <dbl>                 <dbl>
+#> 1                               186                    856                 0.217
+#> # ℹ abbreviated names: ¹​`Number of Dually Eligible Stays (Numerator) [a]`,
+#> #   ²​`Total Number of Stays(Denominator) [b]`
+#> # ℹ 4 more variables: `Peer Group Assignment [d]` <dbl>,
+#> #   `Neutrality Modifier [e]` <dbl>, `Payment Reduction Percentage [f]` <dbl>,
+#> #   `Payment Adjustment Factor [g]` <dbl>
+```
+
+We now have this information in a data frame that we can manipulate as
+needed:
+
+``` r
+my_payment_summary |>
+  tidyr::pivot_longer(dplyr::everything())
+#> # A tibble: 7 × 2
+#>   name                                               value
+#>   <chr>                                              <dbl>
+#> 1 Number of Dually Eligible Stays (Numerator) [a] 186     
+#> 2 Total Number of Stays(Denominator) [b]          856     
+#> 3 Dual Proportion [c]                               0.217 
+#> 4 Peer Group Assignment [d]                         3     
+#> 5 Neutrality Modifier [e]                           0.965 
+#> 6 Payment Reduction Percentage [f]                  0.0007
+#> 7 Payment Adjustment Factor [g]                     0.999
+```
+
+There are also helper functions to extract specific components from this
+table.
+
+``` r
+hsr_payment_penalty(my_report)
+#> [1] 7e-04
+hsr_dual_proportion(my_report)
+#> [1] 0.2172897
+hsr_peer_group(my_report)
+#> [1] 3
+```
+
+See
+[`?hsr_payment_summary`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+for all of them.
+
+### 2. Cohort Summary
+
+The overall payment penalty a hospital receives is a weighted average of
+penalities applied to the individual cohorts. These details are
+typically in the second table (tab) of the HSR, which we can import with
+[`hsr_cohort_summary()`](https://centralstatz.github.io/readmit/reference/hsr_cohort_summary.md):
+
+``` r
+cohort_summary <- hsr_cohort_summary(my_report)
+cohort_summary
+#> # A tibble: 6 × 10
+#>   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹
+#>   <chr>                                       <dbl>                        <dbl>
+#> 1 AMI                                             2                            0
+#> 2 COPD                                           18                            3
+#> 3 HF                                             25                            2
+#> 4 Pneumonia                                      32                            5
+#> 5 CABG                                           NA                           NA
+#> 6 THA/TKA                                        45                            0
+#> # ℹ abbreviated name: ¹​`Number of Readmissions Among Eligible Discharges [c]`
+#> # ℹ 7 more variables: `Predicted Readmission Rate [d]` <dbl>,
+#> #   `Expected Readmission Rate [e]` <dbl>,
+#> #   `Excess Readmission Ratio (ERR) [f]` <dbl>,
+#> #   `Peer Group Median ERR [g]` <dbl>, `Penalty Indicator (Yes/No) [h]` <chr>,
+#> #   `Ratio of DRG Payments Per Measure to Total Payments [i]` <dbl>,
+#> #   `National Observed Readmission Rate [j]` <dbl>
+```
+
+We can then, for example, reconcile the overall penalty amount based on
+what is in this table:
+
+``` r
+cohort_summary |>
+
+  # Filter to cohorts with a penalty
+  dplyr::filter(`Penalty Indicator (Yes/No) [h]` == "Yes") |>
+  
+  # Compute the contribution of each penalized cohort
+  dplyr::mutate(
+    Contribution = 
+      `Ratio of DRG Payments Per Measure to Total Payments [i]` *
+      (
+        `Excess Readmission Ratio (ERR) [f]` - 
+          `Peer Group Median ERR [g]`
+      )
+  ) |>
+  
+  # Roll up into final calculation
+  dplyr::summarize(
+    Penalty = sum(Contribution) * hsr_neutrality_modifier(my_report)
+  )
+#> # A tibble: 1 × 1
+#>    Penalty
+#>      <dbl>
+#> 1 0.000746
+```
+
+What we did here was:
+
+1.  Find cohorts who received a penalty *who were eligible*
+    - A cohort must have at least 25 discharges to be eligible
+    - Then, the excess readmission ratio (ERR) must be greater than the
+      assigned peer group’s median ERR
+2.  Find the difference between the hospital’s ERR compared to the peer
+    group median ERR
+3.  Multiply that by the ratio of DRG payments for that cohort
+    - This is a measure of the volume of patients with this condition
+      are treated at the hospital
+4.  Sum those contributions over each cohort
+5.  Multiply that by the neutrality modifier in the
+    [`hsr_payment_summary()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+    table
+
+That’s how the penalty is computed, from cohort summary level.
+
+### 3. Discharges
+
+*Note: Because we are using mock reports, the dates in these files are
+erroneous and thus R doesn’t interpret them as dates. However, your
+hospital report has real dates and thus R should automatically parse
+them as such.*
+
+The HSR also contains discharge-level data on the individual patients
+that actually contributed to the program. There is a separate table/tab
+for each of the cohorts. We can use the
+[`hsr_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_discharges.md)
+function to import them for a specified cohort:
+
+``` r
+hsr_discharges(my_report, "COPD")
+#> # A tibble: 21 × 17
+#>    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`
+#>          <int> <chr>       <chr>                   <chr>            
+#>  1           1 9AA9AA9AA99 99999A                  99/99/9999       
+#>  2           2 9AA9AA9AA99 99999A                  99/99/9999       
+#>  3           3 9AA9AA9AA99 99999A                  99/99/9999       
+#>  4           4 9AA9AA9AA99 99999A                  99/99/9999       
+#>  5           5 9AA9AA9AA99 99999A                  99/99/9999       
+#>  6           6 9AA9AA9AA99 99999A                  99/99/9999       
+#>  7           7 9AA9AA9AA99 99999A                  99/99/9999       
+#>  8           8 9AA9AA9AA99 99999A                  99/99/9999       
+#>  9           9 9AA9AA9AA99 99999A                  99/99/9999       
+#> 10          10 9AA9AA9AA99 99999A                  99/99/9999       
+#> # ℹ 11 more rows
+#> # ℹ 13 more variables: `Admission Date of Index Stay` <chr>,
+#> #   `Discharge Date of Index Stay` <chr>,
+#> #   `Cohort Inclusion/Exclusion Indicator` <chr>, `Index Stay (Yes/No)` <chr>,
+#> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
+#> #   `Discharge Destination` <chr>,
+#> #   `Unplanned Readmission within 30 Days (Yes/No) [a]` <chr>, …
+```
+
+We get some patient identifying information, including the specific
+dates associated with the index and readmission hospitalizations,
+whether or not the readmission occurred at the same hospital, diagnosis
+codes, etc., which is all very valuable information that we can explore
+to gain insights from (and what we’ll do [later](#analysisstrategies)).
+
+There are also options available in the function to refine the result:
+
+#### Eligible Cases
+
+The `eligible_only` argument can be used to only included discharges
+that were actually included in HRRP evaluation:
+
+``` r
+hsr_discharges(
+  file = my_report, 
+  cohort = "COPD",
+  eligible_only = TRUE
+)
+#> # A tibble: 18 × 17
+#>    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`
+#>          <int> <chr>       <chr>                   <chr>            
+#>  1           1 9AA9AA9AA99 99999A                  99/99/9999       
+#>  2           2 9AA9AA9AA99 99999A                  99/99/9999       
+#>  3           3 9AA9AA9AA99 99999A                  99/99/9999       
+#>  4           4 9AA9AA9AA99 99999A                  99/99/9999       
+#>  5           5 9AA9AA9AA99 99999A                  99/99/9999       
+#>  6           6 9AA9AA9AA99 99999A                  99/99/9999       
+#>  7           7 9AA9AA9AA99 99999A                  99/99/9999       
+#>  8           8 9AA9AA9AA99 99999A                  99/99/9999       
+#>  9           9 9AA9AA9AA99 99999A                  99/99/9999       
+#> 10          10 9AA9AA9AA99 99999A                  99/99/9999       
+#> 11          11 9AA9AA9AA99 99999A                  99/99/9999       
+#> 12          12 9AA9AA9AA99 99999A                  99/99/9999       
+#> 13          13 9AA9AA9AA99 99999A                  99/99/9999       
+#> 14          14 9AA9AA9AA99 99999A                  99/99/9999       
+#> 15          15 9AA9AA9AA99 99999A                  99/99/9999       
+#> 16          16 9AA9AA9AA99 99999A                  99/99/9999       
+#> 17          17 9AA9AA9AA99 99999A                  99/99/9999       
+#> 18          18 9AA9AA9AA99 99999A                  99/99/9999       
+#> # ℹ 13 more variables: `Admission Date of Index Stay` <chr>,
+#> #   `Discharge Date of Index Stay` <chr>,
+#> #   `Cohort Inclusion/Exclusion Indicator` <chr>, `Index Stay (Yes/No)` <chr>,
+#> #   `Principal Discharge Diagnosis of Index Stay` <chr>,
+#> #   `Discharge Destination` <chr>,
+#> #   `Unplanned Readmission within 30 Days (Yes/No) [a]` <chr>,
+#> #   `Planned Readmission within 30 Days (Yes/No)` <chr>, …
+```
+
+Notice that this row count matches what was reported as the COPD
+denominator in the `cohort_summary`:
+
+``` r
+cohort_summary |>
+  dplyr::filter(`Measure [a]` == "COPD") |>
+  dplyr::pull(`Number of Eligible Discharges [b]`)
+#> [1] 18
+```
+
+#### Risk Factors
+
+Also included in these tables are the indicators of risk factors that
+are used in the statistical models to estimate individual adjusted
+readmission risks. We can use the `risk_factors` argument to extract
+those for each patient:
+
+``` r
+hsr_discharges(
+  file = my_report, 
+  cohort = "COPD",
+  eligible_only = TRUE,
+  risk_factors = TRUE,
+  discharge_phi = FALSE
+)
+#> # A tibble: 18 × 42
+#>    `ID Number` `Years Over 65 (continuous)` `History of Mechanical Ventilation`
+#>          <int>                        <dbl>                               <dbl>
+#>  1           1                            5                                   1
+#>  2           2                            8                                   1
+#>  3           3                           23                                   0
+#>  4           4                           15                                   0
+#>  5           5                            7                                   0
+#>  6           6                            1                                   0
+#>  7           7                           12                                   0
+#>  8           8                           18                                   0
+#>  9           9                            6                                   0
+#> 10          10                           11                                   0
+#> 11          11                           15                                   0
+#> 12          12                           13                                   0
+#> 13          13                            5                                   0
+#> 14          14                           12                                   0
+#> 15          15                           12                                   0
+#> 16          16                           24                                   0
+#> 17          17                           12                                   0
+#> 18          18                           11                                   0
+#> # ℹ 39 more variables: `Sleep-Disordered Breathing` <dbl>,
+#> #   `History of COVID-19` <dbl>,
+#> #   `Severe Infection; Other Infectious Diseases` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>,
+#> #   `Lung and Other Severe Cancers` <dbl>,
+#> #   `Lymphatic, Head and Neck, Brain, and Other Major Cancers; Breast, Colorectal and Other Cancers and Tumors; Other Respiratory and Heart Neoplasms` <dbl>,
+#> #   `Other Digestive and Urinary Neoplasms` <dbl>, …
+```
+
+This data can then be explored further to understand risk factor
+prevalence and how that relates to model weights, etc. (again, covered
+[later](#analysisstrategies)). Notice the `discharge_phi` argument was
+used to prevent the date information from being returned.
+
+### 4. Model Coefficients
+
+The ERR is calculated based on an aggregated roll up of individual
+adjusted readmission risks derived from a random-intercept logistic
+regression model. The first row in the discharge table contains the
+coefficients for this model. We can use the
+[`hsr_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_coefficients.md)
+function to extract them:
+
+``` r
+copd_model <- hsr_coefficients(my_report, "COPD")
+copd_model
+#> # A tibble: 43 × 2
+#>    Factor                                                                  Value
+#>    <chr>                                                                   <dbl>
+#>  1 Years Over 65 (continuous)                                           -0.00550
+#>  2 History of Mechanical Ventilation                                     0.293  
+#>  3 Sleep-Disordered Breathing                                           -0.0339 
+#>  4 History of COVID-19                                                  -0.0200 
+#>  5 Severe Infection; Other Infectious Diseases                           0.0381 
+#>  6 Metastatic Cancer and Acute Leukemia                                  0.201  
+#>  7 Lung and Other Severe Cancers                                         0.156  
+#>  8 Lymphatic, Head and Neck, Brain, and Other Major Cancers; Breast, C… -0.00343
+#>  9 Other Digestive and Urinary Neoplasms                                -0.0792 
+#> 10 Diabetes Mellitus (DM) or DM Complications                            0.0891 
+#> # ℹ 33 more rows
+```
+
+This allows us to do things like assess the relative contribution of
+risk factors to the estimated readmission rates or use the risk factor
+dataset above to compute individual level readmission risks.
+
+#### Intercept Terms
+
+The *predicted* and *expected* readmission rates only differ in the
+intercept terms applied to the prediction (thus it is a constant shift
+for all patients). We can see these at the end of this data frame:
+
+``` r
+copd_model |> tail()
+#> # A tibble: 6 × 2
+#>   Factor                                           Value
+#>   <chr>                                            <dbl>
+#> 1 Renal Failure                                   0.160 
+#> 2 Decubitus Ulcer or Chronic Skin Ulcer           0.0729
+#> 3 Cellulitis, Local Skin Infection                0.0412
+#> 4 Vertebral Fractures Without Spinal Cord Injury  0.0822
+#> 5 HOSP_EFFECT                                    -2.53  
+#> 6 AVG_EFFECT                                     -2.53
+```
+
+### 5. Readmission Risks
+
+We could take the risk factor output from
+[`hsr_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_discharges.md)
+combined with the coefficients from
+[`hsr_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_coefficients.md)
+and reconcile each patient’s *predicted* and *expected* readmission
+risk. But the
+[`hsr_readmission_risks()`](https://centralstatz.github.io/readmit/reference/hsr_readmission_risks.md)
+function can do all of that for us:
+
+``` r
+risks <- hsr_readmission_risks(my_report, "COPD")
+risks
+#> # A tibble: 18 × 3
+#>    `ID Number` Predicted Expected
+#>          <int>     <dbl>    <dbl>
+#>  1           1    0.260    0.260 
+#>  2           2    0.266    0.266 
+#>  3           3    0.227    0.227 
+#>  4           4    0.0990   0.0989
+#>  5           5    0.0935   0.0935
+#>  6           6    0.130    0.130 
+#>  7           7    0.156    0.156 
+#>  8           8    0.190    0.190 
+#>  9           9    0.0842   0.0842
+#> 10          10    0.100    0.100 
+#> 11          11    0.129    0.129 
+#> 12          12    0.111    0.111 
+#> 13          13    0.350    0.349 
+#> 14          14    0.127    0.127 
+#> 15          15    0.158    0.158 
+#> 16          16    0.168    0.168 
+#> 17          17    0.118    0.118 
+#> 18          18    0.210    0.210
+```
+
+This just takes a weighted-sum of the risk factors and coefficients,
+adds the corresponding intercept, and then maps it to a probability
+through the logistic function.
+
+The cohort-level *predicted* and *expected* readmission rates are just
+the averages of these columns across all eligible patients:
+
+``` r
+risks |>
+  dplyr::summarize(
+    Discharges = dplyr::n(),
+    Predicted = mean(Predicted),
+    Expected = mean(Expected),
+    ERR = Predicted / Expected
+  )
+#> # A tibble: 1 × 4
+#>   Discharges Predicted Expected   ERR
+#>        <int>     <dbl>    <dbl> <dbl>
+#> 1         18     0.165    0.165  1.00
+```
+
+Again, looking at our cohort summary, we can see these match:
+
+``` r
+cohort_summary |> 
+  dplyr::filter(
+    `Measure [a]` == "COPD"
+  ) |>
+  dplyr::select(
+    Discharges = `Number of Eligible Discharges [b]`,
+    Predicted = `Predicted Readmission Rate [d]`,
+    Expected = `Expected Readmission Rate [e]`,
+    ERR = `Excess Readmission Ratio (ERR) [f]`
+  )
+#> # A tibble: 1 × 4
+#>   Discharges Predicted Expected   ERR
+#>        <dbl>     <dbl>    <dbl> <dbl>
+#> 1         18     0.165    0.165  1.00
+```
+
+### 6. Dual Stays
+
+CMS puts hospitals into peer groups based on the relative proportion of
+Medicare patients who are also eligible for Medicaid. This is a measure
+of socioeconomic status for the hospital population so hospitals are
+being compared only against other hospitals that are similar (in this
+regard). These aggregated quantities were found in
+[`hsr_payment_summary()`](https://centralstatz.github.io/readmit/reference/hsr_payment_summary.md)
+result:
+
+``` r
+my_payment_summary
+#> # A tibble: 1 × 7
+#>   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`
+#>                               <dbl>                  <dbl>                 <dbl>
+#> 1                               186                    856                 0.217
+#> # ℹ abbreviated names: ¹​`Number of Dually Eligible Stays (Numerator) [a]`,
+#> #   ²​`Total Number of Stays(Denominator) [b]`
+#> # ℹ 4 more variables: `Peer Group Assignment [d]` <dbl>,
+#> #   `Neutrality Modifier [e]` <dbl>, `Payment Reduction Percentage [f]` <dbl>,
+#> #   `Payment Adjustment Factor [g]` <dbl>
+```
+
+The
+[`hsr_dual_stays()`](https://centralstatz.github.io/readmit/reference/hsr_dual_stays.md)
+function extracts the discharge-level data corresponding to the
+numerator of the ratio:
+
+``` r
+hsr_dual_stays(my_report)
+#> # A tibble: 186 × 6
+#>    `ID Number` MBI         `Beneficiary DOB` `Admission Date` `Discharge Date`
+#>          <int> <chr>       <chr>             <chr>            <chr>           
+#>  1           1 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#>  2           2 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#>  3           3 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#>  4           4 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#>  5           5 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#>  6           6 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#>  7           7 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#>  8           8 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#>  9           9 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#> 10          10 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      
+#> # ℹ 176 more rows
+#> # ℹ 1 more variable: `Claim Type` <chr>
+```
+
+We can see that the row count of this discharge level data matches the
+first number in the preceding table.
 
 ## Analysis Strategies
 

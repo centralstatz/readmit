@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   hsr-analysis: hsr-analysis.html
-last_built: 2025-11-26T19:38Z
+last_built: 2025-11-26T22:00Z
 urls:
   reference: https://centralstatz.github.io/readmit/reference
   article: https://centralstatz.github.io/readmit/articles

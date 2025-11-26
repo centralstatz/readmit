@@ -2,10 +2,12 @@
 
 `readmit` is an evolving R package that contains tools for working with
 and analyzing hospital readmissions data. Currently, it provides
-utilities for components of the Hospital Readmissions Reduction Program
-(HRRP), including program timeline functions, Hospital-Specific Report
-(HSR) helpers, and general importing tools for the Provider Data Catalog
-(PDC).
+utilities for components of the [Hospital Readmissions Reduction Program
+(HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp),
+including program timeline functions, [Hospital-Specific Report
+(HSR)](https://qualitynet.cms.gov/inpatient/hrrp/reports) helpers, and
+general importing tools for the [Provider Data Catalog
+(PDC)](https://data.cms.gov/provider-data/).
 
 ## Installation
 

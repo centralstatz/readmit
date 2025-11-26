@@ -76,8 +76,8 @@ gaining insight into HRRP program results.</h3>
 <p><em>Work in progress</em></p>
 <p><em><strong>Note</strong>: CMS changed the format of
 Hospital-Specific Reports (HSRs) for FY2026 (see <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2" class="external-link">here</a>).
-The current HSR functions support Excel-based formats through
-FY2025.</em></p>
+The current HSR functions support Excel-based formats through FY2025.
+However, analysis strategies are still relevant.</em></p>
 <p>As part of the <a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp" class="external-link">Hospital
 Readmissions Reduction Program (HRRP)</a>, the <a href="https://www.cms.gov/" class="external-link">Centers for Medicare &amp; Medicaid Services
 (CMS)</a> provides a detailed, annual program summary report (called the
@@ -85,11 +85,12 @@ Readmissions Reduction Program (HRRP)</a>, the <a href="https://www.cms.gov/" cl
 Report (HSR)</a>) to hospitals that includes details on the penalty
 calculation for the upcoming fiscal year, such as discharge-level data,
 dually-eligible discharge lists, cohort-level rollup, and the penalty
-amount. There is a defined <a href="">review and correction period</a>
-in which hospitals can use these reports to ensure the penalty being
-enforced by CMS is accurate. It occurs approximately 1 month before the
-new fiscal year, thus it is a time-critical event (see date ranges below
-through the built-in package datasets):</p>
+amount. There is a defined <a href="https://qualitynet.cms.gov/inpatient/hrrp/resources#tab1:~:text=FY%202026%20Hospital%20Readmissions%20Reduction%20Program%20Key%20Dates%20(08/11/25)" class="external-link">review
+and correction period</a> in which hospitals can use these reports to
+ensure the penalty being enforced by CMS is accurate. It occurs
+approximately 1 month before the new fiscal year, thus it is a
+time-critical event (see historical date ranges below for reference with
+the built-in package datasets):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Extract date ranges</span></span>
 <span><span class="fu">readmit</span><span class="fu">::</span><span class="va"><a href="../reference/hrrp_keydates.html">hrrp_keydates</a></span> <span class="op">|&gt;</span></span>
@@ -110,14 +111,14 @@ through the built-in package datasets):</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span>        <span style="text-decoration: underline;">2</span>021 2020-10-01       2021-09-30     2020-08-10      2020-09-09   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span>        <span style="text-decoration: underline;">2</span>020 2019-10-01       2020-09-30     2019-08-09      2019-09-09   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">9</span>        <span style="text-decoration: underline;">2</span>019 2018-10-01       2019-09-30     2018-08-06      2018-09-05</span></span></code></pre></div>
-<p>The report file itself is a large, multi-tab Microsoft Excel document
-where the structured part of the data is ambiguously placed throughout,
-thus we need tools to parse it out into a usable format. That is what
-some functions <code>readmit</code> package are for. In this article, we
-go through the tools that are available, what they do, and then provide
-some strategies/approaches for how hospitals can use these tools to
-analyze their own HSR’s to gain deeper insight into HRRP results and
-readmissions more broadly.</p>
+<p>The report file itself (through FY2025) is a large, multi-tab
+Microsoft Excel document where the structured part of the data is
+ambiguously placed throughout, thus we need tools to parse it out into a
+usable format. That is what some functions in the <code>readmit</code>
+package are for. In this article, we go through the tools that are
+available, what they do, and then provide some strategies/approaches for
+how hospitals can use these tools to analyze their own HSR’s to gain
+deeper insight into HRRP results and readmissions more broadly.</p>
 <div class="section level2">
 <h2 id="the-toolbox">The Toolbox<a class="anchor" aria-label="anchor" href="#the-toolbox"></a>
 </h2>
@@ -126,33 +127,466 @@ available to us, what they do, and how to use them. For our purposes,
 these are all of the functions prefixed like <code>hsr_*</code>. We’ll
 do this roughly in order of how the report is laid out, and how the HRRP
 results roll up.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://centralstatz.github.io/readmit/">readmit</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="mock-reports">0. Mock Reports<a class="anchor" aria-label="anchor" href="#mock-reports"></a>
 </h3>
 <p>As the developer of this package, I don’t have access to hospitals’
-actual HSR’s, as they contain senstivie patient information (i.e., <a href="">PHI</a>) and thus are not publicly available. So what we have to
-work with are <em>mock</em> reports that <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2" class="external-link">CMS
-provides</a> to the public that are meant to mimick the exact format a
+actual HSR’s, as they contain senstivie patient information (i.e., <a href="https://cphs.berkeley.edu/hipaa/hipaa18.html" class="external-link">PHI</a>) and thus
+are not publicly available. So what we have to work with are
+<em>mock</em> reports that <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab3" class="external-link">CMS
+provides</a> to the public that are meant to mimick the format a
 hospital can expect their report to be in. It just includes fake
 data.</p>
+<p><em><strong>Note</strong>: CMS changed the format of
+Hospital-Specific Reports (HSRs) for FY2026 (see <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2" class="external-link">here</a>).
+The current HSR functions support Excel-based formats through FY2025.
+However, analysis strategies are still relevant.</em></p>
+<p>Nevertheless, these provide a useful playground to analyze the
+mechanics of the program. We’ll start by finding a report with the
+<code><a href="../reference/hsr_mock_reports.html">hsr_mock_reports()</a></code> function:</p>
 <ul>
-<li>Provides a nice practice environment</li>
-<li>Issues with dates, we can fix to make them more “real”</li>
+<li>Using no arguments lists the various mock files included in the
+package</li>
 </ul>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"</span></span>
+<span><span class="co">#&gt; [3] "FY2021_HRRP_MockHSR.xlsx" "FY2022_HRRP_MockHSR.xlsx"</span></span>
+<span><span class="co">#&gt; [5] "FY2023_HRRP_MockHSR.xlsx" "FY2024_HRRP_MockHSR.xlsx"</span></span>
+<span><span class="co">#&gt; [7] "FY2025_HRRP_MockHSR.xlsx"</span></span></code></pre></div>
+<ul>
+<li>Entering one of the listed file names will return the complete path
+to the file in the packages location on your computer</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_report</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="st">"FY2025_HRRP_MockHSR.xlsx"</span><span class="op">)</span></span>
+<span><span class="va">my_report</span></span>
+<span><span class="co">#&gt; [1] "/home/runner/work/_temp/Library/readmit/extdata/FY2025_HRRP_MockHSR.xlsx"</span></span></code></pre></div>
+<p>Now we can use that HSR path with other package functions. Of course,
+you would just point to your own HSR when analyzing your hospital’s
+reports.</p>
 </div>
 <div class="section level3">
 <h3 id="program-summary">1. Program Summary<a class="anchor" aria-label="anchor" href="#program-summary"></a>
 </h3>
+<p>We’ll start with high level program results. Ultimately, all of the
+moving parts in the HRRP roll up into a single number: the penalty
+amount applied to your hospital. This is typically the first table in
+your report. We can parse it out of the report with the
+<code><a href="../reference/hsr_payment_summary.html">hsr_payment_summary()</a></code> function:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_payment_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hsr_payment_summary.html">hsr_payment_summary</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span>
+<span><span class="va">my_payment_summary</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
+<span><span class="co">#&gt;   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`</span></span>
+<span><span class="co">#&gt;                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                               186                    856                 0.217</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated names: ¹​`Number of Dually Eligible Stays (Numerator) [a]`,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ²​`Total Number of Stays(Denominator) [b]`</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: `Peer Group Assignment [d]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Neutrality Modifier [e]` &lt;dbl&gt;, `Payment Reduction Percentage [f]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Payment Adjustment Factor [g]` &lt;dbl&gt;</span></span></span></code></pre></div>
+<p>We now have this information in a data frame that we can manipulate
+as needed:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_payment_summary</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 2</span></span></span>
+<span><span class="co">#&gt;   name                                               value</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Number of Dually Eligible Stays (Numerator) [a] 186     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Total Number of Stays(Denominator) [b]          856     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Dual Proportion [c]                               0.217 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Peer Group Assignment [d]                         3     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> Neutrality Modifier [e]                           0.965 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> Payment Reduction Percentage [f]                  0.000<span style="text-decoration: underline;">7</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> Payment Adjustment Factor [g]                     0.999</span></span></code></pre></div>
+<p>There are also helper functions to extract specific components from
+this table.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/hsr_payment_summary.html">hsr_payment_penalty</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 7e-04</span></span>
+<span><span class="fu"><a href="../reference/hsr_payment_summary.html">hsr_dual_proportion</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.2172897</span></span>
+<span><span class="fu"><a href="../reference/hsr_payment_summary.html">hsr_peer_group</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 3</span></span></code></pre></div>
+<p>See <code><a href="../reference/hsr_payment_summary.html">?hsr_payment_summary</a></code> for all of them.</p>
+</div>
+<div class="section level3">
+<h3 id="cohort-summary">2. Cohort Summary<a class="anchor" aria-label="anchor" href="#cohort-summary"></a>
+</h3>
+<p>The overall payment penalty a hospital receives is a weighted average
+of penalities applied to the individual cohorts. These details are
+typically in the second table (tab) of the HSR, which we can import with
+<code><a href="../reference/hsr_cohort_summary.html">hsr_cohort_summary()</a></code>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hsr_cohort_summary.html">hsr_cohort_summary</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span>
+<span><span class="va">cohort_summary</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 10</span></span></span>
+<span><span class="co">#&gt;   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMI                                             2                            0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> COPD                                           18                            3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> HF                                             25                            2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Pneumonia                                      32                            5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> CABG                                           <span style="color: #BB0000;">NA</span>                           <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> THA/TKA                                        45                            0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​`Number of Readmissions Among Eligible Discharges [c]`</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 7 more variables: `Predicted Readmission Rate [d]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Expected Readmission Rate [e]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Excess Readmission Ratio (ERR) [f]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Peer Group Median ERR [g]` &lt;dbl&gt;, `Penalty Indicator (Yes/No) [h]` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Ratio of DRG Payments Per Measure to Total Payments [i]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `National Observed Readmission Rate [j]` &lt;dbl&gt;</span></span></span></code></pre></div>
+<p>We can then, for example, reconcile the overall penalty amount based
+on what is in this table:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_summary</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>  <span class="co"># Filter to cohorts with a penalty</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">`Penalty Indicator (Yes/No) [h]`</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute the contribution of each penalized cohort</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    Contribution <span class="op">=</span> </span>
+<span>      <span class="va">`Ratio of DRG Payments Per Measure to Total Payments [i]`</span> <span class="op">*</span></span>
+<span>      <span class="op">(</span></span>
+<span>        <span class="va">`Excess Readmission Ratio (ERR) [f]`</span> <span class="op">-</span> </span>
+<span>          <span class="va">`Peer Group Median ERR [g]`</span></span>
+<span>      <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  </span>
+<span>  <span class="co"># Roll up into final calculation</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>    Penalty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">Contribution</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="../reference/hsr_payment_summary.html">hsr_neutrality_modifier</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 1</span></span></span>
+<span><span class="co">#&gt;    Penalty</span></span>
+<span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 0.000<span style="text-decoration: underline;">746</span></span></span></code></pre></div>
+<p>What we did here was:</p>
+<ol style="list-style-type: decimal">
+<li>Find cohorts who received a penalty <em>who were eligible</em>
 <ul>
-<li>Show review periods, how they overlap with payment (the timing of
-it)</li>
-<li>Emphasize validation/correction period. These are some ways to help
-validate.</li>
+<li>A cohort must have at least 25 discharges to be eligible</li>
+<li>Then, the excess readmission ratio (ERR) must be greater than the
+assigned peer group’s median ERR</li>
 </ul>
+</li>
+<li>Find the difference between the hospital’s ERR compared to the peer
+group median ERR</li>
+<li>Multiply that by the ratio of DRG payments for that cohort
+<ul>
+<li>This is a measure of the volume of patients with this condition are
+treated at the hospital</li>
+</ul>
+</li>
+<li>Sum those contributions over each cohort</li>
+<li>Multiply that by the neutrality modifier in the
+<code><a href="../reference/hsr_payment_summary.html">hsr_payment_summary()</a></code> table</li>
+</ol>
+<p>That’s how the penalty is computed, from cohort summary level.</p>
+</div>
+<div class="section level3">
+<h3 id="discharges">3. Discharges<a class="anchor" aria-label="anchor" href="#discharges"></a>
+</h3>
+<p><em>Note: Because we are using mock reports, the dates in these files
+are erroneous and thus R doesn’t interpret them as dates. However, your
+hospital report has real dates and thus R should automatically parse
+them as such.</em></p>
+<p>The HSR also contains discharge-level data on the individual patients
+that actually contributed to the program. There is a separate table/tab
+for each of the cohorts. We can use the <code><a href="../reference/hsr_discharges.html">hsr_discharges()</a></code>
+function to import them for a specified cohort:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span><span class="va">my_report</span>, <span class="st">"COPD"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 21 × 17</span></span></span>
+<span><span class="co">#&gt;    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 11 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: `Admission Date of Index Stay` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Discharge Date of Index Stay` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Cohort Inclusion/Exclusion Indicator` &lt;chr&gt;, `Index Stay (Yes/No)` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Principal Discharge Diagnosis of Index Stay` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Discharge Destination` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Unplanned Readmission within 30 Days (Yes/No) [a]` &lt;chr&gt;, …</span></span></span></code></pre></div>
+<p>We get some patient identifying information, including the specific
+dates associated with the index and readmission hospitalizations,
+whether or not the readmission occurred at the same hospital, diagnosis
+codes, etc., which is all very valuable information that we can explore
+to gain insights from (and what we’ll do <a href="#analysisstrategies">later</a>).</p>
+<p>There are also options available in the function to refine the
+result:</p>
+<div class="section level4">
+<h4 id="eligible-cases">Eligible Cases<a class="anchor" aria-label="anchor" href="#eligible-cases"></a>
+</h4>
+<p>The <code>eligible_only</code> argument can be used to only included
+discharges that were actually included in HRRP evaluation:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>  file <span class="op">=</span> <span class="va">my_report</span>, </span>
+<span>  cohort <span class="op">=</span> <span class="st">"COPD"</span>,</span>
+<span>  eligible_only <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 18 × 17</span></span></span>
+<span><span class="co">#&gt;    `ID Number` MBI         `Medical Record Number` `Beneficiary DOB`</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>          11 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span>          12 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span>          13 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span>          14 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span>          15 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span>          16 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span>          17 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span>          18 9AA9AA9AA99 99999A                  99/99/9999       </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: `Admission Date of Index Stay` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Discharge Date of Index Stay` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Cohort Inclusion/Exclusion Indicator` &lt;chr&gt;, `Index Stay (Yes/No)` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Principal Discharge Diagnosis of Index Stay` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Discharge Destination` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Unplanned Readmission within 30 Days (Yes/No) [a]` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Planned Readmission within 30 Days (Yes/No)` &lt;chr&gt;, …</span></span></span></code></pre></div>
+<p>Notice that this row count matches what was reported as the COPD
+denominator in the <code>cohort_summary</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_summary</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">`Measure [a]`</span> <span class="op">==</span> <span class="st">"COPD"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">`Number of Eligible Discharges [b]`</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 18</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="risk-factors">Risk Factors<a class="anchor" aria-label="anchor" href="#risk-factors"></a>
+</h4>
+<p>Also included in these tables are the indicators of risk factors that
+are used in the statistical models to estimate individual adjusted
+readmission risks. We can use the <code>risk_factors</code> argument to
+extract those for each patient:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>  file <span class="op">=</span> <span class="va">my_report</span>, </span>
+<span>  cohort <span class="op">=</span> <span class="st">"COPD"</span>,</span>
+<span>  eligible_only <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  risk_factors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  discharge_phi <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 18 × 42</span></span></span>
+<span><span class="co">#&gt;    `ID Number` `Years Over 65 (continuous)` `History of Mechanical Ventilation`</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1                            5                                   1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2                            8                                   1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3                           23                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4                           15                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5                            7                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6                            1                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7                           12                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8                           18                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9                            6                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10                           11                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>          11                           15                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span>          12                           13                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span>          13                            5                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span>          14                           12                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span>          15                           12                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span>          16                           24                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span>          17                           12                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span>          18                           11                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 39 more variables: `Sleep-Disordered Breathing` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `History of COVID-19` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Severe Infection; Other Infectious Diseases` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Metastatic Cancer and Acute Leukemia` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Lung and Other Severe Cancers` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Lymphatic, Head and Neck, Brain, and Other Major Cancers; Breast, Colorectal and Other Cancers and Tumors; Other Respiratory and Heart Neoplasms` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Other Digestive and Urinary Neoplasms` &lt;dbl&gt;, …</span></span></span></code></pre></div>
+<p>This data can then be explored further to understand risk factor
+prevalence and how that relates to model weights, etc. (again, covered
+<a href="#analysisstrategies">later</a>). Notice the
+<code>discharge_phi</code> argument was used to prevent the date
+information from being returned.</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="model-coefficients">4. Model Coefficients<a class="anchor" aria-label="anchor" href="#model-coefficients"></a>
+</h3>
+<p>The ERR is calculated based on an aggregated roll up of individual
+adjusted readmission risks derived from a random-intercept logistic
+regression model. The first row in the discharge table contains the
+coefficients for this model. We can use the
+<code><a href="../reference/hsr_coefficients.html">hsr_coefficients()</a></code> function to extract them:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">copd_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hsr_coefficients.html">hsr_coefficients</a></span><span class="op">(</span><span class="va">my_report</span>, <span class="st">"COPD"</span><span class="op">)</span></span>
+<span><span class="va">copd_model</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 43 × 2</span></span></span>
+<span><span class="co">#&gt;    Factor                                                                  Value</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Years Over 65 (continuous)                                           -<span style="color: #BB0000;">0.005</span><span style="color: #BB0000; text-decoration: underline;">50</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> History of Mechanical Ventilation                                     0.293  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Sleep-Disordered Breathing                                           -<span style="color: #BB0000;">0.033</span><span style="color: #BB0000; text-decoration: underline;">9</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> History of COVID-19                                                  -<span style="color: #BB0000;">0.020</span><span style="color: #BB0000; text-decoration: underline;">0</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Severe Infection; Other Infectious Diseases                           0.038<span style="text-decoration: underline;">1</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Metastatic Cancer and Acute Leukemia                                  0.201  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Lung and Other Severe Cancers                                         0.156  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Lymphatic, Head and Neck, Brain, and Other Major Cancers; Breast, C… -<span style="color: #BB0000;">0.003</span><span style="color: #BB0000; text-decoration: underline;">43</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Other Digestive and Urinary Neoplasms                                -<span style="color: #BB0000;">0.079</span><span style="color: #BB0000; text-decoration: underline;">2</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Diabetes Mellitus (DM) or DM Complications                            0.089<span style="text-decoration: underline;">1</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 33 more rows</span></span></span></code></pre></div>
+<p>This allows us to do things like assess the relative contribution of
+risk factors to the estimated readmission rates or use the risk factor
+dataset above to compute individual level readmission risks.</p>
+<div class="section level4">
+<h4 id="intercept-terms">Intercept Terms<a class="anchor" aria-label="anchor" href="#intercept-terms"></a>
+</h4>
+<p>The <em>predicted</em> and <em>expected</em> readmission rates only
+differ in the intercept terms applied to the prediction (thus it is a
+constant shift for all patients). We can see these at the end of this
+data frame:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">copd_model</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 2</span></span></span>
+<span><span class="co">#&gt;   Factor                                           Value</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Renal Failure                                   0.160 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Decubitus Ulcer or Chronic Skin Ulcer           0.072<span style="text-decoration: underline;">9</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Cellulitis, Local Skin Infection                0.041<span style="text-decoration: underline;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Vertebral Fractures Without Spinal Cord Injury  0.082<span style="text-decoration: underline;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> HOSP_EFFECT                                    -<span style="color: #BB0000;">2.53</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> AVG_EFFECT                                     -<span style="color: #BB0000;">2.53</span></span></span></code></pre></div>
+</div>
+</div>
+<div class="section level3">
+<h3 id="readmission-risks">5. Readmission Risks<a class="anchor" aria-label="anchor" href="#readmission-risks"></a>
+</h3>
+<p>We could take the risk factor output from
+<code><a href="../reference/hsr_discharges.html">hsr_discharges()</a></code> combined with the coefficients from
+<code><a href="../reference/hsr_coefficients.html">hsr_coefficients()</a></code> and reconcile each patient’s
+<em>predicted</em> and <em>expected</em> readmission risk. But the
+<code><a href="../reference/hsr_readmission_risks.html">hsr_readmission_risks()</a></code> function can do all of that for
+us:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">risks</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hsr_readmission_risks.html">hsr_readmission_risks</a></span><span class="op">(</span><span class="va">my_report</span>, <span class="st">"COPD"</span><span class="op">)</span></span>
+<span><span class="va">risks</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 18 × 3</span></span></span>
+<span><span class="co">#&gt;    `ID Number` Predicted Expected</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1    0.260    0.260 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2    0.266    0.266 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3    0.227    0.227 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4    0.099<span style="text-decoration: underline;">0</span>   0.098<span style="text-decoration: underline;">9</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5    0.093<span style="text-decoration: underline;">5</span>   0.093<span style="text-decoration: underline;">5</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6    0.130    0.130 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7    0.156    0.156 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8    0.190    0.190 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9    0.084<span style="text-decoration: underline;">2</span>   0.084<span style="text-decoration: underline;">2</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10    0.100    0.100 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>          11    0.129    0.129 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span>          12    0.111    0.111 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span>          13    0.350    0.349 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span>          14    0.127    0.127 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span>          15    0.158    0.158 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span>          16    0.168    0.168 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span>          17    0.118    0.118 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span>          18    0.210    0.210</span></span></code></pre></div>
+<p>This just takes a weighted-sum of the risk factors and coefficients,
+adds the corresponding intercept, and then maps it to a probability
+through the logistic function.</p>
+<p>The cohort-level <em>predicted</em> and <em>expected</em> readmission
+rates are just the averages of these columns across all eligible
+patients:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">risks</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>    Discharges <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    Predicted <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">Predicted</span><span class="op">)</span>,</span>
+<span>    Expected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">Expected</span><span class="op">)</span>,</span>
+<span>    ERR <span class="op">=</span> <span class="va">Predicted</span> <span class="op">/</span> <span class="va">Expected</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 4</span></span></span>
+<span><span class="co">#&gt;   Discharges Predicted Expected   ERR</span></span>
+<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>         18     0.165    0.165  1.00</span></span></code></pre></div>
+<p>Again, looking at our cohort summary, we can see these match:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_summary</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">`Measure [a]`</span> <span class="op">==</span> <span class="st">"COPD"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    Discharges <span class="op">=</span> <span class="va">`Number of Eligible Discharges [b]`</span>,</span>
+<span>    Predicted <span class="op">=</span> <span class="va">`Predicted Readmission Rate [d]`</span>,</span>
+<span>    Expected <span class="op">=</span> <span class="va">`Expected Readmission Rate [e]`</span>,</span>
+<span>    ERR <span class="op">=</span> <span class="va">`Excess Readmission Ratio (ERR) [f]`</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 4</span></span></span>
+<span><span class="co">#&gt;   Discharges Predicted Expected   ERR</span></span>
+<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>         18     0.165    0.165  1.00</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="dual-stays">6. Dual Stays<a class="anchor" aria-label="anchor" href="#dual-stays"></a>
+</h3>
+<p>CMS puts hospitals into peer groups based on the relative proportion
+of Medicare patients who are also eligible for Medicaid. This is a
+measure of socioeconomic status for the hospital population so hospitals
+are being compared only against other hospitals that are similar (in
+this regard). These aggregated quantities were found in
+<code><a href="../reference/hsr_payment_summary.html">hsr_payment_summary()</a></code> result:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_payment_summary</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
+<span><span class="co">#&gt;   Number of Dually Eligible Stays…¹ Total Number of Stay…² `Dual Proportion [c]`</span></span>
+<span><span class="co">#&gt;                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                               186                    856                 0.217</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated names: ¹​`Number of Dually Eligible Stays (Numerator) [a]`,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ²​`Total Number of Stays(Denominator) [b]`</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: `Peer Group Assignment [d]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Neutrality Modifier [e]` &lt;dbl&gt;, `Payment Reduction Percentage [f]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Payment Adjustment Factor [g]` &lt;dbl&gt;</span></span></span></code></pre></div>
+<p>The <code><a href="../reference/hsr_dual_stays.html">hsr_dual_stays()</a></code> function extracts the
+discharge-level data corresponding to the numerator of the ratio:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/hsr_dual_stays.html">hsr_dual_stays</a></span><span class="op">(</span><span class="va">my_report</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 186 × 6</span></span></span>
+<span><span class="co">#&gt;    `ID Number` MBI         `Beneficiary DOB` `Admission Date` `Discharge Date`</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10 9AA9AA9AA99 99/99/9999        99/99/9999       99/99/9999      </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 176 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: `Claim Type` &lt;chr&gt;</span></span></span></code></pre></div>
+<p>We can see that the row count of this discharge level data matches
+the first number in the preceding table.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="analysis-strategies">Analysis Strategies<a class="anchor" aria-label="anchor" href="#analysis-strategies"></a>
+<h2 id="analysisstrategies">Analysis Strategies<a class="anchor" aria-label="anchor" href="#analysisstrategies"></a>
 </h2>
 </div>
 <div class="section level2">
@@ -172,7 +606,7 @@ readmission risks, reproduce Cohort quantities.</li>
 <li>Risk factor prevalence</li>
 <li>Risk factor prevalence by model weight (scatterplot)</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://centralstatz.github.io/readmit/">readmit</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"</span></span>
