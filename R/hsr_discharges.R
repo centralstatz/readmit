@@ -87,7 +87,10 @@ hsr_discharges <-
 
       # Remove special (control) characters
       dplyr::rename_with(
-        \(x) stringr::str_remove_all(x, "[[:cntrl:]]")
+        \(x) {
+          stringr::str_remove_all(x, "[[:cntrl:]]") |>
+            stringr::str_replace("^ID.{0,}Number$", "ID Number")
+        }
       ) |>
 
       # Always remove model intercept columns

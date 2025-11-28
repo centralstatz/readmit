@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-You can install the development version of readmit from [GitHub](https://github.com/) with:
+You can install the development version of `readmit` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
@@ -54,7 +54,7 @@ The issues in doing this flawlessly are multi-factorial, but we'll list a few th
 * **Oversaturation of research**: Readmissions has a [large body of research](https://pubmed.ncbi.nlm.nih.gov/?term=predicting+readmissions). As a result, hospitals are thrown all kinds of "evidence" about how they should prevent readmissions, but it's difficult to confidently translate and distill that to a localized, optimized, actionable program for any one hospital, especially when it's conflicting.
 <br>
 
-* **Over-reliance of risk tools**: Especially in the hype of AI, machine learning (ML), etc., there are various vendor platforms and risk tools that purport to predict readmissions. The issue comes with how they are implemented into clinical workflows. These models may be good _statistically_, but must be implemented with intention and cross-functional teamwork for them to actually be useful. AI is not magic!
+* **Over-reliance of risk tools**: Especially in the hype of AI, machine learning (ML), etc., there are various vendor platforms and risk tools that purport to predict readmissions. The issue comes with how they are implemented into clinical workflows. These models may be good _statistically_, but must be implemented with intention and cross-functional teamwork for them to actually be useful. AI is not magic! Additionally, many out-of-the-box models focus on predicting readmission risk at the time of discharge. These may be good markers of baseline clinical risk but can quickly grow stale as the patient enters the post-discharge phase where the real drivers of readmissions occur.
 <br>
 
 * **Complexity of government programs**: The [HRRP](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp) has many moving parts and details that make it difficult to track what's really going on. This includes the timing of the discharges that are actually counted in the program relative to when payment penalties are applied, the diagnosis codes and claims documentation used to identify patients to include, the statistical methodology behind the scenes that power program metrics, and the way all of that rolls up into a penalty percentage amount administered to the hospital, among other things. Each of these details have deep nuances that have tangible impact.
