@@ -141,8 +141,8 @@ hospital can expect their report to be in. It just includes fake
 data.</p>
 <p><em><strong>Note</strong>: CMS changed the format of
 Hospital-Specific Reports (HSRs) for FY2026 (see <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2" class="external-link">here</a>).
-The current HSR functions support Excel-based formats through FY2025.
-However, analysis strategies are still relevant.</em></p>
+The current HSR functions support Excel-based formats through
+FY2025.</em></p>
 <p>Nevertheless, these provide a useful playground to analyze the
 mechanics of the program. We’ll start by finding a report with the
 <code><a href="../reference/hsr_mock_reports.html">hsr_mock_reports()</a></code> function:</p>
@@ -215,7 +215,7 @@ this table.</p>
 <p>See <code><a href="../reference/hsr_payment_summary.html">?hsr_payment_summary</a></code> for all of them.</p>
 </div>
 <div class="section level3">
-<h3 id="cohort-summary">2. Cohort Summary<a class="anchor" aria-label="anchor" href="#cohort-summary"></a>
+<h3 id="cohortsummary">2. Cohort Summary<a class="anchor" aria-label="anchor" href="#cohortsummary"></a>
 </h3>
 <p>The overall payment penalty a hospital receives is a weighted average
 of penalities applied to the individual cohorts. These details are
@@ -588,15 +588,87 @@ the first number in the preceding table.</p>
 <div class="section level2">
 <h2 id="analysisstrategies">Analysis Strategies<a class="anchor" aria-label="anchor" href="#analysisstrategies"></a>
 </h2>
+<p>In this section we’ll go through a collection data analyses that can
+be conducted, using functions in <code>readmit</code> as support, to
+validate HSR calculations and/or to gain deeper insights into HRRP
+results.</p>
 </div>
 <div class="section level2">
-<h2 id="reconciling-the-penalty">Reconciling the penalty<a class="anchor" aria-label="anchor" href="#reconciling-the-penalty"></a>
+<h2 id="validating-the-penalty-calculation">1. Validating the Penalty Calculation<a class="anchor" aria-label="anchor" href="#validating-the-penalty-calculation"></a>
 </h2>
+<p>We <a href="#cohortsummary">previously calculated</a> the payment
+penalty starting from the cohort-level results. However, as an initial
+validation step, it is important to go through the mechanics of
+reconciling the penalty calculation from the discharge-level data to
+ensure comprehension of how it works.</p>
+<p><em>Note: We’ll go the slower, more tedious way to do this in the
+steps below in order to capture all intermediate details for
+understanding, but will callout where certain steps can be more
+efficient.</em></p>
+<p>Let’s extract the <code>cohort</code> strings we need to plug into
+various function arguments:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohorts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">hrrp_cohort_inclusion</span><span class="op">)</span>, <span class="st">"ProgramYear"</span><span class="op">)</span></span>
+<span><span class="va">cohorts</span></span>
+<span><span class="co">#&gt; [1] "AMI"  "COPD" "HF"   "PN"   "CABG" "HK"</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="i--extract-discharges">i. Extract discharges<a class="anchor" aria-label="anchor" href="#i--extract-discharges"></a>
+</h3>
+<p>The first thing we need to is extract the set of discharges (i.e.,
+the <em>denominator</em>) that contribute to program for each cohort. To
+do this, we’ll iterate through the different cohorts and sequentially
+use the <code><a href="../reference/hsr_discharges.html">hsr_discharges()</a></code> function:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">cohorts</span>, <span class="st">"CABG"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>  <span class="co"># Iterate each cohort</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
+<span>    <span class="op">~</span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>      file <span class="op">=</span> <span class="va">my_report</span>,</span>
+<span>      cohort <span class="op">=</span> <span class="va">.x</span>,</span>
+<span>      eligible_only <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>You can validate that we obtained the correct counts by looking at
+the <a href="#cohortsummary">cohort summary</a> we previously
+created.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_summary</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 10</span></span></span>
+<span><span class="co">#&gt;   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMI                                             2                            0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> COPD                                           18                            3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> HF                                             25                            2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Pneumonia                                      32                            5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> CABG                                           <span style="color: #BB0000;">NA</span>                           <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> THA/TKA                                        45                            0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​`Number of Readmissions Among Eligible Discharges [c]`</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 7 more variables: `Predicted Readmission Rate [d]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Expected Readmission Rate [e]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Excess Readmission Ratio (ERR) [f]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Peer Group Median ERR [g]` &lt;dbl&gt;, `Penalty Indicator (Yes/No) [h]` &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Ratio of DRG Payments Per Measure to Total Payments [i]` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `National Observed Readmission Rate [j]` &lt;dbl&gt;</span></span></span></code></pre></div>
+<p>One caveat was that we already knew there weren’t any
+<code>CABG</code> discharges (via the <code>NA</code> in the
+<code>cohort_summary</code> table), so we pre-excluded this from our
+cohort list we iterated through (as it would have caused an error
+otherwise).</p>
 <ul>
 <li>Start with first page, compute from there based on cohort page</li>
 <li>We can go a level deeper: how were those risks calculated? Compute
 readmission risks, reproduce Cohort quantities.</li>
 </ul>
+</div>
+<div class="section level3">
+<h3 id="key-observations">Key Observations<a class="anchor" aria-label="anchor" href="#key-observations"></a>
+</h3>
+<ul>
+<li>Note that we don’t explcitly use readmission indicators in the
+calculation. It is all baked into the hospital effect.</li>
+</ul>
+</div>
 </div>
 <div class="section level2">
 <h2 id="exploring-risk-distributions">Exploring risk distributions<a class="anchor" aria-label="anchor" href="#exploring-risk-distributions"></a>
@@ -606,7 +678,15 @@ readmission risks, reproduce Cohort quantities.</li>
 <li>Risk factor prevalence</li>
 <li>Risk factor prevalence by model weight (scatterplot)</li>
 </ul>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+</div>
+<div class="section level2">
+<h2 id="diagnosis-comparisons">Diagnosis Comparisons<a class="anchor" aria-label="anchor" href="#diagnosis-comparisons"></a>
+</h2>
+</div>
+<div class="section level2">
+<h2 id="outside-hospital-readmissions">Outside Hospital Readmissions<a class="anchor" aria-label="anchor" href="#outside-hospital-readmissions"></a>
+</h2>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://centralstatz.github.io/readmit/">readmit</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"</span></span>

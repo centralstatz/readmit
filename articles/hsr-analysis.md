@@ -80,8 +80,7 @@ their report to be in. It just includes fake data.
 ***Note**: CMS changed the format of Hospital-Specific Reports (HSRs)
 for FY2026 (see
 [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The
-current HSR functions support Excel-based formats through FY2025.
-However, analysis strategies are still relevant.*
+current HSR functions support Excel-based formats through FY2025.*
 
 Nevertheless, these provide a useful playground to analyze the mechanics
 of the program. We’ll start by finding a report with the
@@ -570,17 +569,98 @@ first number in the preceding table.
 
 ## Analysis Strategies
 
-## Reconciling the penalty
+In this section we’ll go through a collection data analyses that can be
+conducted, using functions in `readmit` as support, to validate HSR
+calculations and/or to gain deeper insights into HRRP results.
+
+## 1. Validating the Penalty Calculation
+
+We [previously calculated](#cohortsummary) the payment penalty starting
+from the cohort-level results. However, as an initial validation step,
+it is important to go through the mechanics of reconciling the penalty
+calculation from the discharge-level data to ensure comprehension of how
+it works.
+
+*Note: We’ll go the slower, more tedious way to do this in the steps
+below in order to capture all intermediate details for understanding,
+but will callout where certain steps can be more efficient.*
+
+Let’s extract the `cohort` strings we need to plug into various function
+arguments:
+
+``` r
+cohorts <- setdiff(names(hrrp_cohort_inclusion), "ProgramYear")
+cohorts
+#> [1] "AMI"  "COPD" "HF"   "PN"   "CABG" "HK"
+```
+
+### i. Extract discharges
+
+The first thing we need to is extract the set of discharges (i.e., the
+*denominator*) that contribute to program for each cohort. To do this,
+we’ll iterate through the different cohorts and sequentially use the
+[`hsr_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_discharges.md)
+function:
+
+``` r
+setdiff(cohorts, "CABG") |>
+
+  # Iterate each cohort
+  purrr::map(
+    ~hsr_discharges(
+      file = my_report,
+      cohort = .x,
+      eligible_only = TRUE
+    )
+  )
+```
+
+You can validate that we obtained the correct counts by looking at the
+[cohort summary](#cohortsummary) we previously created.
+
+``` r
+cohort_summary
+#> # A tibble: 6 × 10
+#>   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹
+#>   <chr>                                       <dbl>                        <dbl>
+#> 1 AMI                                             2                            0
+#> 2 COPD                                           18                            3
+#> 3 HF                                             25                            2
+#> 4 Pneumonia                                      32                            5
+#> 5 CABG                                           NA                           NA
+#> 6 THA/TKA                                        45                            0
+#> # ℹ abbreviated name: ¹​`Number of Readmissions Among Eligible Discharges [c]`
+#> # ℹ 7 more variables: `Predicted Readmission Rate [d]` <dbl>,
+#> #   `Expected Readmission Rate [e]` <dbl>,
+#> #   `Excess Readmission Ratio (ERR) [f]` <dbl>,
+#> #   `Peer Group Median ERR [g]` <dbl>, `Penalty Indicator (Yes/No) [h]` <chr>,
+#> #   `Ratio of DRG Payments Per Measure to Total Payments [i]` <dbl>,
+#> #   `National Observed Readmission Rate [j]` <dbl>
+```
+
+One caveat was that we already knew there weren’t any `CABG` discharges
+(via the `NA` in the `cohort_summary` table), so we pre-excluded this
+from our cohort list we iterated through (as it would have caused an
+error otherwise).
 
 - Start with first page, compute from there based on cohort page
 - We can go a level deeper: how were those risks calculated? Compute
   readmission risks, reproduce Cohort quantities.
+
+### Key Observations
+
+- Note that we don’t explcitly use readmission indicators in the
+  calculation. It is all baked into the hospital effect.
 
 ## Exploring risk distributions
 
 - Model risk factors
 - Risk factor prevalence
 - Risk factor prevalence by model weight (scatterplot)
+
+## Diagnosis Comparisons
+
+## Outside Hospital Readmissions
 
 ``` r
 library(readmit)

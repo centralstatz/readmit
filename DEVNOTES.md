@@ -3,6 +3,11 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 11/27/2025
+
+- Working on finishing vignette. Realized there are more column parsing
+  errors we need to correct.
+
 # 11/26/2025
 
 - CMS changed the HSR format for 2026. Added to documentation to note

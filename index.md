@@ -11,7 +11,7 @@ general importing tools for the [Provider Data Catalog
 
 ## Installation
 
-You can install the development version of readmit from
+You can install the development version of `readmit` from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -89,7 +89,11 @@ a few that we see relevant to (and motivators for) this package:
   are implemented into clinical workflows. These models may be good
   *statistically*, but must be implemented with intention and
   cross-functional teamwork for them to actually be useful. AI is not
-  magic!  
+  magic! Additionally, many out-of-the-box models focus on predicting
+  readmission risk at the time of discharge. These may be good markers
+  of baseline clinical risk but can quickly grow stale as the patient
+  enters the post-discharge phase where the real drivers of readmissions
+  occur.  
 
 - **Complexity of government programs**: The
   [HRRP](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
