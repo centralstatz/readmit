@@ -263,7 +263,7 @@ We can see that the row count of this discharge level data matches the first num
 
 In this section we'll go through a collection data analyses that can be conducted, using functions in `readmit` as support, to validate HSR calculations and/or to gain deeper insights into HRRP results.
 
-# 1. Validating the Penalty Calculation
+## 1. Validating the Penalty Calculation
 
 We [previously calculated](#cohortsummary) the payment penalty starting from the cohort-level results. However, as an initial validation step, it is important to go through the mechanics of reconciling the penalty calculation from the discharge-level data to ensure comprehension of how it works. 
 
@@ -276,21 +276,37 @@ cohorts <- setdiff(names(hrrp_cohort_inclusion), "ProgramYear")
 cohorts
 ```
 
-## i. Extract discharges
+### i. Extract discharges
 
-The first thing we need to is extract the set of discharges (i.e., the _denominator_) that contribute to program for each cohort. To do this, we'll iterate through the different cohorts and sequentially use the `hsr_discharges()` function:
+The first thing we need to is extract the set of discharges (i.e., the _denominator_) that contribute to program for each cohort. To do this, we'll iterate through the different cohorts and sequentially use the `hsr_discharges()` function to get the row identifiers that should be included:
 
-```{r, eval = FALSE}
-setdiff(cohorts, "CABG") |>
+```{r}
+eligible_discharges <-
+  setdiff(cohorts, "CABG") |>
 
-  # Iterate each cohort
-  purrr::map(
-    ~hsr_discharges(
-      file = my_report,
-      cohort = .x,
-      eligible_only = TRUE
+    # Iterate each cohort
+    purrr::map_df(
+
+      # Import eligible discharges
+      ~hsr_discharges(
+        file = my_report,
+        cohort = .x,
+        eligible_only = TRUE
+      ) |>
+
+      # Keep the row identifiers
+      dplyr::select(`ID Number`) |>
+
+      # Add cohort identifier
+      tibble::add_column(Cohort = .x)
     )
-  )
+eligible_discharges
+```
+
+We can check the counts of these:
+
+```{r}
+table(eligible_discharges$Cohort)
 ```
 
 You can validate that we obtained the correct counts by looking at the [cohort summary](#cohortsummary) we previously created.
@@ -301,9 +317,282 @@ cohort_summary
 
 One caveat was that we already knew there weren't any `CABG` discharges (via the `NA` in the `cohort_summary` table), so we pre-excluded this from our cohort list we iterated through (as it would have caused an error otherwise).
 
-* Start with first page, compute from there based on cohort page
-* We can go a level deeper: how were those risks calculated? Compute readmission risks, reproduce Cohort quantities.
+### ii. Extract risk factors
 
+Next we need to extract the sets of risk factors for cohort that go into the readmission risk model. We can again do this by iterating through the `cohort` list with `hsr_discharges`, but extracting the risk factors as well with `risk_factors=TRUE`:
+
+```{r}
+setdiff(cohorts, "CABG") |>
+
+    # Iterate each cohort
+    purrr::map(
+
+      # Import eligible discharges
+      ~hsr_discharges(
+        file = my_report,
+        cohort = .x,
+        risk_factors = TRUE,
+        discharge_phi = FALSE
+      )
+    )
+```
+
+Notice that we get the risk factors for each cohort, but all of the columns are different since each cohort has a different model. So one thing we can do is pivot the data with `tidyr::pivot_longer()` to make a long and narrow data frame so that it can all be binded together.
+
+```{r}
+risk_factors <-
+  setdiff(cohorts, "CABG") |>
+
+      # Iterate each cohort
+      purrr::map_df(
+
+        # Import eligible discharges
+        ~hsr_discharges(
+          file = my_report,
+          cohort = .x,
+          risk_factors = TRUE,
+          discharge_phi = FALSE
+        ) |>
+        
+        # Send risk factors down the rows
+        tidyr::pivot_longer(
+          cols = -`ID Number`,
+          names_to = "Factor",
+          values_to = "Value"
+        ) |>
+        
+        # Indicate cohort
+        tibble::add_column(Cohort = .x)
+      )
+risk_factors
+```
+
+We can then merge these (using `dplyr::inner_join()`) with the eligilble discharges we previously identified to get the set of risk factors for each eligible discharge:
+
+```{r}
+risk_factors <-
+  risk_factors |>
+
+    # Join to get eligible only
+    dplyr::inner_join(
+      y = eligible_discharges,
+      by = 
+        c(
+          "ID Number",
+          "Cohort"
+        )
+    )
+risk_factors
+```
+
+Of course, we didn't _have_ to do this step separately from step (i), as we could have just used the `eligible_only` argument simultaneously, and ended up in the same place.
+
+```{r}
+risk_factors <-
+  setdiff(cohorts, "CABG") |>
+
+      # Iterate each cohort
+      purrr::map_df(
+
+        # Import eligible discharges
+        ~hsr_discharges(
+          file = my_report,
+          cohort = .x,
+          risk_factors = TRUE,
+          discharge_phi = FALSE,
+          eligible_only = TRUE
+        ) |>
+        
+        # Send risk factors down the rows
+        tidyr::pivot_longer(
+          cols = -`ID Number`,
+          names_to = "Factor",
+          values_to = "Value"
+        ) |>
+        
+        # Indicate cohort
+        tibble::add_column(Cohort = .x)
+      )
+risk_factors
+```
+
+### iii. Compute individual readmission risks
+
+The _predicted_ and _expected_ readmission rates are computed for each discharge by plugging in each patient's set of risk factors into risk models developed by CMS. We can use the `hsr_coefficients()` function to extract these:
+
+```{r}
+model_weights <-
+  cohorts |>
+
+  # Iterate each cohort
+  purrr::map_df(
+
+    # Import eligible discharges
+    ~hsr_coefficients(
+      file = my_report,
+      cohort = .x
+    ) |>
+    
+    # Indicate cohort
+    tibble::add_column(Cohort = .x)
+  )
+model_weights
+```
+
+To use these in our calculations, we need to attach the model weights for each cohort to our current `risk_factors` dataset using `dplyr::inner_join()`:
+
+```{r}
+risk_factors <-
+  risk_factors |>
+
+    # Join to get weights
+    dplyr::inner_join(
+      y = 
+        model_weights |> 
+          
+        # Rename the column
+        dplyr::rename(
+          Weight = Value
+        ),
+      by = 
+        c(
+          "Cohort",
+          "Factor"
+        )
+    )
+risk_factors
+```
+
+#### Compute the linear predictor (weighted-sum)
+
+These are [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) models, so to convert to a risk estimate, we need to take the weighted-sum of the factor weight with the risk factor value for each discharge.
+
+```{r}
+linear_predictors <-
+  risk_factors |>
+
+    # Compute weighted sum
+    dplyr::summarize(
+      LP = sum(Weight * Value),
+      .by = 
+        c(
+          Cohort,
+          `ID Number`
+        )
+    )
+linear_predictors
+```
+
+You can think of this as the "risk-adjustment" part, where we've adjusted each patient's readmission risk based on their own clinical history. These are on the [logit](https://en.wikipedia.org/wiki/Logit) scale (so not yet probability/risk estimates), but it what we assume to be linearly related to the outcome, thus we call it the "linear predictor". But we are still missing something: **the intercept terms**.
+
+#### Add in the intercepts
+
+The _predicted_ and _expected_ readmission risks are derived from the same risk-adjusted model, the only difference being in the intercept term that is added to complete the linear predictor. We can see those in our model weight list:
+
+```{r}
+model_weights |>
+  dplyr::filter(
+    stringr::str_detect(
+      Factor,
+      pattern = "EFFECT$"
+    )
+  )
+```
+
+* The `AVG_EFFECT` corresponds to the risk-shift (intercept) associated with being treated at the "average" hospital
+* The `HOSP_EFFECT` corresponds to the risk-shift (intercept) associated with being treated at _your_ hospital
+
+These are estimated by CMS using your discharge lists. They are done so _after_ accounting for all of the risk factors, so by comparing them we get a measure of how much more or less likely a patient is to be readmitted at your hospital versus the average hospital, after risk-adjustment.
+
+We can add each one into our current `linear_predictors` to get the complete linear predictors for the predicted and expected readmission rates:
+
+```{r}
+linear_predictors <-
+  linear_predictors |>
+
+    # Join to get intercepts
+    dplyr::inner_join(
+      y = 
+        model_weights |>
+
+        # Filter to intercepts
+        dplyr::filter(
+          stringr::str_detect(
+            Factor,
+            pattern = "_EFFECT$"
+          )
+        ) |>
+        
+        # Send over columns
+        tidyr::pivot_wider(
+          names_from = Factor,
+          values_from = Value
+        ),
+      by = "Cohort"
+    ) |>
+    
+    # Finish LP's
+    dplyr::mutate(
+      LP_Predicted = LP + HOSP_EFFECT,
+      LP_Expected = LP + AVG_EFFECT
+    )
+linear_predictors
+```
+
+#### Transform to probability scale
+
+The last thing we need to do is transform the linear predictors to the probabilty scale using the [logistic function](https://en.wikipedia.org/wiki/Logistic_function). 
+
+```{r}
+readmission_risks <-
+  linear_predictors |>
+
+    # Transform LP's
+    dplyr::mutate(
+      dplyr::across(
+        c(LP_Predicted, LP_Expected),
+        \(x) 1 / (1 + exp(-x))
+      )
+    ) |>
+    
+    # Keep a few columns
+    dplyr::select(
+      `ID Number`,
+      Predicted = LP_Predicted,
+      Expected = LP_Expected,
+      Cohort
+    )
+readmission_risks
+```
+
+Now we have the _predicted_ and _expected_ readmission risk for each patients.
+
+#### Do it easier
+
+We went through all of that computation to see how it works to derive the readmission risks starting with the discharges, but we can get this automatically by using the `hsr_readmission_risks()` function:
+
+```{r}
+readmission_risks <-
+  setdiff(cohorts, "CABG") |>
+
+    # Iterate each cohort
+    purrr::map_df(
+
+      # Import eligible discharges
+      ~hsr_readmission_risks(
+        file = my_report,
+        cohort = .x
+      ) |>
+      
+      # Indicate cohort
+      tibble::add_column(Cohort = .x)
+    )
+readmission_risks
+```
+
+This function extracts eligible discharges and computes the readmission risk, so it captures everything we just did in steps i-iii.
+
+### iv. Compute cohort-level results
 
 ## Key Observations
 
