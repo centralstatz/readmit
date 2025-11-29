@@ -592,10 +592,9 @@ the first number in the preceding table.</p>
 be conducted, using functions in <code>readmit</code> as support, to
 validate HSR calculations and/or to gain deeper insights into HRRP
 results.</p>
-</div>
-<div class="section level2">
-<h2 id="validating-the-penalty-calculation">1. Validating the Penalty Calculation<a class="anchor" aria-label="anchor" href="#validating-the-penalty-calculation"></a>
-</h2>
+<div class="section level3">
+<h3 id="validating-the-penalty-calculation">1. Validating the Penalty Calculation<a class="anchor" aria-label="anchor" href="#validating-the-penalty-calculation"></a>
+</h3>
 <p>We <a href="#cohortsummary">previously calculated</a> the payment
 penalty starting from the cohort-level results. However, as an initial
 validation step, it is important to go through the mechanics of
@@ -611,28 +610,59 @@ various function arguments:</p>
 <code class="sourceCode R"><span><span class="va">cohorts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">hrrp_cohort_inclusion</span><span class="op">)</span>, <span class="st">"ProgramYear"</span><span class="op">)</span></span>
 <span><span class="va">cohorts</span></span>
 <span><span class="co">#&gt; [1] "AMI"  "COPD" "HF"   "PN"   "CABG" "HK"</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="i--extract-discharges">i. Extract discharges<a class="anchor" aria-label="anchor" href="#i--extract-discharges"></a>
-</h3>
+<div class="section level4">
+<h4 id="i--extract-discharges">i. Extract discharges<a class="anchor" aria-label="anchor" href="#i--extract-discharges"></a>
+</h4>
 <p>The first thing we need to is extract the set of discharges (i.e.,
 the <em>denominator</em>) that contribute to program for each cohort. To
 do this, we’ll iterate through the different cohorts and sequentially
-use the <code><a href="../reference/hsr_discharges.html">hsr_discharges()</a></code> function:</p>
+use the <code><a href="../reference/hsr_discharges.html">hsr_discharges()</a></code> function to get the row
+identifiers that should be included:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">cohorts</span>, <span class="st">"CABG"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">eligible_discharges</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">cohorts</span>, <span class="st">"CABG"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span></span>
-<span>  <span class="co"># Iterate each cohort</span></span>
-<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
-<span>    <span class="op">~</span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
-<span>      file <span class="op">=</span> <span class="va">my_report</span>,</span>
-<span>      cohort <span class="op">=</span> <span class="va">.x</span>,</span>
-<span>      eligible_only <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    <span class="co"># Iterate each cohort</span></span>
+<span>    <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_df</a></span><span class="op">(</span></span>
+<span></span>
+<span>      <span class="co"># Import eligible discharges</span></span>
+<span>      <span class="op">~</span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>        file <span class="op">=</span> <span class="va">my_report</span>,</span>
+<span>        cohort <span class="op">=</span> <span class="va">.x</span>,</span>
+<span>        eligible_only <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>      <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>      <span class="co"># Keep the row identifiers</span></span>
+<span>      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">`ID Number`</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>      <span class="co"># Add cohort identifier</span></span>
+<span>      <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/add_column.html" class="external-link">add_column</a></span><span class="op">(</span>Cohort <span class="op">=</span> <span class="va">.x</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span><span class="va">eligible_discharges</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 122 × 2</span></span></span>
+<span><span class="co">#&gt;    `ID Number` Cohort</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           1 COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           2 COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           3 COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           4 COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           5 COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           6 COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           7 COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           8 COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 112 more rows</span></span></span></code></pre></div>
+<p>We can check the counts of these:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">eligible_discharges</span><span class="op">$</span><span class="va">Cohort</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  AMI COPD   HF   HK   PN </span></span>
+<span><span class="co">#&gt;    2   18   25   45   32</span></span></code></pre></div>
 <p>You can validate that we obtained the correct counts by looking at
 the <a href="#cohortsummary">cohort summary</a> we previously
 created.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cohort_summary</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 10</span></span></span>
 <span><span class="co">#&gt;   `Measure [a]` `Number of Eligible Discharges [b]` Number of Readmissions Amo…¹</span></span>
@@ -655,11 +685,547 @@ created.</p>
 <code>cohort_summary</code> table), so we pre-excluded this from our
 cohort list we iterated through (as it would have caused an error
 otherwise).</p>
+</div>
+<div class="section level4">
+<h4 id="ii--extract-risk-factors">ii. Extract risk factors<a class="anchor" aria-label="anchor" href="#ii--extract-risk-factors"></a>
+</h4>
+<p>Next we need to extract the sets of risk factors for cohort that go
+into the readmission risk model. We can again do this by iterating
+through the <code>cohort</code> list with <code>hsr_discharges</code>,
+but extracting the risk factors as well with
+<code>risk_factors=TRUE</code>:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">cohorts</span>, <span class="st">"CABG"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Iterate each cohort</span></span>
+<span>    <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
+<span></span>
+<span>      <span class="co"># Import eligible discharges</span></span>
+<span>      <span class="op">~</span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>        file <span class="op">=</span> <span class="va">my_report</span>,</span>
+<span>        cohort <span class="op">=</span> <span class="va">.x</span>,</span>
+<span>        risk_factors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>        discharge_phi <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 33</span></span></span>
+<span><span class="co">#&gt;   `ID Number` `Years Over 65 (continuous)`  Male Anterior Myocardial Infarctio…¹</span></span>
+<span><span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>           1                           31     1                               0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>           2                           27     1                               0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​`Anterior Myocardial Infarction `</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 29 more variables: `Non-Anterior Location of Myocardial Infarction` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `History of Coronary Artery Bypass Graft (CABG) Surgery` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `History of Percutaneous Transluminal Coronary Angioplasty (PTCA)` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `History of COVID-19` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Severe Infection; Other Infectious Diseases` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Metastatic Cancer and Acute Leukemia` &lt;dbl&gt;, Cancer &lt;dbl&gt;, …</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[2]]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 21 × 42</span></span></span>
+<span><span class="co">#&gt;    `ID Number` `Years Over 65 (continuous)` `History of Mechanical Ventilation`</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1                            5                                   1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2                            8                                   1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3                           23                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4                           15                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5                            7                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6                            1                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7                           12                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8                           18                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9                            6                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10                           11                                   0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 11 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 39 more variables: `Sleep-Disordered Breathing` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `History of COVID-19` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Severe Infection; Other Infectious Diseases` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Metastatic Cancer and Acute Leukemia` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Lung and Other Severe Cancers` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Lymphatic, Head and Neck, Brain, and Other Major Cancers; Breast, Colorectal and Other Cancers and Tumors; Other Respiratory and Heart Neoplasms` &lt;dbl&gt;, …</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[3]]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 30 × 39</span></span></span>
+<span><span class="co">#&gt;    `ID Number` `Years Over 65 (continuous)`  Male History of Coronary Artery B…¹</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1                            8     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2                           25     1                              1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3                            9     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4                            9     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5                           30     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6                           13     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7                           12     1                              1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8                            7     1                              1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9                           25     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10                           22     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 20 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​`History of Coronary Artery Bypass Graft (CABG) Surgery`</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 35 more variables: `History of COVID-19` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Metastatic Cancer and Acute Leukemia` &lt;dbl&gt;, Cancer &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Diabetes Mellitus (DM) or DM Complications` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Protein-Calorie Malnutrition` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/Acid-base Balance` &lt;dbl&gt;, …</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[4]]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 45 × 43</span></span></span>
+<span><span class="co">#&gt;    `ID Number` `Years Over 65 (continuous)`  Male History of Coronary Artery B…¹</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1                           13     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2                           16     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3                            6     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4                           14     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5                           16     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6                           18     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7                           15     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8                           13     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9                            9     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10                            4     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 35 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​`History of Coronary Artery Bypass Graft (CABG) Surgery`</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 39 more variables: `History of COVID-19` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Severe Infection; Other Infectious Diseases` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Septicemia, Sepsis, Systemic Inflammatory Response Syndrome/Shock` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Metastatic Cancer and Acute Leukemia` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Lung and Other Severe Cancers` &lt;dbl&gt;, `Lymphoma; Other Cancers` &lt;dbl&gt;, …</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[5]]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 51 × 35</span></span></span>
+<span><span class="co">#&gt;    `ID Number` `Years Over 65 (continuous)`  Male Index Admissions with an Ele…¹</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1                            1     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2                            7     1                              1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           3                            1     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           4                            6     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           5                            1     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           6                           11     1                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           7                           14     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           8                           16     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           9                            1     0                              0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>          10                           16     0                              1</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 41 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​`Index Admissions with an Elective THA Procedure`</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 31 more variables: `Number of Procedures (two vs. one)` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Other Congenital Deformity of Hip (Joint)` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Post Traumatic Osteoarthritis` &lt;dbl&gt;, `History of COVID-19` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Severe Infection; Other Infectious Diseases` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `Metastatic Cancer and Acute Leukemia` &lt;dbl&gt;, Cancer &lt;dbl&gt;, …</span></span></span></code></pre></div>
+<p>Notice that we get the risk factors for each cohort, but all of the
+columns are different since each cohort has a different model. So one
+thing we can do is pivot the data with
+<code><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">tidyr::pivot_longer()</a></code> to make a long and narrow data frame
+so that it can all be binded together.</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">risk_factors</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">cohorts</span>, <span class="st">"CABG"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>      <span class="co"># Iterate each cohort</span></span>
+<span>      <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_df</a></span><span class="op">(</span></span>
+<span></span>
+<span>        <span class="co"># Import eligible discharges</span></span>
+<span>        <span class="op">~</span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>          file <span class="op">=</span> <span class="va">my_report</span>,</span>
+<span>          cohort <span class="op">=</span> <span class="va">.x</span>,</span>
+<span>          risk_factors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>          discharge_phi <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        </span>
+<span>        <span class="co"># Send risk factors down the rows</span></span>
+<span>        <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
+<span>          cols <span class="op">=</span> <span class="op">-</span><span class="va">`ID Number`</span>,</span>
+<span>          names_to <span class="op">=</span> <span class="st">"Factor"</span>,</span>
+<span>          values_to <span class="op">=</span> <span class="st">"Value"</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        </span>
+<span>        <span class="co"># Indicate cohort</span></span>
+<span>        <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/add_column.html" class="external-link">add_column</a></span><span class="op">(</span>Cohort <span class="op">=</span> <span class="va">.x</span><span class="op">)</span></span>
+<span>      <span class="op">)</span></span>
+<span><span class="va">risk_factors</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5,689 × 4</span></span></span>
+<span><span class="co">#&gt;    `ID Number` Factor                                               Value Cohort</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1 <span style="color: #949494;">"</span>Years Over 65 (continuous)<span style="color: #949494;">"</span>                            31 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           1 <span style="color: #949494;">"</span>Male<span style="color: #949494;">"</span>                                                   1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           1 <span style="color: #949494;">"</span>Anterior Myocardial Infarction <span style="color: #949494;">"</span>                        0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           1 <span style="color: #949494;">"</span>Non-Anterior Location of Myocardial Infarction<span style="color: #949494;">"</span>         0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           1 <span style="color: #949494;">"</span>History of Coronary Artery Bypass Graft (CABG) Sur…     1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           1 <span style="color: #949494;">"</span>History of Percutaneous Transluminal Coronary Angi…     0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           1 <span style="color: #949494;">"</span>History of COVID-19<span style="color: #949494;">"</span>                                    0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           1 <span style="color: #949494;">"</span>Severe Infection; Other Infectious Diseases<span style="color: #949494;">"</span>            1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           1 <span style="color: #949494;">"</span>Metastatic Cancer and Acute Leukemia<span style="color: #949494;">"</span>                   0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           1 <span style="color: #949494;">"</span>Cancer<span style="color: #949494;">"</span>                                                 0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5,679 more rows</span></span></span></code></pre></div>
+<p>We can then merge these (using <code><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">dplyr::inner_join()</a></code>) with
+the eligilble discharges we previously identified to get the set of risk
+factors for each eligible discharge:</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">risk_factors</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">risk_factors</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Join to get eligible only</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span></span>
+<span>      y <span class="op">=</span> <span class="va">eligible_discharges</span>,</span>
+<span>      by <span class="op">=</span> </span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>          <span class="st">"ID Number"</span>,</span>
+<span>          <span class="st">"Cohort"</span></span>
+<span>        <span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">risk_factors</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4,626 × 4</span></span></span>
+<span><span class="co">#&gt;    `ID Number` Factor                                               Value Cohort</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1 <span style="color: #949494;">"</span>Years Over 65 (continuous)<span style="color: #949494;">"</span>                            31 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           1 <span style="color: #949494;">"</span>Male<span style="color: #949494;">"</span>                                                   1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           1 <span style="color: #949494;">"</span>Anterior Myocardial Infarction <span style="color: #949494;">"</span>                        0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           1 <span style="color: #949494;">"</span>Non-Anterior Location of Myocardial Infarction<span style="color: #949494;">"</span>         0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           1 <span style="color: #949494;">"</span>History of Coronary Artery Bypass Graft (CABG) Sur…     1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           1 <span style="color: #949494;">"</span>History of Percutaneous Transluminal Coronary Angi…     0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           1 <span style="color: #949494;">"</span>History of COVID-19<span style="color: #949494;">"</span>                                    0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           1 <span style="color: #949494;">"</span>Severe Infection; Other Infectious Diseases<span style="color: #949494;">"</span>            1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           1 <span style="color: #949494;">"</span>Metastatic Cancer and Acute Leukemia<span style="color: #949494;">"</span>                   0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           1 <span style="color: #949494;">"</span>Cancer<span style="color: #949494;">"</span>                                                 0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4,616 more rows</span></span></span></code></pre></div>
+<p>Of course, we didn’t <em>have</em> to do this step separately from
+step (i), as we could have just used the <code>eligible_only</code>
+argument simultaneously, and ended up in the same place.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">risk_factors</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">cohorts</span>, <span class="st">"CABG"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>      <span class="co"># Iterate each cohort</span></span>
+<span>      <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_df</a></span><span class="op">(</span></span>
+<span></span>
+<span>        <span class="co"># Import eligible discharges</span></span>
+<span>        <span class="op">~</span><span class="fu"><a href="../reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
+<span>          file <span class="op">=</span> <span class="va">my_report</span>,</span>
+<span>          cohort <span class="op">=</span> <span class="va">.x</span>,</span>
+<span>          risk_factors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>          discharge_phi <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>          eligible_only <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        </span>
+<span>        <span class="co"># Send risk factors down the rows</span></span>
+<span>        <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
+<span>          cols <span class="op">=</span> <span class="op">-</span><span class="va">`ID Number`</span>,</span>
+<span>          names_to <span class="op">=</span> <span class="st">"Factor"</span>,</span>
+<span>          values_to <span class="op">=</span> <span class="st">"Value"</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        </span>
+<span>        <span class="co"># Indicate cohort</span></span>
+<span>        <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/add_column.html" class="external-link">add_column</a></span><span class="op">(</span>Cohort <span class="op">=</span> <span class="va">.x</span><span class="op">)</span></span>
+<span>      <span class="op">)</span></span>
+<span><span class="va">risk_factors</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4,626 × 4</span></span></span>
+<span><span class="co">#&gt;    `ID Number` Factor                                               Value Cohort</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1 <span style="color: #949494;">"</span>Years Over 65 (continuous)<span style="color: #949494;">"</span>                            31 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           1 <span style="color: #949494;">"</span>Male<span style="color: #949494;">"</span>                                                   1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           1 <span style="color: #949494;">"</span>Anterior Myocardial Infarction <span style="color: #949494;">"</span>                        0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           1 <span style="color: #949494;">"</span>Non-Anterior Location of Myocardial Infarction<span style="color: #949494;">"</span>         0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           1 <span style="color: #949494;">"</span>History of Coronary Artery Bypass Graft (CABG) Sur…     1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           1 <span style="color: #949494;">"</span>History of Percutaneous Transluminal Coronary Angi…     0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           1 <span style="color: #949494;">"</span>History of COVID-19<span style="color: #949494;">"</span>                                    0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           1 <span style="color: #949494;">"</span>Severe Infection; Other Infectious Diseases<span style="color: #949494;">"</span>            1 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           1 <span style="color: #949494;">"</span>Metastatic Cancer and Acute Leukemia<span style="color: #949494;">"</span>                   0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           1 <span style="color: #949494;">"</span>Cancer<span style="color: #949494;">"</span>                                                 0 AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4,616 more rows</span></span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="iii--compute-individual-readmission-risks">iii. Compute individual readmission risks<a class="anchor" aria-label="anchor" href="#iii--compute-individual-readmission-risks"></a>
+</h4>
+<p>The <em>predicted</em> and <em>expected</em> readmission rates are
+computed for each discharge by plugging in each patient’s set of risk
+factors into risk models developed by CMS. We can use the
+<code><a href="../reference/hsr_coefficients.html">hsr_coefficients()</a></code> function to extract these:</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_weights</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">cohorts</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>  <span class="co"># Iterate each cohort</span></span>
+<span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_df</a></span><span class="op">(</span></span>
+<span></span>
+<span>    <span class="co"># Import eligible discharges</span></span>
+<span>    <span class="op">~</span><span class="fu"><a href="../reference/hsr_coefficients.html">hsr_coefficients</a></span><span class="op">(</span></span>
+<span>      file <span class="op">=</span> <span class="va">my_report</span>,</span>
+<span>      cohort <span class="op">=</span> <span class="va">.x</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    </span>
+<span>    <span class="co"># Indicate cohort</span></span>
+<span>    <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/add_column.html" class="external-link">add_column</a></span><span class="op">(</span>Cohort <span class="op">=</span> <span class="va">.x</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">model_weights</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 225 × 3</span></span></span>
+<span><span class="co">#&gt;    Factor                                                           Value Cohort</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> <span style="color: #949494;">"</span>Years Over 65 (continuous)<span style="color: #949494;">"</span>                                   0.007<span style="text-decoration: underline;">65</span> AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> <span style="color: #949494;">"</span>Male<span style="color: #949494;">"</span>                                                        -<span style="color: #BB0000;">0.134</span>   AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> <span style="color: #949494;">"</span>Anterior Myocardial Infarction <span style="color: #949494;">"</span>                              0.271   AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> <span style="color: #949494;">"</span>Non-Anterior Location of Myocardial Infarction<span style="color: #949494;">"</span>               0.071<span style="text-decoration: underline;">2</span>  AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> <span style="color: #949494;">"</span>History of Coronary Artery Bypass Graft (CABG) Surgery<span style="color: #949494;">"</span>       0.023<span style="text-decoration: underline;">3</span>  AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> <span style="color: #949494;">"</span>History of Percutaneous Transluminal Coronary Angioplasty (… -<span style="color: #BB0000;">0.021</span><span style="color: #BB0000; text-decoration: underline;">8</span>  AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> <span style="color: #949494;">"</span>History of COVID-19<span style="color: #949494;">"</span>                                         -<span style="color: #BB0000;">0.067</span><span style="color: #BB0000; text-decoration: underline;">6</span>  AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> <span style="color: #949494;">"</span>Severe Infection; Other Infectious Diseases<span style="color: #949494;">"</span>                  0.083<span style="text-decoration: underline;">2</span>  AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> <span style="color: #949494;">"</span>Metastatic Cancer and Acute Leukemia<span style="color: #949494;">"</span>                         0.226   AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> <span style="color: #949494;">"</span>Cancer<span style="color: #949494;">"</span>                                                       0.044<span style="text-decoration: underline;">0</span>  AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 215 more rows</span></span></span></code></pre></div>
+<p>To use these in our calculations, we need to attach the model weights
+for each cohort to our current <code>risk_factors</code> dataset using
+<code><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">dplyr::inner_join()</a></code>:</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">risk_factors</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">risk_factors</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Join to get weights</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span></span>
+<span>      y <span class="op">=</span> </span>
+<span>        <span class="va">model_weights</span> <span class="op">|&gt;</span> </span>
+<span>          </span>
+<span>        <span class="co"># Rename the column</span></span>
+<span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span></span>
+<span>          Weight <span class="op">=</span> <span class="va">Value</span></span>
+<span>        <span class="op">)</span>,</span>
+<span>      by <span class="op">=</span> </span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>          <span class="st">"Cohort"</span>,</span>
+<span>          <span class="st">"Factor"</span></span>
+<span>        <span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">risk_factors</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4,626 × 5</span></span></span>
+<span><span class="co">#&gt;    `ID Number` Factor                                      Value Cohort   Weight</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1 <span style="color: #949494;">"</span>Years Over 65 (continuous)<span style="color: #949494;">"</span>                   31 AMI     0.007<span style="text-decoration: underline;">65</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           1 <span style="color: #949494;">"</span>Male<span style="color: #949494;">"</span>                                          1 AMI    -<span style="color: #BB0000;">0.134</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           1 <span style="color: #949494;">"</span>Anterior Myocardial Infarction <span style="color: #949494;">"</span>               0 AMI     0.271  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           1 <span style="color: #949494;">"</span>Non-Anterior Location of Myocardial Infar…     0 AMI     0.071<span style="text-decoration: underline;">2</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           1 <span style="color: #949494;">"</span>History of Coronary Artery Bypass Graft (…     1 AMI     0.023<span style="text-decoration: underline;">3</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           1 <span style="color: #949494;">"</span>History of Percutaneous Transluminal Coro…     0 AMI    -<span style="color: #BB0000;">0.021</span><span style="color: #BB0000; text-decoration: underline;">8</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           1 <span style="color: #949494;">"</span>History of COVID-19<span style="color: #949494;">"</span>                           0 AMI    -<span style="color: #BB0000;">0.067</span><span style="color: #BB0000; text-decoration: underline;">6</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           1 <span style="color: #949494;">"</span>Severe Infection; Other Infectious Diseas…     1 AMI     0.083<span style="text-decoration: underline;">2</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           1 <span style="color: #949494;">"</span>Metastatic Cancer and Acute Leukemia<span style="color: #949494;">"</span>          0 AMI     0.226  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           1 <span style="color: #949494;">"</span>Cancer<span style="color: #949494;">"</span>                                        0 AMI     0.044<span style="text-decoration: underline;">0</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4,616 more rows</span></span></span></code></pre></div>
+<div class="section level5">
+<h5 id="compute-the-linear-predictor-weighted-sum">Compute the linear predictor (weighted-sum)<a class="anchor" aria-label="anchor" href="#compute-the-linear-predictor-weighted-sum"></a>
+</h5>
+<p>These are <a href="https://en.wikipedia.org/wiki/Logistic_regression" class="external-link">logistic
+regression</a> models, so to convert to a risk estimate, we need to take
+the weighted-sum of the factor weight with the risk factor value for
+each discharge.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">linear_predictors</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">risk_factors</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Compute weighted sum</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>      LP <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">Weight</span> <span class="op">*</span> <span class="va">Value</span><span class="op">)</span>,</span>
+<span>      .by <span class="op">=</span> </span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>          <span class="va">Cohort</span>,</span>
+<span>          <span class="va">`ID Number`</span></span>
+<span>        <span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">linear_predictors</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 122 × 3</span></span></span>
+<span><span class="co">#&gt;    Cohort `ID Number`    LP</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> AMI              1 1.92 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AMI              2 0.749</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> COPD             1 1.49 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> COPD             2 1.52 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> COPD             3 1.31 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> COPD             4 0.321</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> COPD             5 0.258</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> COPD             6 0.633</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> COPD             7 0.841</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> COPD             8 1.08 </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 112 more rows</span></span></span></code></pre></div>
+<p>You can think of this as the “risk-adjustment” part, where we’ve
+adjusted each patient’s readmission risk based on their own clinical
+history. These are on the <a href="https://en.wikipedia.org/wiki/Logit" class="external-link">logit</a> scale (so not yet
+probability/risk estimates), but it what we assume to be linearly
+related to the outcome, thus we call it the “linear predictor”. But we
+are still missing something: <strong>the intercept terms</strong>.</p>
+</div>
+<div class="section level5">
+<h5 id="add-in-the-intercepts">Add in the intercepts<a class="anchor" aria-label="anchor" href="#add-in-the-intercepts"></a>
+</h5>
+<p>The <em>predicted</em> and <em>expected</em> readmission risks are
+derived from the same risk-adjusted model, the only difference being in
+the intercept term that is added to complete the linear predictor. We
+can see those in our model weight list:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_weights</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect</a></span><span class="op">(</span></span>
+<span>      <span class="va">Factor</span>,</span>
+<span>      pattern <span class="op">=</span> <span class="st">"EFFECT$"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 11 × 3</span></span></span>
+<span><span class="co">#&gt;    Factor      Value Cohort</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> HOSP_EFFECT -<span style="color: #BB0000;">2.96</span> AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AVG_EFFECT  -<span style="color: #BB0000;">2.95</span> AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> HOSP_EFFECT -<span style="color: #BB0000;">2.53</span> COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> AVG_EFFECT  -<span style="color: #BB0000;">2.53</span> COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> HOSP_EFFECT -<span style="color: #BB0000;">2.46</span> HF    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> AVG_EFFECT  -<span style="color: #BB0000;">2.42</span> HF    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> HOSP_EFFECT -<span style="color: #BB0000;">2.51</span> PN    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AVG_EFFECT  -<span style="color: #BB0000;">2.51</span> PN    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> AVG_EFFECT  -<span style="color: #BB0000;">2.70</span> CABG  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> HOSP_EFFECT -<span style="color: #BB0000;">4.41</span> HK    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> AVG_EFFECT  -<span style="color: #BB0000;">4.28</span> HK</span></span></code></pre></div>
 <ul>
-<li>Start with first page, compute from there based on cohort page</li>
-<li>We can go a level deeper: how were those risks calculated? Compute
-readmission risks, reproduce Cohort quantities.</li>
+<li>The <code>AVG_EFFECT</code> corresponds to the risk-shift
+(intercept) associated with being treated at the “average” hospital</li>
+<li>The <code>HOSP_EFFECT</code> corresponds to the risk-shift
+(intercept) associated with being treated at <em>your</em> hospital</li>
 </ul>
+<p>These are estimated by CMS using your discharge lists. They are done
+so <em>after</em> accounting for all of the risk factors, so by
+comparing them we get a measure of how much more or less likely a
+patient is to be readmitted at your hospital versus the average
+hospital, after risk-adjustment.</p>
+<p>We can add each one into our current <code>linear_predictors</code>
+to get the complete linear predictors for the predicted and expected
+readmission rates:</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">linear_predictors</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">linear_predictors</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Join to get intercepts</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span></span>
+<span>      y <span class="op">=</span> </span>
+<span>        <span class="va">model_weights</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>        <span class="co"># Filter to intercepts</span></span>
+<span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>          <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect</a></span><span class="op">(</span></span>
+<span>            <span class="va">Factor</span>,</span>
+<span>            pattern <span class="op">=</span> <span class="st">"_EFFECT$"</span></span>
+<span>          <span class="op">)</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        </span>
+<span>        <span class="co"># Send over columns</span></span>
+<span>        <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span></span>
+<span>          names_from <span class="op">=</span> <span class="va">Factor</span>,</span>
+<span>          values_from <span class="op">=</span> <span class="va">Value</span></span>
+<span>        <span class="op">)</span>,</span>
+<span>      by <span class="op">=</span> <span class="st">"Cohort"</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    </span>
+<span>    <span class="co"># Finish LP's</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>      LP_Predicted <span class="op">=</span> <span class="va">LP</span> <span class="op">+</span> <span class="va">HOSP_EFFECT</span>,</span>
+<span>      LP_Expected <span class="op">=</span> <span class="va">LP</span> <span class="op">+</span> <span class="va">AVG_EFFECT</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">linear_predictors</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 122 × 7</span></span></span>
+<span><span class="co">#&gt;    Cohort `ID Number`    LP HOSP_EFFECT AVG_EFFECT LP_Predicted LP_Expected</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> AMI              1 1.92        -<span style="color: #BB0000;">2.96</span>      -<span style="color: #BB0000;">2.95</span>        -<span style="color: #BB0000;">1.03</span>       -<span style="color: #BB0000;">1.03</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AMI              2 0.749       -<span style="color: #BB0000;">2.96</span>      -<span style="color: #BB0000;">2.95</span>        -<span style="color: #BB0000;">2.21</span>       -<span style="color: #BB0000;">2.20</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> COPD             1 1.49        -<span style="color: #BB0000;">2.53</span>      -<span style="color: #BB0000;">2.53</span>        -<span style="color: #BB0000;">1.04</span>       -<span style="color: #BB0000;">1.04</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> COPD             2 1.52        -<span style="color: #BB0000;">2.53</span>      -<span style="color: #BB0000;">2.53</span>        -<span style="color: #BB0000;">1.01</span>       -<span style="color: #BB0000;">1.01</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> COPD             3 1.31        -<span style="color: #BB0000;">2.53</span>      -<span style="color: #BB0000;">2.53</span>        -<span style="color: #BB0000;">1.22</span>       -<span style="color: #BB0000;">1.22</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> COPD             4 0.321       -<span style="color: #BB0000;">2.53</span>      -<span style="color: #BB0000;">2.53</span>        -<span style="color: #BB0000;">2.21</span>       -<span style="color: #BB0000;">2.21</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> COPD             5 0.258       -<span style="color: #BB0000;">2.53</span>      -<span style="color: #BB0000;">2.53</span>        -<span style="color: #BB0000;">2.27</span>       -<span style="color: #BB0000;">2.27</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> COPD             6 0.633       -<span style="color: #BB0000;">2.53</span>      -<span style="color: #BB0000;">2.53</span>        -<span style="color: #BB0000;">1.90</span>       -<span style="color: #BB0000;">1.90</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> COPD             7 0.841       -<span style="color: #BB0000;">2.53</span>      -<span style="color: #BB0000;">2.53</span>        -<span style="color: #BB0000;">1.69</span>       -<span style="color: #BB0000;">1.69</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> COPD             8 1.08        -<span style="color: #BB0000;">2.53</span>      -<span style="color: #BB0000;">2.53</span>        -<span style="color: #BB0000;">1.45</span>       -<span style="color: #BB0000;">1.45</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 112 more rows</span></span></span></code></pre></div>
+</div>
+<div class="section level5">
+<h5 id="transform-to-probability-scale">Transform to probability scale<a class="anchor" aria-label="anchor" href="#transform-to-probability-scale"></a>
+</h5>
+<p>The last thing we need to do is transform the linear predictors to
+the probabilty scale using the <a href="https://en.wikipedia.org/wiki/Logistic_function" class="external-link">logistic
+function</a>.</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">readmission_risks</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">linear_predictors</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Transform LP's</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">LP_Predicted</span>, <span class="va">LP_Expected</span><span class="op">)</span>,</span>
+<span>        \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    </span>
+<span>    <span class="co"># Keep a few columns</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>      <span class="va">`ID Number`</span>,</span>
+<span>      Predicted <span class="op">=</span> <span class="va">LP_Predicted</span>,</span>
+<span>      Expected <span class="op">=</span> <span class="va">LP_Expected</span>,</span>
+<span>      <span class="va">Cohort</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">readmission_risks</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 122 × 4</span></span></span>
+<span><span class="co">#&gt;    `ID Number` Predicted Expected Cohort</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1    0.262    0.264  AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2    0.099<span style="text-decoration: underline;">1</span>   0.100<span style="text-decoration: underline;">0</span> AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           1    0.260    0.260  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           2    0.266    0.266  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           3    0.227    0.227  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           4    0.099<span style="text-decoration: underline;">0</span>   0.098<span style="text-decoration: underline;">9</span> COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           5    0.093<span style="text-decoration: underline;">5</span>   0.093<span style="text-decoration: underline;">5</span> COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           6    0.130    0.130  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           7    0.156    0.156  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           8    0.190    0.190  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 112 more rows</span></span></span></code></pre></div>
+<p>Now we have the <em>predicted</em> and <em>expected</em> readmission
+risk for each patients.</p>
+</div>
+<div class="section level5">
+<h5 id="do-it-easier">Do it easier<a class="anchor" aria-label="anchor" href="#do-it-easier"></a>
+</h5>
+<p>We went through all of that computation to see how it works to derive
+the readmission risks starting with the discharges, but we can get this
+automatically by using the <code><a href="../reference/hsr_readmission_risks.html">hsr_readmission_risks()</a></code>
+function:</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">readmission_risks</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="va">cohorts</span>, <span class="st">"CABG"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Iterate each cohort</span></span>
+<span>    <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_df</a></span><span class="op">(</span></span>
+<span></span>
+<span>      <span class="co"># Import eligible discharges</span></span>
+<span>      <span class="op">~</span><span class="fu"><a href="../reference/hsr_readmission_risks.html">hsr_readmission_risks</a></span><span class="op">(</span></span>
+<span>        file <span class="op">=</span> <span class="va">my_report</span>,</span>
+<span>        cohort <span class="op">=</span> <span class="va">.x</span></span>
+<span>      <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      </span>
+<span>      <span class="co"># Indicate cohort</span></span>
+<span>      <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/add_column.html" class="external-link">add_column</a></span><span class="op">(</span>Cohort <span class="op">=</span> <span class="va">.x</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">readmission_risks</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 122 × 4</span></span></span>
+<span><span class="co">#&gt;    `ID Number` Predicted Expected Cohort</span></span>
+<span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>           1    0.262    0.264  AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>           2    0.099<span style="text-decoration: underline;">1</span>   0.100<span style="text-decoration: underline;">0</span> AMI   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>           1    0.260    0.260  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>           2    0.266    0.266  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>           3    0.227    0.227  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>           4    0.099<span style="text-decoration: underline;">0</span>   0.098<span style="text-decoration: underline;">9</span> COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>           5    0.093<span style="text-decoration: underline;">5</span>   0.093<span style="text-decoration: underline;">5</span> COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>           6    0.130    0.130  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>           7    0.156    0.156  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           8    0.190    0.190  COPD  </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 112 more rows</span></span></span></code></pre></div>
+<p>This function extracts eligible discharges and computes the
+readmission risk, so it captures everything we just did in steps
+i-iii.</p>
+</div>
+</div>
+<div class="section level4">
+<h4 id="iv--compute-cohort-level-results">iv. Compute cohort-level results<a class="anchor" aria-label="anchor" href="#iv--compute-cohort-level-results"></a>
+</h4>
+</div>
 </div>
 <div class="section level3">
 <h3 id="key-observations">Key Observations<a class="anchor" aria-label="anchor" href="#key-observations"></a>
@@ -686,7 +1252,7 @@ calculation. It is all baked into the hospital effect.</li>
 <div class="section level2">
 <h2 id="outside-hospital-readmissions">Outside Hospital Readmissions<a class="anchor" aria-label="anchor" href="#outside-hospital-readmissions"></a>
 </h2>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://centralstatz.github.io/readmit/">readmit</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"</span></span>

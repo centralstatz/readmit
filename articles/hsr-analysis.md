@@ -573,7 +573,7 @@ In this section we’ll go through a collection data analyses that can be
 conducted, using functions in `readmit` as support, to validate HSR
 calculations and/or to gain deeper insights into HRRP results.
 
-## 1. Validating the Penalty Calculation
+### 1. Validating the Penalty Calculation
 
 We [previously calculated](#cohortsummary) the payment penalty starting
 from the cohort-level results. However, as an initial validation step,
@@ -594,25 +594,58 @@ cohorts
 #> [1] "AMI"  "COPD" "HF"   "PN"   "CABG" "HK"
 ```
 
-### i. Extract discharges
+#### i. Extract discharges
 
 The first thing we need to is extract the set of discharges (i.e., the
 *denominator*) that contribute to program for each cohort. To do this,
 we’ll iterate through the different cohorts and sequentially use the
 [`hsr_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_discharges.md)
-function:
+function to get the row identifiers that should be included:
 
 ``` r
-setdiff(cohorts, "CABG") |>
+eligible_discharges <-
+  setdiff(cohorts, "CABG") |>
 
-  # Iterate each cohort
-  purrr::map(
-    ~hsr_discharges(
-      file = my_report,
-      cohort = .x,
-      eligible_only = TRUE
+    # Iterate each cohort
+    purrr::map_df(
+
+      # Import eligible discharges
+      ~hsr_discharges(
+        file = my_report,
+        cohort = .x,
+        eligible_only = TRUE
+      ) |>
+
+      # Keep the row identifiers
+      dplyr::select(`ID Number`) |>
+
+      # Add cohort identifier
+      tibble::add_column(Cohort = .x)
     )
-  )
+eligible_discharges
+#> # A tibble: 122 × 2
+#>    `ID Number` Cohort
+#>          <int> <chr> 
+#>  1           1 AMI   
+#>  2           2 AMI   
+#>  3           1 COPD  
+#>  4           2 COPD  
+#>  5           3 COPD  
+#>  6           4 COPD  
+#>  7           5 COPD  
+#>  8           6 COPD  
+#>  9           7 COPD  
+#> 10           8 COPD  
+#> # ℹ 112 more rows
+```
+
+We can check the counts of these:
+
+``` r
+table(eligible_discharges$Cohort)
+#> 
+#>  AMI COPD   HF   HK   PN 
+#>    2   18   25   45   32
 ```
 
 You can validate that we obtained the correct counts by looking at the
@@ -643,9 +676,569 @@ One caveat was that we already knew there weren’t any `CABG` discharges
 from our cohort list we iterated through (as it would have caused an
 error otherwise).
 
-- Start with first page, compute from there based on cohort page
-- We can go a level deeper: how were those risks calculated? Compute
-  readmission risks, reproduce Cohort quantities.
+#### ii. Extract risk factors
+
+Next we need to extract the sets of risk factors for cohort that go into
+the readmission risk model. We can again do this by iterating through
+the `cohort` list with `hsr_discharges`, but extracting the risk factors
+as well with `risk_factors=TRUE`:
+
+``` r
+setdiff(cohorts, "CABG") |>
+
+    # Iterate each cohort
+    purrr::map(
+
+      # Import eligible discharges
+      ~hsr_discharges(
+        file = my_report,
+        cohort = .x,
+        risk_factors = TRUE,
+        discharge_phi = FALSE
+      )
+    )
+#> [[1]]
+#> # A tibble: 2 × 33
+#>   `ID Number` `Years Over 65 (continuous)`  Male Anterior Myocardial Infarctio…¹
+#>         <int>                        <dbl> <dbl>                           <dbl>
+#> 1           1                           31     1                               0
+#> 2           2                           27     1                               0
+#> # ℹ abbreviated name: ¹​`Anterior Myocardial Infarction `
+#> # ℹ 29 more variables: `Non-Anterior Location of Myocardial Infarction` <dbl>,
+#> #   `History of Coronary Artery Bypass Graft (CABG) Surgery` <dbl>,
+#> #   `History of Percutaneous Transluminal Coronary Angioplasty (PTCA)` <dbl>,
+#> #   `History of COVID-19` <dbl>,
+#> #   `Severe Infection; Other Infectious Diseases` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>, Cancer <dbl>, …
+#> 
+#> [[2]]
+#> # A tibble: 21 × 42
+#>    `ID Number` `Years Over 65 (continuous)` `History of Mechanical Ventilation`
+#>          <int>                        <dbl>                               <dbl>
+#>  1           1                            5                                   1
+#>  2           2                            8                                   1
+#>  3           3                           23                                   0
+#>  4           4                           15                                   0
+#>  5           5                            7                                   0
+#>  6           6                            1                                   0
+#>  7           7                           12                                   0
+#>  8           8                           18                                   0
+#>  9           9                            6                                   0
+#> 10          10                           11                                   0
+#> # ℹ 11 more rows
+#> # ℹ 39 more variables: `Sleep-Disordered Breathing` <dbl>,
+#> #   `History of COVID-19` <dbl>,
+#> #   `Severe Infection; Other Infectious Diseases` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>,
+#> #   `Lung and Other Severe Cancers` <dbl>,
+#> #   `Lymphatic, Head and Neck, Brain, and Other Major Cancers; Breast, Colorectal and Other Cancers and Tumors; Other Respiratory and Heart Neoplasms` <dbl>, …
+#> 
+#> [[3]]
+#> # A tibble: 30 × 39
+#>    `ID Number` `Years Over 65 (continuous)`  Male History of Coronary Artery B…¹
+#>          <int>                        <dbl> <dbl>                          <dbl>
+#>  1           1                            8     1                              0
+#>  2           2                           25     1                              1
+#>  3           3                            9     0                              0
+#>  4           4                            9     0                              0
+#>  5           5                           30     0                              0
+#>  6           6                           13     0                              0
+#>  7           7                           12     1                              1
+#>  8           8                            7     1                              1
+#>  9           9                           25     1                              0
+#> 10          10                           22     0                              0
+#> # ℹ 20 more rows
+#> # ℹ abbreviated name: ¹​`History of Coronary Artery Bypass Graft (CABG) Surgery`
+#> # ℹ 35 more variables: `History of COVID-19` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>, Cancer <dbl>,
+#> #   `Diabetes Mellitus (DM) or DM Complications` <dbl>,
+#> #   `Protein-Calorie Malnutrition` <dbl>,
+#> #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/Acid-base Balance` <dbl>, …
+#> 
+#> [[4]]
+#> # A tibble: 45 × 43
+#>    `ID Number` `Years Over 65 (continuous)`  Male History of Coronary Artery B…¹
+#>          <int>                        <dbl> <dbl>                          <dbl>
+#>  1           1                           13     0                              0
+#>  2           2                           16     1                              0
+#>  3           3                            6     1                              0
+#>  4           4                           14     1                              0
+#>  5           5                           16     1                              0
+#>  6           6                           18     1                              0
+#>  7           7                           15     1                              0
+#>  8           8                           13     0                              0
+#>  9           9                            9     0                              0
+#> 10          10                            4     0                              0
+#> # ℹ 35 more rows
+#> # ℹ abbreviated name: ¹​`History of Coronary Artery Bypass Graft (CABG) Surgery`
+#> # ℹ 39 more variables: `History of COVID-19` <dbl>,
+#> #   `Severe Infection; Other Infectious Diseases` <dbl>,
+#> #   `Septicemia, Sepsis, Systemic Inflammatory Response Syndrome/Shock` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>,
+#> #   `Lung and Other Severe Cancers` <dbl>, `Lymphoma; Other Cancers` <dbl>, …
+#> 
+#> [[5]]
+#> # A tibble: 51 × 35
+#>    `ID Number` `Years Over 65 (continuous)`  Male Index Admissions with an Ele…¹
+#>          <int>                        <dbl> <dbl>                          <dbl>
+#>  1           1                            1     1                              0
+#>  2           2                            7     1                              1
+#>  3           3                            1     0                              0
+#>  4           4                            6     1                              0
+#>  5           5                            1     1                              0
+#>  6           6                           11     1                              0
+#>  7           7                           14     0                              0
+#>  8           8                           16     0                              0
+#>  9           9                            1     0                              0
+#> 10          10                           16     0                              1
+#> # ℹ 41 more rows
+#> # ℹ abbreviated name: ¹​`Index Admissions with an Elective THA Procedure`
+#> # ℹ 31 more variables: `Number of Procedures (two vs. one)` <dbl>,
+#> #   `Other Congenital Deformity of Hip (Joint)` <dbl>,
+#> #   `Post Traumatic Osteoarthritis` <dbl>, `History of COVID-19` <dbl>,
+#> #   `Severe Infection; Other Infectious Diseases` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>, Cancer <dbl>, …
+```
+
+Notice that we get the risk factors for each cohort, but all of the
+columns are different since each cohort has a different model. So one
+thing we can do is pivot the data with
+[`tidyr::pivot_longer()`](https://tidyr.tidyverse.org/reference/pivot_longer.html)
+to make a long and narrow data frame so that it can all be binded
+together.
+
+``` r
+risk_factors <-
+  setdiff(cohorts, "CABG") |>
+
+      # Iterate each cohort
+      purrr::map_df(
+
+        # Import eligible discharges
+        ~hsr_discharges(
+          file = my_report,
+          cohort = .x,
+          risk_factors = TRUE,
+          discharge_phi = FALSE
+        ) |>
+        
+        # Send risk factors down the rows
+        tidyr::pivot_longer(
+          cols = -`ID Number`,
+          names_to = "Factor",
+          values_to = "Value"
+        ) |>
+        
+        # Indicate cohort
+        tibble::add_column(Cohort = .x)
+      )
+risk_factors
+#> # A tibble: 5,689 × 4
+#>    `ID Number` Factor                                               Value Cohort
+#>          <int> <chr>                                                <dbl> <chr> 
+#>  1           1 "Years Over 65 (continuous)"                            31 AMI   
+#>  2           1 "Male"                                                   1 AMI   
+#>  3           1 "Anterior Myocardial Infarction "                        0 AMI   
+#>  4           1 "Non-Anterior Location of Myocardial Infarction"         0 AMI   
+#>  5           1 "History of Coronary Artery Bypass Graft (CABG) Sur…     1 AMI   
+#>  6           1 "History of Percutaneous Transluminal Coronary Angi…     0 AMI   
+#>  7           1 "History of COVID-19"                                    0 AMI   
+#>  8           1 "Severe Infection; Other Infectious Diseases"            1 AMI   
+#>  9           1 "Metastatic Cancer and Acute Leukemia"                   0 AMI   
+#> 10           1 "Cancer"                                                 0 AMI   
+#> # ℹ 5,679 more rows
+```
+
+We can then merge these (using
+[`dplyr::inner_join()`](https://dplyr.tidyverse.org/reference/mutate-joins.html))
+with the eligilble discharges we previously identified to get the set of
+risk factors for each eligible discharge:
+
+``` r
+risk_factors <-
+  risk_factors |>
+
+    # Join to get eligible only
+    dplyr::inner_join(
+      y = eligible_discharges,
+      by = 
+        c(
+          "ID Number",
+          "Cohort"
+        )
+    )
+risk_factors
+#> # A tibble: 4,626 × 4
+#>    `ID Number` Factor                                               Value Cohort
+#>          <int> <chr>                                                <dbl> <chr> 
+#>  1           1 "Years Over 65 (continuous)"                            31 AMI   
+#>  2           1 "Male"                                                   1 AMI   
+#>  3           1 "Anterior Myocardial Infarction "                        0 AMI   
+#>  4           1 "Non-Anterior Location of Myocardial Infarction"         0 AMI   
+#>  5           1 "History of Coronary Artery Bypass Graft (CABG) Sur…     1 AMI   
+#>  6           1 "History of Percutaneous Transluminal Coronary Angi…     0 AMI   
+#>  7           1 "History of COVID-19"                                    0 AMI   
+#>  8           1 "Severe Infection; Other Infectious Diseases"            1 AMI   
+#>  9           1 "Metastatic Cancer and Acute Leukemia"                   0 AMI   
+#> 10           1 "Cancer"                                                 0 AMI   
+#> # ℹ 4,616 more rows
+```
+
+Of course, we didn’t *have* to do this step separately from step (i), as
+we could have just used the `eligible_only` argument simultaneously, and
+ended up in the same place.
+
+``` r
+risk_factors <-
+  setdiff(cohorts, "CABG") |>
+
+      # Iterate each cohort
+      purrr::map_df(
+
+        # Import eligible discharges
+        ~hsr_discharges(
+          file = my_report,
+          cohort = .x,
+          risk_factors = TRUE,
+          discharge_phi = FALSE,
+          eligible_only = TRUE
+        ) |>
+        
+        # Send risk factors down the rows
+        tidyr::pivot_longer(
+          cols = -`ID Number`,
+          names_to = "Factor",
+          values_to = "Value"
+        ) |>
+        
+        # Indicate cohort
+        tibble::add_column(Cohort = .x)
+      )
+risk_factors
+#> # A tibble: 4,626 × 4
+#>    `ID Number` Factor                                               Value Cohort
+#>          <int> <chr>                                                <dbl> <chr> 
+#>  1           1 "Years Over 65 (continuous)"                            31 AMI   
+#>  2           1 "Male"                                                   1 AMI   
+#>  3           1 "Anterior Myocardial Infarction "                        0 AMI   
+#>  4           1 "Non-Anterior Location of Myocardial Infarction"         0 AMI   
+#>  5           1 "History of Coronary Artery Bypass Graft (CABG) Sur…     1 AMI   
+#>  6           1 "History of Percutaneous Transluminal Coronary Angi…     0 AMI   
+#>  7           1 "History of COVID-19"                                    0 AMI   
+#>  8           1 "Severe Infection; Other Infectious Diseases"            1 AMI   
+#>  9           1 "Metastatic Cancer and Acute Leukemia"                   0 AMI   
+#> 10           1 "Cancer"                                                 0 AMI   
+#> # ℹ 4,616 more rows
+```
+
+#### iii. Compute individual readmission risks
+
+The *predicted* and *expected* readmission rates are computed for each
+discharge by plugging in each patient’s set of risk factors into risk
+models developed by CMS. We can use the
+[`hsr_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_coefficients.md)
+function to extract these:
+
+``` r
+model_weights <-
+  cohorts |>
+
+  # Iterate each cohort
+  purrr::map_df(
+
+    # Import eligible discharges
+    ~hsr_coefficients(
+      file = my_report,
+      cohort = .x
+    ) |>
+    
+    # Indicate cohort
+    tibble::add_column(Cohort = .x)
+  )
+model_weights
+#> # A tibble: 225 × 3
+#>    Factor                                                           Value Cohort
+#>    <chr>                                                            <dbl> <chr> 
+#>  1 "Years Over 65 (continuous)"                                   0.00765 AMI   
+#>  2 "Male"                                                        -0.134   AMI   
+#>  3 "Anterior Myocardial Infarction "                              0.271   AMI   
+#>  4 "Non-Anterior Location of Myocardial Infarction"               0.0712  AMI   
+#>  5 "History of Coronary Artery Bypass Graft (CABG) Surgery"       0.0233  AMI   
+#>  6 "History of Percutaneous Transluminal Coronary Angioplasty (… -0.0218  AMI   
+#>  7 "History of COVID-19"                                         -0.0676  AMI   
+#>  8 "Severe Infection; Other Infectious Diseases"                  0.0832  AMI   
+#>  9 "Metastatic Cancer and Acute Leukemia"                         0.226   AMI   
+#> 10 "Cancer"                                                       0.0440  AMI   
+#> # ℹ 215 more rows
+```
+
+To use these in our calculations, we need to attach the model weights
+for each cohort to our current `risk_factors` dataset using
+[`dplyr::inner_join()`](https://dplyr.tidyverse.org/reference/mutate-joins.html):
+
+``` r
+risk_factors <-
+  risk_factors |>
+
+    # Join to get weights
+    dplyr::inner_join(
+      y = 
+        model_weights |> 
+          
+        # Rename the column
+        dplyr::rename(
+          Weight = Value
+        ),
+      by = 
+        c(
+          "Cohort",
+          "Factor"
+        )
+    )
+risk_factors
+#> # A tibble: 4,626 × 5
+#>    `ID Number` Factor                                      Value Cohort   Weight
+#>          <int> <chr>                                       <dbl> <chr>     <dbl>
+#>  1           1 "Years Over 65 (continuous)"                   31 AMI     0.00765
+#>  2           1 "Male"                                          1 AMI    -0.134  
+#>  3           1 "Anterior Myocardial Infarction "               0 AMI     0.271  
+#>  4           1 "Non-Anterior Location of Myocardial Infar…     0 AMI     0.0712 
+#>  5           1 "History of Coronary Artery Bypass Graft (…     1 AMI     0.0233 
+#>  6           1 "History of Percutaneous Transluminal Coro…     0 AMI    -0.0218 
+#>  7           1 "History of COVID-19"                           0 AMI    -0.0676 
+#>  8           1 "Severe Infection; Other Infectious Diseas…     1 AMI     0.0832 
+#>  9           1 "Metastatic Cancer and Acute Leukemia"          0 AMI     0.226  
+#> 10           1 "Cancer"                                        0 AMI     0.0440 
+#> # ℹ 4,616 more rows
+```
+
+##### Compute the linear predictor (weighted-sum)
+
+These are [logistic
+regression](https://en.wikipedia.org/wiki/Logistic_regression) models,
+so to convert to a risk estimate, we need to take the weighted-sum of
+the factor weight with the risk factor value for each discharge.
+
+``` r
+linear_predictors <-
+  risk_factors |>
+
+    # Compute weighted sum
+    dplyr::summarize(
+      LP = sum(Weight * Value),
+      .by = 
+        c(
+          Cohort,
+          `ID Number`
+        )
+    )
+linear_predictors
+#> # A tibble: 122 × 3
+#>    Cohort `ID Number`    LP
+#>    <chr>        <int> <dbl>
+#>  1 AMI              1 1.92 
+#>  2 AMI              2 0.749
+#>  3 COPD             1 1.49 
+#>  4 COPD             2 1.52 
+#>  5 COPD             3 1.31 
+#>  6 COPD             4 0.321
+#>  7 COPD             5 0.258
+#>  8 COPD             6 0.633
+#>  9 COPD             7 0.841
+#> 10 COPD             8 1.08 
+#> # ℹ 112 more rows
+```
+
+You can think of this as the “risk-adjustment” part, where we’ve
+adjusted each patient’s readmission risk based on their own clinical
+history. These are on the [logit](https://en.wikipedia.org/wiki/Logit)
+scale (so not yet probability/risk estimates), but it what we assume to
+be linearly related to the outcome, thus we call it the “linear
+predictor”. But we are still missing something: **the intercept terms**.
+
+##### Add in the intercepts
+
+The *predicted* and *expected* readmission risks are derived from the
+same risk-adjusted model, the only difference being in the intercept
+term that is added to complete the linear predictor. We can see those in
+our model weight list:
+
+``` r
+model_weights |>
+  dplyr::filter(
+    stringr::str_detect(
+      Factor,
+      pattern = "EFFECT$"
+    )
+  )
+#> # A tibble: 11 × 3
+#>    Factor      Value Cohort
+#>    <chr>       <dbl> <chr> 
+#>  1 HOSP_EFFECT -2.96 AMI   
+#>  2 AVG_EFFECT  -2.95 AMI   
+#>  3 HOSP_EFFECT -2.53 COPD  
+#>  4 AVG_EFFECT  -2.53 COPD  
+#>  5 HOSP_EFFECT -2.46 HF    
+#>  6 AVG_EFFECT  -2.42 HF    
+#>  7 HOSP_EFFECT -2.51 PN    
+#>  8 AVG_EFFECT  -2.51 PN    
+#>  9 AVG_EFFECT  -2.70 CABG  
+#> 10 HOSP_EFFECT -4.41 HK    
+#> 11 AVG_EFFECT  -4.28 HK
+```
+
+- The `AVG_EFFECT` corresponds to the risk-shift (intercept) associated
+  with being treated at the “average” hospital
+- The `HOSP_EFFECT` corresponds to the risk-shift (intercept) associated
+  with being treated at *your* hospital
+
+These are estimated by CMS using your discharge lists. They are done so
+*after* accounting for all of the risk factors, so by comparing them we
+get a measure of how much more or less likely a patient is to be
+readmitted at your hospital versus the average hospital, after
+risk-adjustment.
+
+We can add each one into our current `linear_predictors` to get the
+complete linear predictors for the predicted and expected readmission
+rates:
+
+``` r
+linear_predictors <-
+  linear_predictors |>
+
+    # Join to get intercepts
+    dplyr::inner_join(
+      y = 
+        model_weights |>
+
+        # Filter to intercepts
+        dplyr::filter(
+          stringr::str_detect(
+            Factor,
+            pattern = "_EFFECT$"
+          )
+        ) |>
+        
+        # Send over columns
+        tidyr::pivot_wider(
+          names_from = Factor,
+          values_from = Value
+        ),
+      by = "Cohort"
+    ) |>
+    
+    # Finish LP's
+    dplyr::mutate(
+      LP_Predicted = LP + HOSP_EFFECT,
+      LP_Expected = LP + AVG_EFFECT
+    )
+linear_predictors
+#> # A tibble: 122 × 7
+#>    Cohort `ID Number`    LP HOSP_EFFECT AVG_EFFECT LP_Predicted LP_Expected
+#>    <chr>        <int> <dbl>       <dbl>      <dbl>        <dbl>       <dbl>
+#>  1 AMI              1 1.92        -2.96      -2.95        -1.03       -1.03
+#>  2 AMI              2 0.749       -2.96      -2.95        -2.21       -2.20
+#>  3 COPD             1 1.49        -2.53      -2.53        -1.04       -1.04
+#>  4 COPD             2 1.52        -2.53      -2.53        -1.01       -1.01
+#>  5 COPD             3 1.31        -2.53      -2.53        -1.22       -1.22
+#>  6 COPD             4 0.321       -2.53      -2.53        -2.21       -2.21
+#>  7 COPD             5 0.258       -2.53      -2.53        -2.27       -2.27
+#>  8 COPD             6 0.633       -2.53      -2.53        -1.90       -1.90
+#>  9 COPD             7 0.841       -2.53      -2.53        -1.69       -1.69
+#> 10 COPD             8 1.08        -2.53      -2.53        -1.45       -1.45
+#> # ℹ 112 more rows
+```
+
+##### Transform to probability scale
+
+The last thing we need to do is transform the linear predictors to the
+probabilty scale using the [logistic
+function](https://en.wikipedia.org/wiki/Logistic_function).
+
+``` r
+readmission_risks <-
+  linear_predictors |>
+
+    # Transform LP's
+    dplyr::mutate(
+      dplyr::across(
+        c(LP_Predicted, LP_Expected),
+        \(x) 1 / (1 + exp(-x))
+      )
+    ) |>
+    
+    # Keep a few columns
+    dplyr::select(
+      `ID Number`,
+      Predicted = LP_Predicted,
+      Expected = LP_Expected,
+      Cohort
+    )
+readmission_risks
+#> # A tibble: 122 × 4
+#>    `ID Number` Predicted Expected Cohort
+#>          <int>     <dbl>    <dbl> <chr> 
+#>  1           1    0.262    0.264  AMI   
+#>  2           2    0.0991   0.1000 AMI   
+#>  3           1    0.260    0.260  COPD  
+#>  4           2    0.266    0.266  COPD  
+#>  5           3    0.227    0.227  COPD  
+#>  6           4    0.0990   0.0989 COPD  
+#>  7           5    0.0935   0.0935 COPD  
+#>  8           6    0.130    0.130  COPD  
+#>  9           7    0.156    0.156  COPD  
+#> 10           8    0.190    0.190  COPD  
+#> # ℹ 112 more rows
+```
+
+Now we have the *predicted* and *expected* readmission risk for each
+patients.
+
+##### Do it easier
+
+We went through all of that computation to see how it works to derive
+the readmission risks starting with the discharges, but we can get this
+automatically by using the
+[`hsr_readmission_risks()`](https://centralstatz.github.io/readmit/reference/hsr_readmission_risks.md)
+function:
+
+``` r
+readmission_risks <-
+  setdiff(cohorts, "CABG") |>
+
+    # Iterate each cohort
+    purrr::map_df(
+
+      # Import eligible discharges
+      ~hsr_readmission_risks(
+        file = my_report,
+        cohort = .x
+      ) |>
+      
+      # Indicate cohort
+      tibble::add_column(Cohort = .x)
+    )
+readmission_risks
+#> # A tibble: 122 × 4
+#>    `ID Number` Predicted Expected Cohort
+#>          <int>     <dbl>    <dbl> <chr> 
+#>  1           1    0.262    0.264  AMI   
+#>  2           2    0.0991   0.1000 AMI   
+#>  3           1    0.260    0.260  COPD  
+#>  4           2    0.266    0.266  COPD  
+#>  5           3    0.227    0.227  COPD  
+#>  6           4    0.0990   0.0989 COPD  
+#>  7           5    0.0935   0.0935 COPD  
+#>  8           6    0.130    0.130  COPD  
+#>  9           7    0.156    0.156  COPD  
+#> 10           8    0.190    0.190  COPD  
+#> # ℹ 112 more rows
+```
+
+This function extracts eligible discharges and computes the readmission
+risk, so it captures everything we just did in steps i-iii.
+
+#### iv. Compute cohort-level results
 
 ### Key Observations
 
