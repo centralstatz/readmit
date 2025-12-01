@@ -3,6 +3,12 @@
 Contains daily notes with details about how things were developed.
 Primarily following <https://r-pkgs.org/>.
 
+# 12/1/2025
+
+- Added “Suggests” dependency on `purrr` since it is used in the
+  vignette (`use_package("purrr", type = "Suggests")`). Described here:
+  <https://r-pkgs.org/vignettes.html#sec-vignettes-eval-option>
+
 # 11/27/2025
 
 - Working on finishing vignette. Realized there are more column parsing

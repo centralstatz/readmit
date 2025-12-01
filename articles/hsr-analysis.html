@@ -169,7 +169,7 @@ you would just point to your own HSR when analyzing your hospital’s
 reports.</p>
 </div>
 <div class="section level3">
-<h3 id="program-summary">1. Program Summary<a class="anchor" aria-label="anchor" href="#program-summary"></a>
+<h3 id="programsummary">1. Program Summary<a class="anchor" aria-label="anchor" href="#programsummary"></a>
 </h3>
 <p>We’ll start with high level program results. Ultimately, all of the
 moving parts in the HRRP roll up into a single number: the penalty
@@ -611,7 +611,7 @@ various function arguments:</p>
 <span><span class="va">cohorts</span></span>
 <span><span class="co">#&gt; [1] "AMI"  "COPD" "HF"   "PN"   "CABG" "HK"</span></span></code></pre></div>
 <div class="section level4">
-<h4 id="i--extract-discharges">i. Extract discharges<a class="anchor" aria-label="anchor" href="#i--extract-discharges"></a>
+<h4 id="i--extract-discharges">i. Extract Discharges<a class="anchor" aria-label="anchor" href="#i--extract-discharges"></a>
 </h4>
 <p>The first thing we need to is extract the set of discharges (i.e.,
 the <em>denominator</em>) that contribute to program for each cohort. To
@@ -687,10 +687,10 @@ cohort list we iterated through (as it would have caused an error
 otherwise).</p>
 </div>
 <div class="section level4">
-<h4 id="ii--extract-risk-factors">ii. Extract risk factors<a class="anchor" aria-label="anchor" href="#ii--extract-risk-factors"></a>
+<h4 id="ii--extract-risk-factors">ii. Extract Risk Factors<a class="anchor" aria-label="anchor" href="#ii--extract-risk-factors"></a>
 </h4>
-<p>Next we need to extract the sets of risk factors for cohort that go
-into the readmission risk model. We can again do this by iterating
+<p>Next we need to extract the sets of risk factors for each cohort that
+go into the readmission risk model. We can again do this by iterating
 through the <code>cohort</code> list with <code>hsr_discharges</code>,
 but extracting the risk factors as well with
 <code>risk_factors=TRUE</code>:</p>
@@ -931,7 +931,7 @@ argument simultaneously, and ended up in the same place.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4,616 more rows</span></span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="iii--compute-individual-readmission-risks">iii. Compute individual readmission risks<a class="anchor" aria-label="anchor" href="#iii--compute-individual-readmission-risks"></a>
+<h4 id="iii--compute-individual-readmission-risks">iii. Compute Individual Readmission Risks<a class="anchor" aria-label="anchor" href="#iii--compute-individual-readmission-risks"></a>
 </h4>
 <p>The <em>predicted</em> and <em>expected</em> readmission rates are
 computed for each discharge by plugging in each patient’s set of risk
@@ -1006,12 +1006,12 @@ for each cohort to our current <code>risk_factors</code> dataset using
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           1 <span style="color: #949494;">"</span>Cancer<span style="color: #949494;">"</span>                                        0 AMI     0.044<span style="text-decoration: underline;">0</span> </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4,616 more rows</span></span></span></code></pre></div>
 <div class="section level5">
-<h5 id="compute-the-linear-predictor-weighted-sum">Compute the linear predictor (weighted-sum)<a class="anchor" aria-label="anchor" href="#compute-the-linear-predictor-weighted-sum"></a>
+<h5 id="compute-the-linear-predictor">Compute the Linear Predictor<a class="anchor" aria-label="anchor" href="#compute-the-linear-predictor"></a>
 </h5>
 <p>These are <a href="https://en.wikipedia.org/wiki/Logistic_regression" class="external-link">logistic
 regression</a> models, so to convert to a risk estimate, we need to take
-the weighted-sum of the factor weight with the risk factor value for
-each discharge.</p>
+the <em>weighted-sum</em> of each factor weight with the risk factor
+value for each discharge.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">linear_predictors</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">risk_factors</span> <span class="op">|&gt;</span></span>
@@ -1043,12 +1043,13 @@ each discharge.</p>
 <p>You can think of this as the “risk-adjustment” part, where we’ve
 adjusted each patient’s readmission risk based on their own clinical
 history. These are on the <a href="https://en.wikipedia.org/wiki/Logit" class="external-link">logit</a> scale (so not yet
-probability/risk estimates), but it what we assume to be linearly
-related to the outcome, thus we call it the “linear predictor”. But we
-are still missing something: <strong>the intercept terms</strong>.</p>
+probability/risk estimates), but it is what we assume to be linearly
+related to the outcome, thus we call it the “linear predictor”. However,
+we are still missing something: <strong>the intercept
+terms</strong>.</p>
 </div>
 <div class="section level5">
-<h5 id="add-in-the-intercepts">Add in the intercepts<a class="anchor" aria-label="anchor" href="#add-in-the-intercepts"></a>
+<h5 id="add-in-the-intercepts">Add In the Intercepts<a class="anchor" aria-label="anchor" href="#add-in-the-intercepts"></a>
 </h5>
 <p>The <em>predicted</em> and <em>expected</em> readmission risks are
 derived from the same risk-adjusted model, the only difference being in
@@ -1137,11 +1138,12 @@ readmission rates:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 112 more rows</span></span></span></code></pre></div>
 </div>
 <div class="section level5">
-<h5 id="transform-to-probability-scale">Transform to probability scale<a class="anchor" aria-label="anchor" href="#transform-to-probability-scale"></a>
+<h5 id="transform-to-probability-scale">Transform to Probability Scale<a class="anchor" aria-label="anchor" href="#transform-to-probability-scale"></a>
 </h5>
 <p>The last thing we need to do is transform the linear predictors to
 the probabilty scale using the <a href="https://en.wikipedia.org/wiki/Logistic_function" class="external-link">logistic
-function</a>.</p>
+function</a> in order for our result to be a risk (i.e., a percentage
+between 0%-100%).</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">readmission_risks</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">linear_predictors</span> <span class="op">|&gt;</span></span>
@@ -1177,14 +1179,14 @@ function</a>.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           8    0.190    0.190  COPD  </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 112 more rows</span></span></span></code></pre></div>
 <p>Now we have the <em>predicted</em> and <em>expected</em> readmission
-risk for each patients.</p>
+risk for each discharge.</p>
 </div>
 <div class="section level5">
-<h5 id="do-it-easier">Do it easier<a class="anchor" aria-label="anchor" href="#do-it-easier"></a>
+<h5 id="readmissionrisks">Doing it Easier<a class="anchor" aria-label="anchor" href="#readmissionrisks"></a>
 </h5>
-<p>We went through all of that computation to see how it works to derive
-the readmission risks starting with the discharges, but we can get this
-automatically by using the <code><a href="../reference/hsr_readmission_risks.html">hsr_readmission_risks()</a></code>
+<p>We went through those computations to see how deriving the
+readmission risks works starting with the discharges. However, we can
+get this automatically by using the <code><a href="../reference/hsr_readmission_risks.html">hsr_readmission_risks()</a></code>
 function:</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">readmission_risks</span> <span class="op">&lt;-</span></span>
@@ -1218,47 +1220,302 @@ function:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>           8    0.190    0.190  COPD  </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 112 more rows</span></span></span></code></pre></div>
 <p>This function extracts eligible discharges and computes the
-readmission risk, so it captures everything we just did in steps
-i-iii.</p>
+readmission risk, so it captures everything we just did up to this
+point.</p>
 </div>
 </div>
 <div class="section level4">
-<h4 id="iv--compute-cohort-level-results">iv. Compute cohort-level results<a class="anchor" aria-label="anchor" href="#iv--compute-cohort-level-results"></a>
+<h4 id="iv--compute-cohort-level-results">iv. Compute Cohort-Level Results<a class="anchor" aria-label="anchor" href="#iv--compute-cohort-level-results"></a>
 </h4>
+<p>Now that we have <a href="#readmissionrisks">individual level
+readmission risks</a>, we can roll these up to get cohort-level results.
+The main calculation we need to do is compute the cohort-level predicted
+and expected readmission rates, which is just the <em>average</em> of
+the individual ones.</p>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_rates</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">readmission_risks</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Compute cohort-level stats</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
+<span>      Discharges <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>      Predicted <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">Predicted</span><span class="op">)</span>,</span>
+<span>      Expected <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">Expected</span><span class="op">)</span>,</span>
+<span>      .by <span class="op">=</span> <span class="va">Cohort</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">cohort_rates</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 4</span></span></span>
+<span><span class="co">#&gt;   Cohort Discharges Predicted Expected</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMI             2    0.181    0.182 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> COPD           18    0.165    0.165 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> HF             25    0.159    0.164 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> PN             32    0.142    0.141 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> HK             45    0.035<span style="text-decoration: underline;">0</span>   0.039<span style="text-decoration: underline;">7</span></span></span></code></pre></div>
+<p>We can compare this to our <a href="#cohortsummary">previous cohort
+summary</a> and see that it matches what was already in the table:</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_summary</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>      Cohort <span class="op">=</span> <span class="va">`Measure [a]`</span>,</span>
+<span>      Discharges <span class="op">=</span> <span class="va">`Number of Eligible Discharges [b]`</span>,</span>
+<span>      Predicted <span class="op">=</span> <span class="va">`Predicted Readmission Rate [d]`</span>,</span>
+<span>      Expected <span class="op">=</span> <span class="va">`Expected Readmission Rate [e]`</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 4</span></span></span>
+<span><span class="co">#&gt;   Cohort    Discharges Predicted Expected</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMI                2    0.181    0.182 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> COPD              18    0.165    0.165 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> HF                25    0.159    0.164 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Pneumonia         32    0.142    0.141 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> CABG              <span style="color: #BB0000;">NA</span>   <span style="color: #BB0000;">NA</span>       <span style="color: #BB0000;">NA</span>     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> THA/TKA           45    0.035<span style="text-decoration: underline;">0</span>   0.039<span style="text-decoration: underline;">7</span></span></span></code></pre></div>
+<div class="section level5">
+<h5 id="cohortcontributions">Pulling in Additional Info<a class="anchor" aria-label="anchor" href="#cohortcontributions"></a>
+</h5>
+<p>Recall <a href="#cohortsummary">earlier</a> how we calculated the
+payment penalty from the cohort-level data. It was done by computing
+the:</p>
+<ol style="list-style-type: decimal">
+<li>Excess readmission ratio (ERR) for each cohort</li>
+<li>Difference between (1) and the peer group median ERR for each
+cohort</li>
+<li>Sum (2) across cohorts, weighted by DRG ratios</li>
+</ol>
+<p>We can do (1) right away with our current <code>cohort_rates</code>
+dataset:</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_rates</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">cohort_rates</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Compute the ERR</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>      ERR <span class="op">=</span> <span class="va">Predicted</span> <span class="op">/</span> <span class="va">Expected</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">cohort_rates</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 5</span></span></span>
+<span><span class="co">#&gt;   Cohort Discharges Predicted Expected   ERR</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMI             2    0.181    0.182  0.993</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> COPD           18    0.165    0.165  1.00 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> HF             25    0.159    0.164  0.971</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> PN             32    0.142    0.141  1.01 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> HK             45    0.035<span style="text-decoration: underline;">0</span>   0.039<span style="text-decoration: underline;">7</span> 0.882</span></span></code></pre></div>
+<p>For the rest, we need to add the peer group medians and DRG ratios to
+our <code>cohort_rates</code> dataset, which we can get from our
+existing <code>cohort_summary</code> dataset that we <a href="#cohortsummary">extracted earlier</a>:</p>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_rates</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">cohort_rates</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Join to get reference info</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span></span>
+<span>      y <span class="op">=</span> </span>
+<span>        <span class="va">cohort_summary</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>        <span class="co"># Make matching names</span></span>
+<span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>          Cohort <span class="op">=</span> <span class="va">`Measure [a]`</span>,</span>
+<span>          Cohort <span class="op">=</span> </span>
+<span>            <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>              <span class="va">Cohort</span> <span class="op">==</span> <span class="st">"Pneumonia"</span> <span class="op">~</span> <span class="st">"PN"</span>,</span>
+<span>              <span class="va">Cohort</span> <span class="op">==</span> <span class="st">"THA/TKA"</span> <span class="op">~</span> <span class="st">"HK"</span>,</span>
+<span>              <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">Cohort</span></span>
+<span>            <span class="op">)</span></span>
+<span>        <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        </span>
+<span>        <span class="co"># Keep a few columns</span></span>
+<span>        <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>          <span class="va">Cohort</span>,</span>
+<span>          PeerGroupERR <span class="op">=</span> <span class="va">`Peer Group Median ERR [g]`</span>,</span>
+<span>          DRGRatio <span class="op">=</span> <span class="va">`Ratio of DRG Payments Per Measure to Total Payments [i]`</span></span>
+<span>        <span class="op">)</span>,</span>
+<span>      by <span class="op">=</span> <span class="st">"Cohort"</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">cohort_rates</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 7</span></span></span>
+<span><span class="co">#&gt;   Cohort Discharges Predicted Expected   ERR PeerGroupERR DRGRatio</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMI             2    0.181    0.182  0.993        0.996  0.002<span style="text-decoration: underline;">73</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> COPD           18    0.165    0.165  1.00         0.992  0.022<span style="text-decoration: underline;">6</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> HF             25    0.159    0.164  0.971        0.996  0.032<span style="text-decoration: underline;">2</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> PN             32    0.142    0.141  1.01         0.991  0.049<span style="text-decoration: underline;">4</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> HK             45    0.035<span style="text-decoration: underline;">0</span>   0.039<span style="text-decoration: underline;">7</span> 0.882        0.996  0.104</span></span></code></pre></div>
+<p>Finally, we can indicate which cohorts received penalty and how much
+they contributed. Recall, a cohort is only eligible to receive penalty
+if:</p>
+<ol style="list-style-type: decimal">
+<li>They have at least 25 discharges</li>
+<li>The ERR is greater than the peer group median ERR</li>
+</ol>
+<p>Thus, we can see, for example, that the COPD group had an ERR greater
+than the peer group median, but won’t actually contribute penalty
+because there were too few cases. Let’s compute the actual contribution
+for each cohort:</p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cohort_rates</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">cohort_rates</span> <span class="op">|&gt;</span></span>
+<span></span>
+<span>    <span class="co"># Compute penalty contribution</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>      IsPenalized <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">ERR</span> <span class="op">&gt;</span> <span class="va">PeerGroupERR</span> <span class="op">&amp;</span> <span class="va">Discharges</span> <span class="op">&gt;=</span> <span class="fl">25</span><span class="op">)</span>,</span>
+<span>      PenaltyContribution <span class="op">=</span> <span class="op">(</span><span class="va">ERR</span> <span class="op">-</span> <span class="va">PeerGroupERR</span><span class="op">)</span> <span class="op">*</span> <span class="va">DRGRatio</span>,</span>
+<span>      PenaltyContribution <span class="op">=</span> <span class="va">IsPenalized</span> <span class="op">*</span> <span class="va">PenaltyContribution</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="va">cohort_rates</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 9</span></span></span>
+<span><span class="co">#&gt;   Cohort Discharges Predicted Expected   ERR PeerGroupERR DRGRatio IsPenalized</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMI             2    0.181    0.182  0.993        0.996  0.002<span style="text-decoration: underline;">73</span>           0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> COPD           18    0.165    0.165  1.00         0.992  0.022<span style="text-decoration: underline;">6</span>            0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> HF             25    0.159    0.164  0.971        0.996  0.032<span style="text-decoration: underline;">2</span>            0</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> PN             32    0.142    0.141  1.01         0.991  0.049<span style="text-decoration: underline;">4</span>            1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> HK             45    0.035<span style="text-decoration: underline;">0</span>   0.039<span style="text-decoration: underline;">7</span> 0.882        0.996  0.104             0</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: PenaltyContribution &lt;dbl&gt;</span></span></span></code></pre></div>
+<p>Ultimately, based on these criteria, this hospital is only penalized
+in the Pneumonia cohort.</p>
+</div>
+</div>
+<div class="section level4">
+<h4 id="v--aggregate-to-the-program-result">v. Aggregate to the Program Result<a class="anchor" aria-label="anchor" href="#v--aggregate-to-the-program-result"></a>
+</h4>
+<p>Now that we have the <a href="#cohortcontributions">contributions of
+each cohort</a>, we can aggregate them into our final penalty amount.
+We’ll do this step by step:</p>
+<ol style="list-style-type: decimal">
+<li>Add up the cohort contributions</li>
+</ol>
+<p>We just computed these in the prior step.</p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">temp_penalty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">cohort_rates</span><span class="op">$</span><span class="va">PenaltyContribution</span><span class="op">)</span></span>
+<span><span class="va">temp_penalty</span></span>
+<span><span class="co">#&gt; [1] 0.0007729462</span></span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Multiply (1) by the neutrality modifier</li>
+</ol>
+<p>The neutrality modifier was found in our <a href="#programsummary">program summary</a> earlier. We can just extract
+from there.</p>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">penalty</span> <span class="op">&lt;-</span> <span class="va">temp_penalty</span> <span class="op">*</span> <span class="va">my_payment_summary</span><span class="op">$</span><span class="va">`Neutrality Modifier [e]`</span></span>
+<span><span class="va">penalty</span></span>
+<span><span class="co">#&gt; [1] 0.0007460787</span></span></code></pre></div>
+<p>We can see that matches what was reported in the <a href="#programsummary">program summary</a>:</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_payment_summary</span><span class="op">$</span><span class="va">`Payment Reduction Percentage [f]`</span></span>
+<span><span class="co">#&gt; [1] 7e-04</span></span></code></pre></div>
+<p>This is the final penalty amount.</p>
+<div class="section level5">
+<h5 id="implication">Implication<a class="anchor" aria-label="anchor" href="#implication"></a>
+</h5>
+<p>Recall that the (mock) report we’ve been working with is from
+FY2025.</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_report</span></span>
+<span><span class="co">#&gt; [1] "/home/runner/work/_temp/Library/readmit/extdata/FY2025_HRRP_MockHSR.xlsx"</span></span></code></pre></div>
+<p>Let’s remind ourselves of the payment period for this program
+year:</p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">my_payment_period</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">hrrp_payment_periods</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ProgramYear</span> <span class="op">==</span> <span class="fl">2025</span><span class="op">)</span></span>
+<span><span class="va">my_payment_period</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
+<span><span class="co">#&gt;   ProgramYear StartDate  EndDate   </span></span>
+<span><span class="co">#&gt;         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>        <span style="text-decoration: underline;">2</span>025 2024-10-01 2025-09-30</span></span></code></pre></div>
+<p>So from 10/01/2024 through 09/30/2025, all Medicare payments for this
+hospital were reduced by 0.075%.</p>
+</div>
+</div>
+<div class="section level4">
+<h4 id="key-observations">Key Observations<a class="anchor" aria-label="anchor" href="#key-observations"></a>
+</h4>
+<p>Some important things to note about the penalty calculation:</p>
+<div class="section level5">
+<h5 id="readmissions-themselves-dont-compute-penalty">Readmissions Themselves Don’t Compute Penalty<a class="anchor" aria-label="anchor" href="#readmissions-themselves-dont-compute-penalty"></a>
+</h5>
+<p>Notice that in the calculation of the penalty, we never explicity
+used or pulled out the actual discharges that readmitted, or used an
+“observed” readmission rate (i.e., the simple fraction of discharges
+that were readmitted). Instead, <em>all</em> discharges were fed into a
+statistical model to compute the predicted and expected readmission
+rates for the whole group, and then were aggregated. The actual
+readmission cases at your hospital were used upstream to fit that
+statistical model, in a pool along with data from all other hospitals.
+Thus, the readmissions from your hospital only contribute in an indirect
+way: they inform the resulting <em>hospital effect</em> estimated from
+the statistical model, after adjusting for clinical history, which in
+turn is built into the calculated <em>predicted</em> readmission rate
+that is computed on each discharge and used downstream in the penalty
+calculation.</p>
+</div>
+<div class="section level5">
+<h5 id="cohorts-arent-weighted-equally">Cohorts Aren’t Weighted Equally<a class="anchor" aria-label="anchor" href="#cohorts-arent-weighted-equally"></a>
+</h5>
+<p>First, remember that even if a cohort has excessive readmissions,
+they may not contribute to the penalty if there aren’t enough
+discharges. But beyond that point: the cohort-level contribution to the
+penalty is not necessarily proportional to how many readmissions they
+had. It also has to do with how many of those patients are seen at the
+hospital. Recall that we took the penalty contribution amount and
+multiplied it by the ratio of DRG’s relevant to that cohort out of all
+payments. This means that it is possible that a cohort with a slight
+excess in readmissions can contribute much more to the overall penalty
+amount than another cohort with huge excess, if the former is a much
+more high-volume diagnosis at your hospital. So you must consider the
+full picture.</p>
+</div>
+<div class="section level5">
+<h5 id="statistical-models-arent-perfect">Statistical Models Aren’t Perfect<a class="anchor" aria-label="anchor" href="#statistical-models-arent-perfect"></a>
+</h5>
+<p>Recall that CMS fits random-intercept logistic regression models on a
+combined dataset from all participating hospitals for each cohort. There
+are tons of assumptions and nuances that go into these models that make
+them far from perfect arbitors of truth. For example, each risk factor
+is added to the model as an independent factor, so no interactions
+between them are assumed. Additionally, effects are estimated on a
+combined dataset for all hospitals, which therefore assumes the effect
+of each clinical factor for risk adjustment is the same for all
+hospitals. On top of that, each of these risk factors is defined by
+claims documentation, and, specifically, groupings of ICD codes that may
+be inconsistent across hospitals. Then, these models are used to
+estimate individual level readmission risks, leading to group-level
+excess readmission ratios, that are then compared to a peer group
+<em>median</em> value to indicate penalty–so by definition, half of
+hospitals are getting flagged no matter what, even if everyone is doing
+well. We could keep going down the list of nuances, but it’s important
+to at least acknowledge and understand the mechanics of how these things
+work.</p>
+</div>
 </div>
 </div>
 <div class="section level3">
-<h3 id="key-observations">Key Observations<a class="anchor" aria-label="anchor" href="#key-observations"></a>
+<h3 id="exploring-risk-distributions">Exploring Risk Distributions<a class="anchor" aria-label="anchor" href="#exploring-risk-distributions"></a>
 </h3>
 <ul>
-<li>Note that we don’t explcitly use readmission indicators in the
-calculation. It is all baked into the hospital effect.</li>
-</ul>
-</div>
-</div>
-<div class="section level2">
-<h2 id="exploring-risk-distributions">Exploring risk distributions<a class="anchor" aria-label="anchor" href="#exploring-risk-distributions"></a>
-</h2>
-<ul>
+<li>Pull from previous spot <a href="#readmissionrisks">here</a>
+</li>
 <li>Model risk factors</li>
 <li>Risk factor prevalence</li>
 <li>Risk factor prevalence by model weight (scatterplot)</li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="diagnosis-comparisons">Diagnosis Comparisons<a class="anchor" aria-label="anchor" href="#diagnosis-comparisons"></a>
-</h2>
+<div class="section level3">
+<h3 id="diagnosis-comparisons">Diagnosis Comparisons<a class="anchor" aria-label="anchor" href="#diagnosis-comparisons"></a>
+</h3>
 </div>
-<div class="section level2">
-<h2 id="outside-hospital-readmissions">Outside Hospital Readmissions<a class="anchor" aria-label="anchor" href="#outside-hospital-readmissions"></a>
-</h2>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="section level3">
+<h3 id="outside-hospital-readmissions">Outside Hospital Readmissions<a class="anchor" aria-label="anchor" href="#outside-hospital-readmissions"></a>
+</h3>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://centralstatz.github.io/readmit/">readmit</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"</span></span>
 <span><span class="co">#&gt; [3] "FY2021_HRRP_MockHSR.xlsx" "FY2022_HRRP_MockHSR.xlsx"</span></span>
 <span><span class="co">#&gt; [5] "FY2023_HRRP_MockHSR.xlsx" "FY2024_HRRP_MockHSR.xlsx"</span></span>
 <span><span class="co">#&gt; [7] "FY2025_HRRP_MockHSR.xlsx"</span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

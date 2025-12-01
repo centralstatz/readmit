@@ -594,7 +594,7 @@ cohorts
 #> [1] "AMI"  "COPD" "HF"   "PN"   "CABG" "HK"
 ```
 
-#### i. Extract discharges
+#### i. Extract Discharges
 
 The first thing we need to is extract the set of discharges (i.e., the
 *denominator*) that contribute to program for each cohort. To do this,
@@ -676,12 +676,12 @@ One caveat was that we already knew there weren’t any `CABG` discharges
 from our cohort list we iterated through (as it would have caused an
 error otherwise).
 
-#### ii. Extract risk factors
+#### ii. Extract Risk Factors
 
-Next we need to extract the sets of risk factors for cohort that go into
-the readmission risk model. We can again do this by iterating through
-the `cohort` list with `hsr_discharges`, but extracting the risk factors
-as well with `risk_factors=TRUE`:
+Next we need to extract the sets of risk factors for each cohort that go
+into the readmission risk model. We can again do this by iterating
+through the `cohort` list with `hsr_discharges`, but extracting the risk
+factors as well with `risk_factors=TRUE`:
 
 ``` r
 setdiff(cohorts, "CABG") |>
@@ -931,7 +931,7 @@ risk_factors
 #> # ℹ 4,616 more rows
 ```
 
-#### iii. Compute individual readmission risks
+#### iii. Compute Individual Readmission Risks
 
 The *predicted* and *expected* readmission rates are computed for each
 discharge by plugging in each patient’s set of risk factors into risk
@@ -1012,12 +1012,12 @@ risk_factors
 #> # ℹ 4,616 more rows
 ```
 
-##### Compute the linear predictor (weighted-sum)
+##### Compute the Linear Predictor
 
 These are [logistic
 regression](https://en.wikipedia.org/wiki/Logistic_regression) models,
-so to convert to a risk estimate, we need to take the weighted-sum of
-the factor weight with the risk factor value for each discharge.
+so to convert to a risk estimate, we need to take the *weighted-sum* of
+each factor weight with the risk factor value for each discharge.
 
 ``` r
 linear_predictors <-
@@ -1052,11 +1052,12 @@ linear_predictors
 You can think of this as the “risk-adjustment” part, where we’ve
 adjusted each patient’s readmission risk based on their own clinical
 history. These are on the [logit](https://en.wikipedia.org/wiki/Logit)
-scale (so not yet probability/risk estimates), but it what we assume to
-be linearly related to the outcome, thus we call it the “linear
-predictor”. But we are still missing something: **the intercept terms**.
+scale (so not yet probability/risk estimates), but it is what we assume
+to be linearly related to the outcome, thus we call it the “linear
+predictor”. However, we are still missing something: **the intercept
+terms**.
 
-##### Add in the intercepts
+##### Add In the Intercepts
 
 The *predicted* and *expected* readmission risks are derived from the
 same risk-adjusted model, the only difference being in the intercept
@@ -1149,11 +1150,12 @@ linear_predictors
 #> # ℹ 112 more rows
 ```
 
-##### Transform to probability scale
+##### Transform to Probability Scale
 
 The last thing we need to do is transform the linear predictors to the
 probabilty scale using the [logistic
-function](https://en.wikipedia.org/wiki/Logistic_function).
+function](https://en.wikipedia.org/wiki/Logistic_function) in order for
+our result to be a risk (i.e., a percentage between 0%-100%).
 
 ``` r
 readmission_risks <-
@@ -1192,12 +1194,12 @@ readmission_risks
 ```
 
 Now we have the *predicted* and *expected* readmission risk for each
-patients.
+discharge.
 
-##### Do it easier
+##### Doing it Easier
 
-We went through all of that computation to see how it works to derive
-the readmission risks starting with the discharges, but we can get this
+We went through those computations to see how deriving the readmission
+risks works starting with the discharges. However, we can get this
 automatically by using the
 [`hsr_readmission_risks()`](https://centralstatz.github.io/readmit/reference/hsr_readmission_risks.md)
 function:
@@ -1236,24 +1238,297 @@ readmission_risks
 ```
 
 This function extracts eligible discharges and computes the readmission
-risk, so it captures everything we just did in steps i-iii.
+risk, so it captures everything we just did up to this point.
 
-#### iv. Compute cohort-level results
+#### iv. Compute Cohort-Level Results
 
-### Key Observations
+Now that we have [individual level readmission
+risks](#readmissionrisks), we can roll these up to get cohort-level
+results. The main calculation we need to do is compute the cohort-level
+predicted and expected readmission rates, which is just the *average* of
+the individual ones.
 
-- Note that we don’t explcitly use readmission indicators in the
-  calculation. It is all baked into the hospital effect.
+``` r
+cohort_rates <-
+  readmission_risks |>
 
-## Exploring risk distributions
+    # Compute cohort-level stats
+    dplyr::summarize(
+      Discharges = dplyr::n(),
+      Predicted = mean(Predicted),
+      Expected = mean(Expected),
+      .by = Cohort
+    )
+cohort_rates
+#> # A tibble: 5 × 4
+#>   Cohort Discharges Predicted Expected
+#>   <chr>       <int>     <dbl>    <dbl>
+#> 1 AMI             2    0.181    0.182 
+#> 2 COPD           18    0.165    0.165 
+#> 3 HF             25    0.159    0.164 
+#> 4 PN             32    0.142    0.141 
+#> 5 HK             45    0.0350   0.0397
+```
 
+We can compare this to our [previous cohort summary](#cohortsummary) and
+see that it matches what was already in the table:
+
+``` r
+cohort_summary |>
+    dplyr::select(
+      Cohort = `Measure [a]`,
+      Discharges = `Number of Eligible Discharges [b]`,
+      Predicted = `Predicted Readmission Rate [d]`,
+      Expected = `Expected Readmission Rate [e]`
+    )
+#> # A tibble: 6 × 4
+#>   Cohort    Discharges Predicted Expected
+#>   <chr>          <dbl>     <dbl>    <dbl>
+#> 1 AMI                2    0.181    0.182 
+#> 2 COPD              18    0.165    0.165 
+#> 3 HF                25    0.159    0.164 
+#> 4 Pneumonia         32    0.142    0.141 
+#> 5 CABG              NA   NA       NA     
+#> 6 THA/TKA           45    0.0350   0.0397
+```
+
+##### Pulling in Additional Info
+
+Recall [earlier](#cohortsummary) how we calculated the payment penalty
+from the cohort-level data. It was done by computing the:
+
+1.  Excess readmission ratio (ERR) for each cohort
+2.  Difference between (1) and the peer group median ERR for each cohort
+3.  Sum (2) across cohorts, weighted by DRG ratios
+
+We can do (1) right away with our current `cohort_rates` dataset:
+
+``` r
+cohort_rates <-
+  cohort_rates |>
+
+    # Compute the ERR
+    dplyr::mutate(
+      ERR = Predicted / Expected
+    )
+cohort_rates
+#> # A tibble: 5 × 5
+#>   Cohort Discharges Predicted Expected   ERR
+#>   <chr>       <int>     <dbl>    <dbl> <dbl>
+#> 1 AMI             2    0.181    0.182  0.993
+#> 2 COPD           18    0.165    0.165  1.00 
+#> 3 HF             25    0.159    0.164  0.971
+#> 4 PN             32    0.142    0.141  1.01 
+#> 5 HK             45    0.0350   0.0397 0.882
+```
+
+For the rest, we need to add the peer group medians and DRG ratios to
+our `cohort_rates` dataset, which we can get from our existing
+`cohort_summary` dataset that we [extracted earlier](#cohortsummary):
+
+``` r
+cohort_rates <-
+  cohort_rates |>
+
+    # Join to get reference info
+    dplyr::inner_join(
+      y = 
+        cohort_summary |>
+
+        # Make matching names
+        dplyr::mutate(
+          Cohort = `Measure [a]`,
+          Cohort = 
+            dplyr::case_when(
+              Cohort == "Pneumonia" ~ "PN",
+              Cohort == "THA/TKA" ~ "HK",
+              TRUE ~ Cohort
+            )
+        ) |>
+        
+        # Keep a few columns
+        dplyr::select(
+          Cohort,
+          PeerGroupERR = `Peer Group Median ERR [g]`,
+          DRGRatio = `Ratio of DRG Payments Per Measure to Total Payments [i]`
+        ),
+      by = "Cohort"
+    )
+cohort_rates
+#> # A tibble: 5 × 7
+#>   Cohort Discharges Predicted Expected   ERR PeerGroupERR DRGRatio
+#>   <chr>       <int>     <dbl>    <dbl> <dbl>        <dbl>    <dbl>
+#> 1 AMI             2    0.181    0.182  0.993        0.996  0.00273
+#> 2 COPD           18    0.165    0.165  1.00         0.992  0.0226 
+#> 3 HF             25    0.159    0.164  0.971        0.996  0.0322 
+#> 4 PN             32    0.142    0.141  1.01         0.991  0.0494 
+#> 5 HK             45    0.0350   0.0397 0.882        0.996  0.104
+```
+
+Finally, we can indicate which cohorts received penalty and how much
+they contributed. Recall, a cohort is only eligible to receive penalty
+if:
+
+1.  They have at least 25 discharges
+2.  The ERR is greater than the peer group median ERR
+
+Thus, we can see, for example, that the COPD group had an ERR greater
+than the peer group median, but won’t actually contribute penalty
+because there were too few cases. Let’s compute the actual contribution
+for each cohort:
+
+``` r
+cohort_rates <-
+  cohort_rates |>
+
+    # Compute penalty contribution
+    dplyr::mutate(
+      IsPenalized = as.numeric(ERR > PeerGroupERR & Discharges >= 25),
+      PenaltyContribution = (ERR - PeerGroupERR) * DRGRatio,
+      PenaltyContribution = IsPenalized * PenaltyContribution
+    )
+cohort_rates
+#> # A tibble: 5 × 9
+#>   Cohort Discharges Predicted Expected   ERR PeerGroupERR DRGRatio IsPenalized
+#>   <chr>       <int>     <dbl>    <dbl> <dbl>        <dbl>    <dbl>       <dbl>
+#> 1 AMI             2    0.181    0.182  0.993        0.996  0.00273           0
+#> 2 COPD           18    0.165    0.165  1.00         0.992  0.0226            0
+#> 3 HF             25    0.159    0.164  0.971        0.996  0.0322            0
+#> 4 PN             32    0.142    0.141  1.01         0.991  0.0494            1
+#> 5 HK             45    0.0350   0.0397 0.882        0.996  0.104             0
+#> # ℹ 1 more variable: PenaltyContribution <dbl>
+```
+
+Ultimately, based on these criteria, this hospital is only penalized in
+the Pneumonia cohort.
+
+#### v. Aggregate to the Program Result
+
+Now that we have the [contributions of each
+cohort](#cohortcontributions), we can aggregate them into our final
+penalty amount. We’ll do this step by step:
+
+1.  Add up the cohort contributions
+
+We just computed these in the prior step.
+
+``` r
+temp_penalty <- sum(cohort_rates$PenaltyContribution)
+temp_penalty
+#> [1] 0.0007729462
+```
+
+2.  Multiply (1) by the neutrality modifier
+
+The neutrality modifier was found in our [program
+summary](#programsummary) earlier. We can just extract from there.
+
+``` r
+penalty <- temp_penalty * my_payment_summary$`Neutrality Modifier [e]`
+penalty
+#> [1] 0.0007460787
+```
+
+We can see that matches what was reported in the [program
+summary](#programsummary):
+
+``` r
+my_payment_summary$`Payment Reduction Percentage [f]`
+#> [1] 7e-04
+```
+
+This is the final penalty amount.
+
+##### Implication
+
+Recall that the (mock) report we’ve been working with is from FY2025.
+
+``` r
+my_report
+#> [1] "/home/runner/work/_temp/Library/readmit/extdata/FY2025_HRRP_MockHSR.xlsx"
+```
+
+Let’s remind ourselves of the payment period for this program year:
+
+``` r
+my_payment_period <-
+  hrrp_payment_periods |>
+    dplyr::filter(ProgramYear == 2025)
+my_payment_period
+#> # A tibble: 1 × 3
+#>   ProgramYear StartDate  EndDate   
+#>         <int> <date>     <date>    
+#> 1        2025 2024-10-01 2025-09-30
+```
+
+So from 10/01/2024 through 09/30/2025, all Medicare payments for this
+hospital were reduced by 0.075%.
+
+#### Key Observations
+
+Some important things to note about the penalty calculation:
+
+##### Readmissions Themselves Don’t Compute Penalty
+
+Notice that in the calculation of the penalty, we never explicity used
+or pulled out the actual discharges that readmitted, or used an
+“observed” readmission rate (i.e., the simple fraction of discharges
+that were readmitted). Instead, *all* discharges were fed into a
+statistical model to compute the predicted and expected readmission
+rates for the whole group, and then were aggregated. The actual
+readmission cases at your hospital were used upstream to fit that
+statistical model, in a pool along with data from all other hospitals.
+Thus, the readmissions from your hospital only contribute in an indirect
+way: they inform the resulting *hospital effect* estimated from the
+statistical model, after adjusting for clinical history, which in turn
+is built into the calculated *predicted* readmission rate that is
+computed on each discharge and used downstream in the penalty
+calculation.
+
+##### Cohorts Aren’t Weighted Equally
+
+First, remember that even if a cohort has excessive readmissions, they
+may not contribute to the penalty if there aren’t enough discharges. But
+beyond that point: the cohort-level contribution to the penalty is not
+necessarily proportional to how many readmissions they had. It also has
+to do with how many of those patients are seen at the hospital. Recall
+that we took the penalty contribution amount and multiplied it by the
+ratio of DRG’s relevant to that cohort out of all payments. This means
+that it is possible that a cohort with a slight excess in readmissions
+can contribute much more to the overall penalty amount than another
+cohort with huge excess, if the former is a much more high-volume
+diagnosis at your hospital. So you must consider the full picture.
+
+##### Statistical Models Aren’t Perfect
+
+Recall that CMS fits random-intercept logistic regression models on a
+combined dataset from all participating hospitals for each cohort. There
+are tons of assumptions and nuances that go into these models that make
+them far from perfect arbitors of truth. For example, each risk factor
+is added to the model as an independent factor, so no interactions
+between them are assumed. Additionally, effects are estimated on a
+combined dataset for all hospitals, which therefore assumes the effect
+of each clinical factor for risk adjustment is the same for all
+hospitals. On top of that, each of these risk factors is defined by
+claims documentation, and, specifically, groupings of ICD codes that may
+be inconsistent across hospitals. Then, these models are used to
+estimate individual level readmission risks, leading to group-level
+excess readmission ratios, that are then compared to a peer group
+*median* value to indicate penalty–so by definition, half of hospitals
+are getting flagged no matter what, even if everyone is doing well. We
+could keep going down the list of nuances, but it’s important to at
+least acknowledge and understand the mechanics of how these things work.
+
+### Exploring Risk Distributions
+
+- Pull from previous spot [here](#readmissionrisks)
 - Model risk factors
 - Risk factor prevalence
 - Risk factor prevalence by model weight (scatterplot)
 
-## Diagnosis Comparisons
+### Diagnosis Comparisons
 
-## Outside Hospital Readmissions
+### Outside Hospital Readmissions
 
 ``` r
 library(readmit)
