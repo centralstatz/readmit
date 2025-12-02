@@ -1,15 +1,7 @@
 ---
 title: "Investigating a Hospital-Specific Report (HSR)"
-subtitle: "Analysis ideas for gaining insight into HRRP program results."
-output: rmarkdown::html_vignette
-  
-vignette: >
-  %\VignetteIndexEntry{Investigating a Hospital-Specific Report (HSR)}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+subtitle: "Analysis strategies to gain insight into HRRP program results."
 ---
-
-_Work in progress_
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -763,6 +755,12 @@ First, remember that even if a cohort has excessive readmissions, they may not c
 #### Statistical Models Aren't Perfect
 
 Recall that CMS fits random-intercept logistic regression models on a combined dataset from all participating hospitals for each cohort. There are tons of assumptions and nuances that go into these models that make them far from perfect arbitors of truth. For example, each risk factor is added to the model as an independent factor, so no interactions between them are assumed. Additionally, effects are estimated on a combined dataset for all hospitals, which therefore assumes the effect of each clinical factor for risk adjustment is the same for all hospitals. On top of that, each of these risk factors is defined by claims documentation, and, specifically, groupings of ICD codes that may be inconsistent across hospitals. Then, these models are used to estimate individual level readmission risks, leading to group-level excess readmission ratios, that are then compared to a peer group _median_ value to indicate penalty--so by definition, half of hospitals are getting flagged no matter what, even if everyone is doing well. We could keep going down the list of nuances, but it's important to at least acknowledge and understand the mechanics of how these things work. 
+
+## 2. Understanding Model Weights
+
+### Tie in Risk Factor Prevalence
+
+* Plot showing prevalence vs. model weight
 
 ## Exploring Risk Distributions
 

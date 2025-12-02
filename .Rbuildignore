@@ -10,3 +10,6 @@
 ^pkgdown$
 ^\.DS_Store$
 ^data-raw$
+^vignettes/articles$
+^vignettes/articles/\.quarto$
+^vignettes/articles/*_files$
