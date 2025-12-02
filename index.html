@@ -44,7 +44,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/hsr-analysis.html">Investigating a Hospital-Specific Report (HSR)</a></li>
+<li><a class="dropdown-item" href="articles/investigating-an-hsr.html">Investigating a Hospital-Specific Report (HSR)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -304,15 +304,13 @@
 <span><span class="co">#&gt;  9           9    0.163    0.168 </span></span>
 <span><span class="co">#&gt; 10          10    0.179    0.184 </span></span>
 <span><span class="co">#&gt; # ℹ 15 more rows</span></span></code></pre></div>
-<p>As you can see, there are many ways to use the information in these reports to gain insight into readmissions at your hospital. Further analysis strategies can be explored in the associated vignette:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"hsr-analysis"</span><span class="op">)</span></span></code></pre></div>
+<p>As you can see, there are many ways to use the information in these reports to gain insight into readmissions at your hospital. Further analysis strategies can be explored in the <a href="https://centralstatz.github.io/readmit/articles/investigating-an-hsr.html">associated article</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="importing-data-from-the-provider-data-catalog">Importing data from the Provider Data Catalog<a class="anchor" aria-label="anchor" href="#importing-data-from-the-provider-data-catalog"></a>
 </h2>
 <p><a href="https://www.cms.gov/" class="external-link">CMS</a> provides access to a large repository of datasets in the <a href="https://data.cms.gov/provider-data/" class="external-link">Provider Data Catalog (PDC)</a>, which includes, among many other datasets, readmission measures and HRRP program results for hospitals around the United States. The package functions prefixed like <code>pdc_*</code> are general functions to explore and import metadata/datasets straight from the website into clean datasets in <code>R</code> (see <code><a href="reference/pdc_read.html">?pdc_read</a></code>). For example, we can use <code><a href="reference/pdc_read.html">pdc_topics()</a></code> to get the collection of topics seen <a href="https://data.cms.gov/provider-data/" class="external-link">here</a>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/pdc_read.html">pdc_topics</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "Dialysis facilities"                   </span></span>
 <span><span class="co">#&gt;  [2] "Doctors and clinicians"                </span></span>
@@ -325,7 +323,7 @@
 <span><span class="co">#&gt;  [9] "Physician office visit costs"          </span></span>
 <span><span class="co">#&gt; [10] "Supplier directory"</span></span></code></pre></div>
 <p>Then we can choose a topic (or topics) we want to find datasets for, and extract their metadata with <code><a href="reference/pdc_read.html">pdc_datasets()</a></code>:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hospital_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pdc_read.html">pdc_datasets</a></span><span class="op">(</span><span class="st">"Hospitals"</span><span class="op">)</span></span>
 <span><span class="va">hospital_data</span></span>
 <span><span class="co">#&gt; # A tibble: 69 × 7</span></span>
@@ -343,7 +341,7 @@
 <span><span class="co">#&gt; 10 z8ax-x9j1 Hospitals Complicati… Prospectiv… 2024-07-31 2025-10-14 https://da…</span></span>
 <span><span class="co">#&gt; # ℹ 59 more rows</span></span></code></pre></div>
 <p>This result contains information on all datasets included under the <em>Hospitals</em> topic. We can then explore this list to find a dataset we want to import. For example, we can search the titles of the datasets relevant to readmissions:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">readmission_data</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="va">hospital_data</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
@@ -358,7 +356,7 @@
 <span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;       &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;      </span></span>
 <span><span class="co">#&gt; 1 9n3s-kdb3 Hospitals Hospital Re… In October… 2020-12-10 2025-01-08 https://da…</span></span></code></pre></div>
 <p>Once we find the dataset we want, we can take note of the <code>datasetid</code>, and use the <code><a href="reference/pdc_read.html">pdc_read()</a></code> function to import it:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hrrp_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pdc_read.html">pdc_read</a></span><span class="op">(</span><span class="va">readmission_data</span><span class="op">$</span><span class="va">datasetid</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 18510 Columns: 12</span></span>
 <span><span class="co">#&gt; ── Column specification ────────────────────────────────────────────────────────</span></span>
@@ -388,7 +386,7 @@
 <span><span class="co">#&gt; #   `Number of Readmissions` &lt;chr&gt;, `Start Date` &lt;chr&gt;, `End Date` &lt;chr&gt;</span></span></code></pre></div>
 <p>And then we can use this dataset for further analysis. For example:</p>
 <p><em>“How many hospitals in this dataset are located in Wisconsin?”</em></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hrrp_data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">State</span> <span class="op">==</span> <span class="st">"WI"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span>, <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">`Facility ID`</span><span class="op">)</span><span class="op">)</span></span>

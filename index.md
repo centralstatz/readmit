@@ -380,11 +380,8 @@ hsr_readmission_risks(
 
 As you can see, there are many ways to use the information in these
 reports to gain insight into readmissions at your hospital. Further
-analysis strategies can be explored in the associated vignette:
-
-``` r
-vignette("hsr-analysis")
-```
+analysis strategies can be explored in the [associated
+article](https://centralstatz.github.io/readmit/articles/investigating-an-hsr.html).
 
 ## Importing data from the Provider Data Catalog
 
