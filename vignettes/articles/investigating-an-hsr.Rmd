@@ -179,7 +179,7 @@ hsr_discharges(
 
 This data can then be explored further to understand risk factor prevalence and how that relates to model weights, etc. (again, covered [later](#analysisstrategies)). Notice the `discharge_phi` argument was used to prevent the date information from being returned.
 
-## 4. Model Coefficients
+## 4. Model Coefficients {#modelcoefficients}
 
 The ERR is calculated based on an aggregated roll up of individual adjusted readmission risks derived from a random-intercept logistic regression model. The first row in the discharge table contains the coefficients for this model. We can use the `hsr_coefficients()` function to extract them:
 
@@ -409,7 +409,7 @@ risk_factors <-
 risk_factors
 ```
 
-### iii. Compute Individual Readmission Risks
+### iii. Compute Individual Readmission Risks {#individualreadmissionrisk}
 
 The _predicted_ and _expected_ readmission rates are computed for each discharge by plugging in each patient's set of risk factors into risk models developed by CMS. We can use the `hsr_coefficients()` function to extract these:
 
@@ -456,7 +456,7 @@ risk_factors <-
 risk_factors
 ```
 
-#### Compute the Linear Predictor
+#### Compute the Linear Predictor {#linearpredictor}
 
 These are [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression) models, so to convert to a risk estimate, we need to take the _weighted-sum_ of each factor weight with the risk factor value for each discharge.
 
@@ -758,9 +758,126 @@ Recall that CMS fits random-intercept logistic regression models on a combined d
 
 ## 2. Understanding Model Weights
 
+As described [previously](#modelcoefficients), the _predicted_ and _expected_ readmission rates are based on risk models developed by CMS that estimate hospital-level effects so that individual hospitals can be compared to an "average" hospital for penalty determination. Additionally, these models _risk-adjust_ for individual patient clinical history as to tease out impacts due to the _hospital_ itself instead of the overall morbidity of the population it serves. Thus, each model contains a long list of covariates (risk factors) which can be explored to gain further insight into the mechanics of the program. You can find more details about the model methodology [here](https://qualitynet.cms.gov/inpatient/measures/readmission/methodology).
+
+### Interpreting of Model Coefficients
+
+The first thing worth understanding are what the model estimates mean. Recall from [above](#modelcoefficients) that we can extract the model coefficients, which are found in the first row of the discharge-level data for each cohort, from the HSR with the `hsr_coefficients()` function, which we previously extracted [above](#individualreadmissionrisk):
+
+```{r}
+model_weights
+```
+
+These are the weights (coefficients) of the regression equation that we use to weight individual patient risk factors. Remember that these are currently on the scale of the [linear predictor](#linearpredictor). To make them intuitive and interpretable. we can _exponentiate_ them to put them on the _[odds ratio](https://en.wikipedia.org/wiki/Odds_ratio)_ scale.
+
+```{r}
+model_weights |>
+  dplyr::mutate(
+    OR = exp(Value)
+  )
+```
+
+For example, according to these estimates, the odds of a readmission for males are `r paste0(round(100 * (1-exp(model_weights$Value[model_weights$Factor == "Male" & model_weights$Cohort == "AMI"])), 1), "%")` lower than females on average for the AMI cohort. So one thing we can do is assess these across all factors to better understand how each risk factor is weighted, by which direction, and how much.
+
+#### Relative Immportance 
+
+A more tractable way to organize them for understanding is to rank them by the magnitude of their effects to get a sense of which factors have the most impact on the readmission risk calculation. Here we'll make a plot of the top five (5) most heavily-weighted factors for each cohort:
+
+```{r}
+library(ggplot2)
+model_weights |>
+
+  # Remove intercepts
+  dplyr::filter(!stringr::str_detect(Factor, "_EFFECT$")) |>
+  
+  # Rank by group
+  dplyr::mutate(
+    Rank = order(order(abs(Value), decreasing = TRUE)),
+    .by = "Cohort"
+  ) |>
+  
+  # Filter to top 10
+  dplyr::filter(Rank <= 5) |>
+  
+  # Make a plot
+  ggplot() +
+  geom_linerange(
+    aes(
+      x = stringr::str_sub(Factor, 1, 20),
+      ymin = 1,
+      ymax = exp(Value),
+      color = stringr::str_sub(Factor, 1, 20)
+    ),
+    linewidth = 1,
+    show.legend = FALSE
+  ) +
+  geom_hline(yintercept = 1) +
+  facet_wrap(~Cohort, scales = "free_y", nrow = 3) +
+  coord_flip() +
+  theme_minimal() +
+  xlab("Risk Factor") +
+  ylab("Odds Ratio")
+
+```
+
+We can see, for example, that _Dialysis Status_ is an important factor that shows up across multiple cohort models, thus having heavy impact on program results.
+
+We can create the full listing in a table format:
+
+```{r}
+library(reactable)
+model_weights |>
+
+  # Remove intercepts
+  dplyr::filter(!stringr::str_detect(Factor, "_EFFECT$")) |>
+  
+  # Rank by group
+  dplyr::mutate(
+    Rank = order(order(abs(Value), decreasing = TRUE)),
+    .by = "Cohort"
+  ) |>
+  
+  # Compute odds ratio
+  dplyr::mutate(
+    OR = exp(Value)
+  ) |>
+  
+  # Rearrange
+  dplyr::select(
+    Cohort,
+    Factor,
+    Rank,
+    Value,
+    OR
+  ) |>
+  dplyr::arrange(
+    Cohort,
+    Rank
+  ) |>
+  
+  # Make a table
+  reactable(
+    groupBy = "Cohort",
+    columns = 
+      list(
+        Factor = colDef(name = "Risk Factor"),
+        Value = colDef(name = "Coefficient", format = colFormat(digits = 2)),
+        OR = colDef(name = "Odds-Ratio", format = colFormat(digits = 2))
+      ),
+      searchable = TRUE,
+      sortable = TRUE,
+      filterable = TRUE,
+      resizable = TRUE,
+      theme = reactablefmtr::sandstone()
+  )
+
+```
+
 ### Tie in Risk Factor Prevalence
 
 * Plot showing prevalence vs. model weight
+
+* condition categories
 
 ## Exploring Risk Distributions
 
