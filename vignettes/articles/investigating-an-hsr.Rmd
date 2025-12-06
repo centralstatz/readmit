@@ -784,7 +784,6 @@ For example, according to these estimates, the odds of a readmission for males a
 A more tractable way to organize them for understanding is to rank them by the magnitude of their effects to get a sense of which factors have the most impact on the readmission risk calculation. Here we'll make a plot of the top five (5) most heavily-weighted factors for each cohort:
 
 ```{r}
-library(ggplot2)
 model_weights |>
 
   # Remove intercepts
@@ -800,9 +799,9 @@ model_weights |>
   dplyr::filter(Rank <= 5) |>
   
   # Make a plot
-  ggplot() +
-  geom_linerange(
-    aes(
+  ggplot2::ggplot() +
+  ggplot2::geom_linerange(
+    ggplot2::aes(
       x = stringr::str_sub(Factor, 1, 20),
       ymin = 1,
       ymax = exp(Value),
@@ -811,12 +810,12 @@ model_weights |>
     linewidth = 1,
     show.legend = FALSE
   ) +
-  geom_hline(yintercept = 1) +
-  facet_wrap(~Cohort, scales = "free_y", nrow = 3) +
-  coord_flip() +
-  theme_minimal() +
-  xlab("Risk Factor") +
-  ylab("Odds Ratio")
+  ggplot2::geom_hline(yintercept = 1) +
+  ggplot2::facet_wrap(~Cohort, scales = "free_y", nrow = 3) +
+  ggplot2::coord_flip() +
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("Risk Factor") +
+  ggplot2::ylab("Odds Ratio")
 
 ```
 
@@ -825,7 +824,6 @@ We can see, for example, that _Dialysis Status_ is an important factor that show
 We can create the full listing in a table format:
 
 ```{r}
-library(reactable)
 model_weights |>
 
   # Remove intercepts
@@ -856,13 +854,13 @@ model_weights |>
   ) |>
   
   # Make a table
-  reactable(
+  reactable::reactable(
     groupBy = "Cohort",
     columns = 
       list(
-        Factor = colDef(name = "Risk Factor"),
-        Value = colDef(name = "Coefficient", format = colFormat(digits = 2)),
-        OR = colDef(name = "Odds-Ratio", format = colFormat(digits = 2))
+        Factor = reactable::colDef(name = "Risk Factor"),
+        Value = reactable::colDef(name = "Coefficient", format = reactable::colFormat(digits = 2)),
+        OR = reactable::colDef(name = "Odds-Ratio", format = reactable::colFormat(digits = 2))
       ),
       searchable = TRUE,
       sortable = TRUE,
@@ -875,6 +873,9 @@ model_weights |>
 
 ### Tie in Risk Factor Prevalence
 
+* Condition categories
+* Average readmisson risks to get group level metric; 
+  + High prevalence, low impact vs. low prevalence, high impact
 * Plot showing prevalence vs. model weight
 
 * condition categories
@@ -889,8 +890,3 @@ model_weights |>
 ## Diagnosis Comparisons
 
 ## Outside Hospital Readmissions
-
-```{r setup}
-library(readmit)
-hsr_mock_reports()
-```
