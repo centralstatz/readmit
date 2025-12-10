@@ -40,6 +40,10 @@
 <p>Contains daily notes with details about how things were developed. Primarily following <a href="https://r-pkgs.org/" class="external-link uri">https://r-pkgs.org/</a>.</p>
 </div>
 <div class="section level1">
+<h1 id="id_12102025">12/10/2025<a class="anchor" aria-label="anchor" href="#id_12102025"></a></h1>
+<ul><li>Adding <code>Suggests</code> dependencies for <code>ggplot2</code> and <code>reactable</code>. This should allow the article to work with GitHub Actions. Also adding back in <code>purrr</code>.</li>
+</ul></div>
+<div class="section level1">
 <h1 id="id_1222025">12/2/2025<a class="anchor" aria-label="anchor" href="#id_1222025"></a></h1>
 <ul><li>Converting vignette to article (<a href="https://r-pkgs.org/vignettes.html#sec-vignettes-article" class="external-link uri">https://r-pkgs.org/vignettes.html#sec-vignettes-article</a>) because I want a lot of useful graphics that won’t work with vignette. Also can remove the <code>purrr</code> dependency then. <code>use_article("investigating-an-hsr.qmd", title = "Investigating a Hospital-Specific Report (HSR)")</code>. Notice I used quarto instead of Rmd.</li>
 <li>Actually per <a href="https://github.com/r-lib/pkgdown/issues/2830" class="external-link">this issue</a>, and the errors I was getting, I’m reverting back to <code>Rmd</code> (<code>use_article("investigating-an-hsr.Rmd", title = "Investigating a Hospital-Specific Report (HSR)")</code>)</li>

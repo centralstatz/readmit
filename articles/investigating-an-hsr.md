@@ -1519,9 +1519,187 @@ least acknowledge and understand the mechanics of how these things work.
 
 ### 2. Understanding Model Weights
 
+As described [previously](#modelcoefficients), the *predicted* and
+*expected* readmission rates are based on risk models developed by CMS
+that estimate hospital-level effects so that individual hospitals can be
+compared to an “average” hospital for penalty determination.
+Additionally, these models *risk-adjust* for individual patient clinical
+history as to tease out impacts due to the *hospital* itself instead of
+the overall morbidity of the population it serves. Thus, each model
+contains a long list of covariates (risk factors) which can be explored
+to gain further insight into the mechanics of the program. You can find
+more details about the model methodology
+[here](https://qualitynet.cms.gov/inpatient/measures/readmission/methodology).
+
+#### Interpreting of Model Coefficients
+
+The first thing worth understanding are what the model estimates mean.
+Recall from [above](#modelcoefficients) that we can extract the model
+coefficients, which are found in the first row of the discharge-level
+data for each cohort, from the HSR with the
+[`hsr_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_coefficients.md)
+function, which we previously extracted
+[above](#individualreadmissionrisk):
+
+``` r
+model_weights
+#> # A tibble: 225 × 3
+#>    Factor                                                           Value Cohort
+#>    <chr>                                                            <dbl> <chr> 
+#>  1 "Years Over 65 (continuous)"                                   0.00765 AMI   
+#>  2 "Male"                                                        -0.134   AMI   
+#>  3 "Anterior Myocardial Infarction "                              0.271   AMI   
+#>  4 "Non-Anterior Location of Myocardial Infarction"               0.0712  AMI   
+#>  5 "History of Coronary Artery Bypass Graft (CABG) Surgery"       0.0233  AMI   
+#>  6 "History of Percutaneous Transluminal Coronary Angioplasty (… -0.0218  AMI   
+#>  7 "History of COVID-19"                                         -0.0676  AMI   
+#>  8 "Severe Infection; Other Infectious Diseases"                  0.0832  AMI   
+#>  9 "Metastatic Cancer and Acute Leukemia"                         0.226   AMI   
+#> 10 "Cancer"                                                       0.0440  AMI   
+#> # ℹ 215 more rows
+```
+
+These are the weights (coefficients) of the regression equation that we
+use to weight individual patient risk factors. Remember that these are
+currently on the scale of the [linear predictor](#linearpredictor). To
+make them intuitive and interpretable. we can *exponentiate* them to put
+them on the *[odds ratio](https://en.wikipedia.org/wiki/Odds_ratio)*
+scale.
+
+``` r
+model_weights |>
+  dplyr::mutate(
+    OR = exp(Value)
+  )
+#> # A tibble: 225 × 4
+#>    Factor                                                     Value Cohort    OR
+#>    <chr>                                                      <dbl> <chr>  <dbl>
+#>  1 "Years Over 65 (continuous)"                             0.00765 AMI    1.01 
+#>  2 "Male"                                                  -0.134   AMI    0.875
+#>  3 "Anterior Myocardial Infarction "                        0.271   AMI    1.31 
+#>  4 "Non-Anterior Location of Myocardial Infarction"         0.0712  AMI    1.07 
+#>  5 "History of Coronary Artery Bypass Graft (CABG) Surger…  0.0233  AMI    1.02 
+#>  6 "History of Percutaneous Transluminal Coronary Angiopl… -0.0218  AMI    0.978
+#>  7 "History of COVID-19"                                   -0.0676  AMI    0.935
+#>  8 "Severe Infection; Other Infectious Diseases"            0.0832  AMI    1.09 
+#>  9 "Metastatic Cancer and Acute Leukemia"                   0.226   AMI    1.25 
+#> 10 "Cancer"                                                 0.0440  AMI    1.04 
+#> # ℹ 215 more rows
+```
+
+For example, according to these estimates, the odds of a readmission for
+males are 12.5% lower than females on average for the AMI cohort. So one
+thing we can do is assess these across all factors to better understand
+how each risk factor is weighted, by which direction, and how much.
+
+##### Relative Immportance
+
+A more tractable way to organize them for understanding is to rank them
+by the magnitude of their effects to get a sense of which factors have
+the most impact on the readmission risk calculation. Here we’ll make a
+plot of the top five (5) most heavily-weighted factors for each cohort:
+
+``` r
+model_weights |>
+
+  # Remove intercepts
+  dplyr::filter(!stringr::str_detect(Factor, "_EFFECT$")) |>
+  
+  # Rank by group
+  dplyr::mutate(
+    Rank = order(order(abs(Value), decreasing = TRUE)),
+    .by = "Cohort"
+  ) |>
+  
+  # Filter to top 10
+  dplyr::filter(Rank <= 5) |>
+  
+  # Make a plot
+  ggplot2::ggplot() +
+  ggplot2::geom_linerange(
+    ggplot2::aes(
+      x = stringr::str_sub(Factor, 1, 20),
+      ymin = 1,
+      ymax = exp(Value),
+      color = stringr::str_sub(Factor, 1, 20)
+    ),
+    linewidth = 1,
+    show.legend = FALSE
+  ) +
+  ggplot2::geom_hline(yintercept = 1) +
+  ggplot2::facet_wrap(~Cohort, scales = "free_y", nrow = 3) +
+  ggplot2::coord_flip() +
+  ggplot2::theme_minimal() +
+  ggplot2::xlab("Risk Factor") +
+  ggplot2::ylab("Odds Ratio")
+```
+
+![](investigating-an-hsr_files/figure-html/unnamed-chunk-49-1.png)
+
+We can see, for example, that *Dialysis Status* is an important factor
+that shows up across multiple cohort models, thus having heavy impact on
+program results.
+
+We can create the full listing in a table format:
+
+``` r
+model_weights |>
+
+  # Remove intercepts
+  dplyr::filter(!stringr::str_detect(Factor, "_EFFECT$")) |>
+  
+  # Rank by group
+  dplyr::mutate(
+    Rank = order(order(abs(Value), decreasing = TRUE)),
+    .by = "Cohort"
+  ) |>
+  
+  # Compute odds ratio
+  dplyr::mutate(
+    OR = exp(Value)
+  ) |>
+  
+  # Rearrange
+  dplyr::select(
+    Cohort,
+    Factor,
+    Rank,
+    Value,
+    OR
+  ) |>
+  dplyr::arrange(
+    Cohort,
+    Rank
+  ) |>
+  
+  # Make a table
+  reactable::reactable(
+    groupBy = "Cohort",
+    columns = 
+      list(
+        Factor = reactable::colDef(name = "Risk Factor"),
+        Value = reactable::colDef(name = "Coefficient", format = reactable::colFormat(digits = 2)),
+        OR = reactable::colDef(name = "Odds-Ratio", format = reactable::colFormat(digits = 2))
+      ),
+      searchable = TRUE,
+      sortable = TRUE,
+      filterable = TRUE,
+      resizable = TRUE,
+      theme = reactablefmtr::sandstone()
+  )
+```
+
 #### Tie in Risk Factor Prevalence
 
+- Condition categories
+
+- Average readmisson risks to get group level metric;
+
+  - High prevalence, low impact vs. low prevalence, high impact
+
 - Plot showing prevalence vs. model weight
+
+- condition categories
 
 ### Exploring Risk Distributions
 
@@ -1533,12 +1711,3 @@ least acknowledge and understand the mechanics of how these things work.
 ### Diagnosis Comparisons
 
 ### Outside Hospital Readmissions
-
-``` r
-library(readmit)
-hsr_mock_reports()
-#> [1] "FY2019_HRRP_MockHSR.xlsx" "FY2020_HRRP_MockHSR.xlsx"
-#> [3] "FY2021_HRRP_MockHSR.xlsx" "FY2022_HRRP_MockHSR.xlsx"
-#> [5] "FY2023_HRRP_MockHSR.xlsx" "FY2024_HRRP_MockHSR.xlsx"
-#> [7] "FY2025_HRRP_MockHSR.xlsx"
-```
