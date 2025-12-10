@@ -2,6 +2,10 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 12/10/2025
+
+* Adding `Suggests` dependencies for `ggplot2` and `reactable`. This should allow the article to work with GitHub Actions. Also adding back in `purrr`.
+
 # 12/2/2025
 
 * Converting vignette to article (https://r-pkgs.org/vignettes.html#sec-vignettes-article) because I want a lot of useful graphics that won't work with vignette. Also can remove the `purrr` dependency then. `use_article("investigating-an-hsr.qmd", title = "Investigating a Hospital-Specific Report (HSR)")`. Notice I used quarto instead of Rmd. 
