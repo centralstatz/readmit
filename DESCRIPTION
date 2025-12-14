@@ -22,7 +22,6 @@ Suggests:
     knitr,
     purrr,
     reactable,
-    reactablefmtr,
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
