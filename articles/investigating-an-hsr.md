@@ -1531,12 +1531,12 @@ to gain further insight into the mechanics of the program. You can find
 more details about the model methodology
 [here](https://qualitynet.cms.gov/inpatient/measures/readmission/methodology).
 
-#### Interpreting of Model Coefficients
+#### What Do They Mean?
 
-The first thing worth understanding are what the model estimates mean.
-Recall from [above](#modelcoefficients) that we can extract the model
-coefficients, which are found in the first row of the discharge-level
-data for each cohort, from the HSR with the
+The first thing worth understanding are what the model estimates mean
+and how to interpret them. Recall from [above](#modelcoefficients) that
+we can extract the model coefficients, which are found in the first row
+of the discharge-level data for each cohort, from the HSR with the
 [`hsr_coefficients()`](https://centralstatz.github.io/readmit/reference/hsr_coefficients.md)
 function, which we previously extracted
 [above](#individualreadmissionrisk):
@@ -1592,7 +1592,7 @@ males are 12.5% lower than females on average for the AMI cohort. So one
 thing we can do is assess these across all factors to better understand
 how each risk factor is weighted, by which direction, and how much.
 
-##### Relative Immportance
+##### Relative Importance
 
 A more tractable way to organize them for understanding is to rank them
 by the magnitude of their effects to get a sense of which factors have
@@ -1600,6 +1600,7 @@ the most impact on the readmission risk calculation. Here we’ll make a
 plot of the top five (5) most heavily-weighted factors for each cohort:
 
 ``` r
+library(ggplot2)
 model_weights |>
 
   # Remove intercepts
@@ -1615,9 +1616,9 @@ model_weights |>
   dplyr::filter(Rank <= 5) |>
   
   # Make a plot
-  ggplot2::ggplot() +
-  ggplot2::geom_linerange(
-    ggplot2::aes(
+  ggplot() +
+  geom_linerange(
+    aes(
       x = stringr::str_sub(Factor, 1, 20),
       ymin = 1,
       ymax = exp(Value),
@@ -1626,12 +1627,12 @@ model_weights |>
     linewidth = 1,
     show.legend = FALSE
   ) +
-  ggplot2::geom_hline(yintercept = 1) +
-  ggplot2::facet_wrap(~Cohort, scales = "free_y", nrow = 3) +
-  ggplot2::coord_flip() +
-  ggplot2::theme_minimal() +
-  ggplot2::xlab("Risk Factor") +
-  ggplot2::ylab("Odds Ratio")
+  geom_hline(yintercept = 1) +
+  facet_wrap(~Cohort, scales = "free_y", nrow = 3) +
+  coord_flip() +
+  theme_minimal() +
+  xlab("Risk Factor") +
+  ylab("Odds Ratio")
 ```
 
 ![](investigating-an-hsr_files/figure-html/unnamed-chunk-49-1.png)
@@ -1643,6 +1644,7 @@ program results.
 We can create the full listing in a table format:
 
 ``` r
+library(reactable)
 model_weights |>
 
   # Remove intercepts
@@ -1673,23 +1675,31 @@ model_weights |>
   ) |>
   
   # Make a table
-  reactable::reactable(
+  reactable(
     groupBy = "Cohort",
     columns = 
       list(
-        Factor = reactable::colDef(name = "Risk Factor"),
-        Value = reactable::colDef(name = "Coefficient", format = reactable::colFormat(digits = 2)),
-        OR = reactable::colDef(name = "Odds-Ratio", format = reactable::colFormat(digits = 2))
+        Factor = colDef(name = "Risk Factor"),
+        Value = colDef(name = "Coefficient", format = colFormat(digits = 2)),
+        OR = colDef(name = "Odds-Ratio", format = colFormat(digits = 2))
       ),
       searchable = TRUE,
       sortable = TRUE,
       filterable = TRUE,
-      resizable = TRUE,
-      theme = reactablefmtr::sandstone()
+      resizable = TRUE
   )
 ```
 
-#### Tie in Risk Factor Prevalence
+#### Risk Factor Prevalence
+
+We now understand the model output, but how does the actual risk factor
+data in our discharge dataset relate to this?
+
+##### How Are Risk Factors Defined?
+
+Each of these risk factors themselves have specific definitions under
+the hood, which is yet another layer of nuance to keep in mind when
+thinking about how program results roll up.
 
 - Condition categories
 

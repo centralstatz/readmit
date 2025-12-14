@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   articles/investigating-an-hsr: investigating-an-hsr.html
-last_built: 2025-12-10T21:26Z
+last_built: 2025-12-14T13:51Z
 urls:
   reference: https://centralstatz.github.io/readmit/reference
   article: https://centralstatz.github.io/readmit/articles
