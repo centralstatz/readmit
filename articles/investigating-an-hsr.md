@@ -2002,7 +2002,7 @@ leading to cohort inclusion to begin with, and (b) why the patient came
 back. Sometimes there may be readmissions that are completely unrelated
 to the index diagnosis.
 
-### Outside Hospital Readmissions
+#### Outside Hospital Readmissions
 
 Since CMS enforces the HRRP, hospitals get penalized for readmissions
 that don’t even occur at their hospital. If a patient is discharged from
