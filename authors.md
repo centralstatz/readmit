@@ -6,6 +6,9 @@
 
 ## Citation
 
+Source:
+[`DESCRIPTION`](https://github.com/centralstatz/readmit/blob/main/DESCRIPTION)
+
 Zajichek A (2025). *readmit: Tools for Working with Hospital
 Readmissions Data*. R package version 0.0.0.9000,
 <https://centralstatz.github.io/readmit/>.

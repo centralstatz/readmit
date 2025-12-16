@@ -12,6 +12,10 @@ Useful links:
 
 - <https://centralstatz.github.io/readmit/>
 
+- <https://github.com/centralstatz/readmit>
+
+- Report bugs at <https://github.com/centralstatz/readmit/issues>
+
 ## Author
 
 **Maintainer**: Alex Zajichek <alex@centralstatz.com> \[copyright
