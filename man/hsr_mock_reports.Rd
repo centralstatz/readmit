@@ -9,6 +9,9 @@ hsr_mock_reports(path = NULL)
 \arguments{
 \item{path}{Name of file. If NULL, all files will be listed.}
 }
+\value{
+A character string or vector of strings
+}
 \description{
 Provides the location of mock HSRs downloaded from QualityNet that come with the package that users can import.
 These files are a representation of what a hospital's real report looks like when received from CMS.

@@ -24,8 +24,14 @@ general importing tools for the [Provider Data Catalog
 
 ## Installation
 
-You can install the development version of `readmit` from
-[GitHub](https://github.com/) with:
+You can install `readmit` from CRAN:
+
+``` r
+# install.packages("pak")
+install.packages("readmit")
+```
+
+Or the development version from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")

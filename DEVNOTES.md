@@ -2,6 +2,11 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 12/16/2025 
+* Planning initial release. `use_cran_comments()`, `check_win_devel()`
+* Changed to R 4.1.0 dependency
+* Finally 
+
 # 12/10/2025
 
 * Adding `Suggests` dependencies for `ggplot2` and `reactable`. This should allow the article to work with GitHub Actions. Also adding back in `purrr`.

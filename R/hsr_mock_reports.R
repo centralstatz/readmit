@@ -12,6 +12,8 @@
 #'
 #' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
 #'
+#' @return A character string or vector of strings
+#'
 #' @export
 #'
 #' @details

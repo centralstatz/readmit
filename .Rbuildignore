@@ -13,3 +13,4 @@
 ^vignettes/articles$
 ^vignettes/articles/\.quarto$
 ^vignettes/articles/*_files$
+^cran-comments\.md$

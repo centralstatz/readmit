@@ -18,7 +18,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Alex Zajichek \email{alex@centralstatz.com}
+\strong{Maintainer}: Alex Zajichek \email{alex@centralstatz.com} [copyright holder]
 
 }
 \keyword{internal}
