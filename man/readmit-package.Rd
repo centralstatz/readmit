@@ -14,6 +14,8 @@ Contains tools for working with and analyzing hospital readmissions data. The pa
 Useful links:
 \itemize{
   \item \url{https://centralstatz.github.io/readmit/}
+  \item \url{https://github.com/centralstatz/readmit}
+  \item Report bugs at \url{https://github.com/centralstatz/readmit/issues}
 }
 
 }

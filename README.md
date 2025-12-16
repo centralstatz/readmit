@@ -5,9 +5,6 @@
 
 <!-- badges: start -->
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/readmit)](https://CRAN.R-project.org/package=readmit)
-![CRAN_Download_Counter](http://cranlogs.r-pkg.org/badges/grand-total/readmit)
 [![Codecov test
 coverage](https://codecov.io/gh/centralstatz/readmit/graph/badge.svg)](https://app.codecov.io/gh/centralstatz/readmit)
 [![R-CMD-check](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml)
