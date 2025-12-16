@@ -1692,8 +1692,246 @@ model_weights |>
 
 #### Risk Factor Prevalence
 
-We now understand the model output, but how does the actual risk factor
-data in our discharge dataset relate to this?
+We now understand the model output, but how can we incorporate the risk
+factors in our discharge datasets to gain additional insight?
+
+Recall, the way we calculated the readmission risks was by taking a
+weighted-sum of the risk factors in our dataset with the model weights
+(and then doing some transformations to turn it into a probability). We
+just established that different factors yield different effects (weight)
+on the readmission risks from the model side and how that can be useful
+for understanding how CMS weights different clinical history factors.
+
+The next thing we can seek to understand is how prevalent each of the
+risk factors are for your cohort. This is useful for a few reasons:
+
+1.  You can compare to see if the rates of various risk factors are
+    similar for your hospital versus peer group hospitals
+2.  It gives insight into the difference between model importance for
+    readmission risk vs. how prevalent the risk factor is
+3.  We can use the combination of model weights and prevalence of risk
+    factors to understand overall impact. For example, a risk factor
+    that has an average impact in terms of odds-ratio but has very high
+    prevalence at your hospital may have more overall net impact on your
+    HRRP readmission metrics than the most important factor according to
+    the model but has very few patients with it at your hospital.
+
+The first step get at this analysis is to compute these from your
+datasets. We can do this by manipulating the output of
+[`hsr_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_discharges.md)
+after using the `risk_factors=TRUE` argument. Here is an example of how
+we’d do this for AMI:
+
+``` r
+hsr_discharges(
+  file = my_report,
+  cohort = "AMI",
+  discharge_phi = FALSE,
+  risk_factors = TRUE,
+  eligible_only = TRUE
+)
+#> # A tibble: 2 × 33
+#>   `ID Number` `Years Over 65 (continuous)`  Male Anterior Myocardial Infarctio…¹
+#>         <int>                        <dbl> <dbl>                           <dbl>
+#> 1           1                           31     1                               0
+#> 2           2                           27     1                               0
+#> # ℹ abbreviated name: ¹​`Anterior Myocardial Infarction `
+#> # ℹ 29 more variables: `Non-Anterior Location of Myocardial Infarction` <dbl>,
+#> #   `History of Coronary Artery Bypass Graft (CABG) Surgery` <dbl>,
+#> #   `History of Percutaneous Transluminal Coronary Angioplasty (PTCA)` <dbl>,
+#> #   `History of COVID-19` <dbl>,
+#> #   `Severe Infection; Other Infectious Diseases` <dbl>,
+#> #   `Metastatic Cancer and Acute Leukemia` <dbl>, Cancer <dbl>, …
+```
+
+However, we’ve already [done this earlier](#riskfactors) in our
+exercises, so we’ll use that `risk_factors` dataset:
+
+``` r
+risk_factors
+#> # A tibble: 4,626 × 5
+#>    `ID Number` Factor                                      Value Cohort   Weight
+#>          <int> <chr>                                       <dbl> <chr>     <dbl>
+#>  1           1 "Years Over 65 (continuous)"                   31 AMI     0.00765
+#>  2           1 "Male"                                          1 AMI    -0.134  
+#>  3           1 "Anterior Myocardial Infarction "               0 AMI     0.271  
+#>  4           1 "Non-Anterior Location of Myocardial Infar…     0 AMI     0.0712 
+#>  5           1 "History of Coronary Artery Bypass Graft (…     1 AMI     0.0233 
+#>  6           1 "History of Percutaneous Transluminal Coro…     0 AMI    -0.0218 
+#>  7           1 "History of COVID-19"                           0 AMI    -0.0676 
+#>  8           1 "Severe Infection; Other Infectious Diseas…     1 AMI     0.0832 
+#>  9           1 "Metastatic Cancer and Acute Leukemia"          0 AMI     0.226  
+#> 10           1 "Cancer"                                        0 AMI     0.0440 
+#> # ℹ 4,616 more rows
+```
+
+Now we can compute the prevalence for each risk factor (in each cohort)
+by simply taking the average `Value`, because all of these are binary
+factors (except for Age):
+
+``` r
+prevalence <-
+  risk_factors |>
+
+    # Remove age (for demo purposes)
+    dplyr::filter(!stringr::str_detect(Factor, "^Years")) |>
+
+    # Compute average
+    dplyr::summarize(
+      N = dplyr::n(),
+      Count = sum(Value),
+      Rate = Count / N,
+      .by = 
+        c(
+          Cohort,
+          Factor
+        )
+    )
+prevalence
+#> # A tibble: 182 × 5
+#>    Cohort Factor                                                   N Count  Rate
+#>    <chr>  <chr>                                                <int> <dbl> <dbl>
+#>  1 AMI    "Male"                                                   2     2   1  
+#>  2 AMI    "Anterior Myocardial Infarction "                        2     0   0  
+#>  3 AMI    "Non-Anterior Location of Myocardial Infarction"         2     0   0  
+#>  4 AMI    "History of Coronary Artery Bypass Graft (CABG) Sur…     2     1   0.5
+#>  5 AMI    "History of Percutaneous Transluminal Coronary Angi…     2     1   0.5
+#>  6 AMI    "History of COVID-19"                                    2     0   0  
+#>  7 AMI    "Severe Infection; Other Infectious Diseases"            2     1   0.5
+#>  8 AMI    "Metastatic Cancer and Acute Leukemia"                   2     0   0  
+#>  9 AMI    "Cancer"                                                 2     0   0  
+#> 10 AMI    "Diabetes Mellitus (DM) or DM Complications"             2     1   0.5
+#> # ℹ 172 more rows
+```
+
+Then we could put all of these into a navigatable table:
+
+``` r
+prevalence |>
+  
+    # Arrange
+    dplyr::arrange(Cohort, desc(Rate)) |>
+    
+    # Make a table
+    reactable(
+      groupBy = "Cohort",
+      columns = 
+        list(
+          Factor = colDef(name = "Risk Factor"),
+          N = colDef(name = "Discharge Count"),
+          Count = colDef(name = "Count"),
+          Rate = colDef(name = "Percent", format = colFormat(digits = 1, percent = TRUE))
+        ),
+      columnGroups = 
+        list(
+          colGroup(
+            name = "Risk Factor Prevalence",
+            columns = c("Count", "Rate")
+          )
+        ),
+      searchable = TRUE,
+      sortable = TRUE,
+      filterable = TRUE,
+      resizable = TRUE
+    )
+```
+
+#### Net Factor Influence
+
+We can then combine the two concepts above (model weights + risk factor
+prevalence) to explore which factors may have the most overall impact.
+One way to quantify this is by computing the total weight of a risk
+factor by taking the number of patients with the risk factor multiplied
+by the model weight.
+
+``` r
+prevalence |>
+
+  # Join to get model weight
+  dplyr::inner_join(
+    y = model_weights,
+    by = 
+      c(
+        "Cohort",
+        "Factor"
+      )
+  ) |>
+  
+  # Make total weight
+  dplyr::mutate(
+    NetImpact = abs(Count * Value)
+  ) |>
+  
+  # Arrange
+  dplyr::arrange(Cohort, desc(NetImpact)) |>
+  dplyr::relocate(NetImpact, .after = Factor) |>
+    
+  # Make a table
+  reactable(
+    groupBy = "Cohort",
+    columns = 
+      list(
+        Factor = colDef(name = "Risk Factor"),
+        NetImpact = colDef(name = "Net Impact", format = colFormat(digits = 2)),
+        N = colDef(name = "Discharge Count"),
+        Count = colDef(name = "Count"),
+        Rate = colDef(name = "Percent", format = colFormat(digits = 1, percent = TRUE))
+      ),
+    columnGroups = 
+      list(
+        colGroup(
+          name = "Risk Factor Prevalence",
+          columns = c("Count", "Rate")
+        )
+      ),
+    searchable = TRUE,
+    sortable = TRUE,
+    filterable = TRUE,
+    resizable = TRUE
+  )
+```
+
+If you scan through the table you’ll notice that the risk factors that
+have the highest model weight or highest prevalence are not necessarily
+the ones with the most net impact.
+
+Finally, we could put these in a plot:
+
+``` r
+prevalence |>
+
+  # Join to get model weight
+  dplyr::inner_join(
+    y = model_weights,
+    by = 
+      c(
+        "Cohort",
+        "Factor"
+      )
+  ) |>
+  
+  ggplot() +
+  geom_point(
+    aes(
+      x = Count,
+      y = exp(Value),
+      color = Cohort
+    ),
+    show.legend = FALSE
+  ) +
+  geom_hline(yintercept = 1) +
+  facet_wrap(~Cohort, scales = "free_x", nrow = 3) +
+  theme_minimal() +
+  xlab("Risk Factor Count") +
+  ylab("Odds Ratio") 
+```
+
+![](investigating-an-hsr_files/figure-html/unnamed-chunk-56-1.png)
+
+Points that are closer to the upper-right quadrant are the most
+influential. Of course, it would be useful to add interactivity to these
+plots (e.g., with `plotly`) as to provide the user ability to scan and
+view what risk factor each point represents, but you get the idea.
 
 ##### How Are Risk Factors Defined?
 
@@ -1711,13 +1949,93 @@ thinking about how program results roll up.
 
 - condition categories
 
-### Exploring Risk Distributions
+### 3. Other Analyses
 
-- Pull from previous spot [here](#readmissionrisks)
-- Model risk factors
-- Risk factor prevalence
-- Risk factor prevalence by model weight (scatterplot)
+There are many other possible questions that can be answered analyzing
+an HSR that can be useful for better understand HRRP program results.
+We’ll list a few more ideas here without actually doing them:
 
-### Diagnosis Comparisons
+#### Diagnosis Comparison
+
+In the discharge reports, CMS supplies the diagnosis code the patient
+received that led their index discharge to be included in the program.
+For those who are readmitted, also supplied in this table are the
+diagnosis codes received at their readmission stay. These can be
+accessed with the
+[`hsr_discharges()`](https://centralstatz.github.io/readmit/reference/hsr_discharges.md)
+function and extracting the appropriate columns. Here’s an example doing
+this for the HF cohort:
+
+``` r
+hsr_discharges(
+  file = my_report,
+  cohort = "HF",
+  eligible_only = TRUE
+) |>
+
+  # Keep diagnosis columns
+  dplyr::select(dplyr::matches("Diagnosis")) |>
+  
+  # Aggregate
+  dplyr::summarize(
+    N = dplyr::n(),
+    .by = dplyr::everything()
+  ) |>
+  dplyr::arrange(desc(N))
+#> # A tibble: 9 × 3
+#>   `Principal Discharge Diagnosis of Index Stay` Principal Discharge Diag…¹     N
+#>   <chr>                                         <chr>                      <int>
+#> 1 I110                                          NA                            12
+#> 2 I130                                          NA                             5
+#> 3 I5033                                         NA                             2
+#> 4 I5033                                         I130                           1
+#> 5 I130                                          A0472                          1
+#> 6 I132                                          U071                           1
+#> 7 I509                                          NA                             1
+#> 8 I5023                                         NA                             1
+#> 9 I5043                                         NA                             1
+#> # ℹ abbreviated name: ¹​`Principal Discharge Diagnosis of Readmission`
+```
+
+This can be extremely useful to understand (a) which diagnoses are
+leading to cohort inclusion to begin with, and (b) why the patient came
+back. Sometimes there may be readmissions that are completely unrelated
+to the index diagnosis.
 
 ### Outside Hospital Readmissions
+
+Since CMS enforces the HRRP, hospitals get penalized for readmissions
+that don’t even occur at their hospital. If a patient is discharged from
+your hospital and subsequently readmitted somewhere else, it still
+counts as *your* readmission. Thus it is useful to understand the rate
+of readmissions that are back in your own system versus somewhere else.
+This is provided the HSR as well.
+
+``` r
+hsr_discharges(
+  file = my_report,
+  cohort = "HF",
+  eligible_only = TRUE
+) |>
+
+  # Keep diagnosis columns
+  dplyr::select(dplyr::matches("Same Hospital")) |> 
+  
+  # Make a table
+  table(useNA = "ifany")
+#> Readmission to Same Hospital (Yes/No)
+#>   No  Yes <NA> 
+#>    2    1   22
+```
+
+For example, of the 22 HF discharges, three (3) were readmitted: one (1)
+to the same hospital as the index stay, and two (2) elsewhere (maybe
+within your system, or not).
+
+#### Benchmarking With Other Hospitals
+
+CMS provides access to hospital-level performance data on
+[QualityNet](https://data.cms.gov/provider-data/). You can use the
+`pdc_*` functions in this package to explore and import various data
+files to perform comparative analyses at the hospital level (see
+[`pdc_read()`](https://centralstatz.github.io/readmit/reference/pdc_read.md)).
