@@ -14,4 +14,5 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Alex Zajichek <alex@centralstatz.com>
+**Maintainer**: Alex Zajichek <alex@centralstatz.com> \[copyright
+holder\]

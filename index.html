@@ -71,8 +71,12 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <code>readmit</code> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install <code>readmit</code> from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"readmit"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"centralstatz/readmit"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -102,13 +106,13 @@
 <h1 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h1>
 <p>Here are a few ways to use the package.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://centralstatz.github.io/readmit/">readmit</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="extracting-key-dates-from-the-hrrp">Extracting key dates from the HRRP<a class="anchor" aria-label="anchor" href="#extracting-key-dates-from-the-hrrp"></a>
 </h2>
 <p>An important piece of the <a href="https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp" class="external-link">HRRP</a> is to understand the timelines and dates associated with the program. We provide built-in datasets to conveniently access these dates (see <code><a href="reference/hrrp_keydates.html">?hrrp_keydates</a></code>). For example, <code>hrrp_performance_periods</code> provides the date ranges for discharges that are included in each program year:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hrrp_performance_periods</span></span>
 <span><span class="co">#&gt;    ProgramYear  StartDate    EndDate</span></span>
 <span><span class="co">#&gt; 1         2027 2023-07-01 2025-06-30</span></span>
@@ -123,7 +127,7 @@
 <span><span class="co">#&gt; 10        2020 2015-07-01 2018-06-30</span></span>
 <span><span class="co">#&gt; 11        2019 2014-07-01 2017-06-30</span></span></code></pre></div>
 <p>And <code>hrrp_snapshot_dates</code> provides the date that CMS took the extract of claims data for each program year:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hrrp_snapshot_dates</span></span>
 <span><span class="co">#&gt;   ProgramYear SnapshotDate</span></span>
 <span><span class="co">#&gt; 1        2027   2025-09-30</span></span>
@@ -136,7 +140,7 @@
 <span><span class="co">#&gt; 8        2020   2018-09-28</span></span>
 <span><span class="co">#&gt; 9        2019   2017-09-29</span></span></code></pre></div>
 <p>Or, all of the individual <code>hrrp_*</code> datasets are pre-joined in <code>hrrp_keydates</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hrrp_keydates</span></span>
 <span><span class="co">#&gt;    ProgramYear PerformanceStartDate PerformanceEndDate PaymentStartDate</span></span>
 <span><span class="co">#&gt; 1         2027           2023-07-01         2025-06-30       2026-10-01</span></span>
@@ -181,7 +185,7 @@
 <ul>
 <li><em>“What is the performance period for payments my hospital is currently being penalized for?”</em></li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/hrrp_get_dates.html">hrrp_get_dates</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"performance"</span>, discharge <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
 <span><span class="co">#&gt;   ProgramYear StartDate  EndDate   </span></span>
@@ -190,7 +194,7 @@
 <ul>
 <li><em>“What payment periods did a discharge from 1/1/2022 impact?”</em></li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/hrrp_get_dates.html">hrrp_get_dates</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2022-01-01"</span><span class="op">)</span>, <span class="st">"payment"</span>, discharge <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 3 × 3</span></span>
 <span><span class="co">#&gt;   ProgramYear StartDate  EndDate   </span></span>
@@ -206,7 +210,7 @@
 </h2>
 <p><em><strong>Note</strong>: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2" class="external-link">here</a>). The current HSR functions support Excel-based formats through FY2025.</em></p>
 <p><a href="https://www.cms.gov/" class="external-link">CMS</a> sends out <a href="https://qualitynet.cms.gov/inpatient/hrrp/reports" class="external-link">Hospital-Specific Reports (HSR)</a> each program year detailing the calculations of the payment reduction for the upcoming fiscal year (hospitals are given a 1-month period to review and submit corrections, the dates of which can be accessed with <code>hrrp_review_periods</code>). These reports contain the penalty amount down to the individual, line-item discharges that were included in the program. The package functions prefixed like <code>hsr_*</code> are meant to be used with them. For example, we can use the <code>hsr_discharges</code> function to extract discharge-level data for the heart failure cohort included in the readmission denominator into a clean data frame:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Mock report from QualityNet</span></span>
 <span><span class="va">my_hsr</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hsr_mock_reports.html">hsr_mock_reports</a></span><span class="op">(</span><span class="st">"FY2025_HRRP_MockHSR.xlsx"</span><span class="op">)</span></span>
 <span></span>
@@ -236,7 +240,7 @@
 <span><span class="co">#&gt; #   `Discharge Destination` &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   `Unplanned Readmission within 30 Days (Yes/No) [a]` &lt;chr&gt;, …</span></span></code></pre></div>
 <p>We could also extract the risk factors for each patient used in the statistical models developed by CMS to estimate adjusted readmission risk:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/hsr_discharges.html">hsr_discharges</a></span><span class="op">(</span></span>
 <span>  file <span class="op">=</span> <span class="va">my_hsr</span>,</span>
 <span>  cohort <span class="op">=</span> <span class="st">"HF"</span>,</span>
@@ -265,7 +269,7 @@
 <span><span class="co">#&gt; #   `Protein-Calorie Malnutrition` &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   `Other Significant Endocrine and Metabolic Disorders; Disorders of Fluid/Electrolyte/Acid-base Balance` &lt;dbl&gt;, …</span></span></code></pre></div>
 <p>We could then choose to extract the actual model coefficients (weights) that get applied to the patient risk factors:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/hsr_coefficients.html">hsr_coefficients</a></span><span class="op">(</span></span>
 <span>  file <span class="op">=</span> <span class="va">my_hsr</span>,</span>
 <span>  cohort <span class="op">=</span> <span class="st">"HF"</span></span>
@@ -285,7 +289,7 @@
 <span><span class="co">#&gt; 10 Liver or Biliary Disease                                              0.0865 </span></span>
 <span><span class="co">#&gt; # ℹ 30 more rows</span></span></code></pre></div>
 <p>These tables can be joined together and each patient’s readmission risk that CMS used can be computed and analyzed. Or, we can use the <code><a href="reference/hsr_readmission_risks.html">hsr_readmission_risks()</a></code> function to do this for us:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/hsr_readmission_risks.html">hsr_readmission_risks</a></span><span class="op">(</span></span>
 <span>  file <span class="op">=</span> <span class="va">my_hsr</span>,</span>
 <span>  cohort <span class="op">=</span> <span class="st">"HF"</span></span>
@@ -310,7 +314,7 @@
 <h2 id="importing-data-from-the-provider-data-catalog">Importing data from the Provider Data Catalog<a class="anchor" aria-label="anchor" href="#importing-data-from-the-provider-data-catalog"></a>
 </h2>
 <p><a href="https://www.cms.gov/" class="external-link">CMS</a> provides access to a large repository of datasets in the <a href="https://data.cms.gov/provider-data/" class="external-link">Provider Data Catalog (PDC)</a>, which includes, among many other datasets, readmission measures and HRRP program results for hospitals around the United States. The package functions prefixed like <code>pdc_*</code> are general functions to explore and import metadata/datasets straight from the website into clean datasets in <code>R</code> (see <code><a href="reference/pdc_read.html">?pdc_read</a></code>). For example, we can use <code><a href="reference/pdc_read.html">pdc_topics()</a></code> to get the collection of topics seen <a href="https://data.cms.gov/provider-data/" class="external-link">here</a>:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/pdc_read.html">pdc_topics</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "Dialysis facilities"                   </span></span>
 <span><span class="co">#&gt;  [2] "Doctors and clinicians"                </span></span>
@@ -323,7 +327,7 @@
 <span><span class="co">#&gt;  [9] "Physician office visit costs"          </span></span>
 <span><span class="co">#&gt; [10] "Supplier directory"</span></span></code></pre></div>
 <p>Then we can choose a topic (or topics) we want to find datasets for, and extract their metadata with <code><a href="reference/pdc_read.html">pdc_datasets()</a></code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hospital_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pdc_read.html">pdc_datasets</a></span><span class="op">(</span><span class="st">"Hospitals"</span><span class="op">)</span></span>
 <span><span class="va">hospital_data</span></span>
 <span><span class="co">#&gt; # A tibble: 69 × 7</span></span>
@@ -341,7 +345,7 @@
 <span><span class="co">#&gt; 10 z8ax-x9j1 Hospitals Complicati… Prospectiv… 2024-07-31 2025-10-14 https://da…</span></span>
 <span><span class="co">#&gt; # ℹ 59 more rows</span></span></code></pre></div>
 <p>This result contains information on all datasets included under the <em>Hospitals</em> topic. We can then explore this list to find a dataset we want to import. For example, we can search the titles of the datasets relevant to readmissions:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">readmission_data</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="va">hospital_data</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
@@ -356,7 +360,7 @@
 <span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;       &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;      </span></span>
 <span><span class="co">#&gt; 1 9n3s-kdb3 Hospitals Hospital Re… In October… 2020-12-10 2025-01-08 https://da…</span></span></code></pre></div>
 <p>Once we find the dataset we want, we can take note of the <code>datasetid</code>, and use the <code><a href="reference/pdc_read.html">pdc_read()</a></code> function to import it:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hrrp_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pdc_read.html">pdc_read</a></span><span class="op">(</span><span class="va">readmission_data</span><span class="op">$</span><span class="va">datasetid</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 18510 Columns: 12</span></span>
 <span><span class="co">#&gt; ── Column specification ────────────────────────────────────────────────────────</span></span>
@@ -386,7 +390,7 @@
 <span><span class="co">#&gt; #   `Number of Readmissions` &lt;chr&gt;, `Start Date` &lt;chr&gt;, `End Date` &lt;chr&gt;</span></span></code></pre></div>
 <p>And then we can use this dataset for further analysis. For example:</p>
 <p><em>“How many hospitals in this dataset are located in Wisconsin?”</em></p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hrrp_data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">State</span> <span class="op">==</span> <span class="st">"WI"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span>, <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">`Facility ID`</span><span class="op">)</span><span class="op">)</span></span>
@@ -413,7 +417,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Alex Zajichek <br><small class="roles"> Author, maintainer </small>   </li>
+<li>Alex Zajichek <br><small class="roles"> Author, maintainer, copyright holder </small>   </li>
 </ul>
 </div>
 

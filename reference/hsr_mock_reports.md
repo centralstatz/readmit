@@ -28,6 +28,10 @@ hsr_mock_reports(path = NULL)
 
   Name of file. If NULL, all files will be listed.
 
+## Value
+
+A character string or vector of strings
+
 ## Details
 
 This function was adapted from

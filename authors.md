@@ -2,7 +2,7 @@
 
 ## Authors
 
-- **Alex Zajichek**. Author, maintainer.
+- **Alex Zajichek**. Author, maintainer, copyright holder.
 
 ## Citation
 
