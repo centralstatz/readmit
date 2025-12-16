@@ -1083,7 +1083,7 @@ hsr_discharges(
 
 This can be extremely useful to understand (a) which diagnoses are leading to cohort inclusion to begin with, and (b) why the patient came back. Sometimes there may be readmissions that are completely unrelated to the index diagnosis. 
 
-## Outside Hospital Readmissions
+### Outside Hospital Readmissions
 
 Since CMS enforces the HRRP, hospitals get penalized for readmissions that don't even occur at their hospital. If a patient is discharged from your hospital and subsequently readmitted somewhere else, it still counts as _your_ readmission. Thus it is useful to understand the rate of readmissions that are back in your own system versus somewhere else. This is provided the HSR as well.
 
