@@ -25,8 +25,9 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: https://centralstatz.github.io/readmit/
+URL: https://centralstatz.github.io/readmit/, https://github.com/centralstatz/readmit
 Depends: 
     R (>= 4.1.0)
 LazyData: true
 Config/Needs/website: rmarkdown
+BugReports: https://github.com/centralstatz/readmit/issues
