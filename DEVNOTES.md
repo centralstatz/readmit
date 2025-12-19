@@ -2,10 +2,15 @@
 
 Contains daily notes with details about how things were developed. Primarily following https://r-pkgs.org/.
 
+# 12/19/2025
+
+* Package accepted and on CRAN. `use_github_release()` added v0.0.1 to GitHub, then `usethis::use_dev_version(push = TRUE)` to increment to new dev version.
+* Adding CRAN badge back to README
+
 # 12/16/2025 
+
 * Planning initial release. `use_cran_comments()`, `check_win_devel()`
 * Changed to R 4.1.0 dependency
-* Finally 
 
 # 12/10/2025
 
