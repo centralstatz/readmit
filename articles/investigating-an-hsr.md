@@ -1933,22 +1933,6 @@ influential. Of course, it would be useful to add interactivity to these
 plots (e.g., with `plotly`) as to provide the user ability to scan and
 view what risk factor each point represents, but you get the idea.
 
-##### How Are Risk Factors Defined?
-
-Each of these risk factors themselves have specific definitions under
-the hood, which is yet another layer of nuance to keep in mind when
-thinking about how program results roll up.
-
-- Condition categories
-
-- Average readmisson risks to get group level metric;
-
-  - High prevalence, low impact vs. low prevalence, high impact
-
-- Plot showing prevalence vs. model weight
-
-- condition categories
-
 ### 3. Other Analyses
 
 There are many other possible questions that can be answered analyzing
