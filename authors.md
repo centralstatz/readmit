@@ -10,13 +10,13 @@ Source:
 [`DESCRIPTION`](https://github.com/centralstatz/readmit/blob/main/DESCRIPTION)
 
 Zajichek A (2025). *readmit: Tools for Working with Hospital
-Readmissions Data*. R package version 0.0.0.9000,
+Readmissions Data*. R package version 0.0.1,
 <https://centralstatz.github.io/readmit/>.
 
     @Manual{,
       title = {readmit: Tools for Working with Hospital Readmissions Data},
       author = {Alex Zajichek},
       year = {2025},
-      note = {R package version 0.0.0.9000},
+      note = {R package version 0.0.1},
       url = {https://centralstatz.github.io/readmit/},
     }
