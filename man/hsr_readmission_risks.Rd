@@ -7,7 +7,7 @@
 hsr_readmission_risks(file, cohort)
 }
 \arguments{
-\item{file}{File path to a report}
+\item{file}{A parsed HSR bundle or a local source bundle path.}
 
 \item{cohort}{Cohort to compute readmission risks for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}}
 }
@@ -20,9 +20,8 @@ A \code{\link[tibble:tibble]{tibble::tibble()}} containing the following columns
 }
 }
 \description{
-Computes the \emph{predicted} and \emph{expected} readmission risks for each eligible discharge in the specified cohort.
-
-\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
+Computes the \emph{predicted} and \emph{expected} readmission risks for each eligible
+discharge in the specified cohort from parsed HSR components.
 }
 \details{
 The \href{https://qualitynet.cms.gov/inpatient/measures/readmission}{readmission measure} is what \href{https://www.cms.gov/}{CMS} uses to grade performance
@@ -42,11 +41,29 @@ is then used as the cohort-specific comparison metric. Thus, it is a comparative
 \emph{your} hospital versus the \emph{average} hospital, given your hospital's clinical characteristics.
 }
 \examples{
-# Access a report
-my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+bundle_path <- file.path(tempdir(), "hsr_bundle")
+dir.create(bundle_path, recursive = TRUE)
+utils::write.csv(
+  data.frame(
+    cohort = c("HF", "HF"),
+    `ID Number` = c(1001, 1002),
+    AGE = c(1, 0)
+  ),
+  file.path(bundle_path, "discharges.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  data.frame(
+    cohort = c("HF", "HF", "HF"),
+    term = c("AGE", "HOSP_EFFECT", "AVG_EFFECT"),
+    value = c(0.25, -0.10, -0.20)
+  ),
+  file.path(bundle_path, "coefficients.csv"),
+  row.names = FALSE
+)
 
 # Compute readmission risks for HF discharges
-hf_risks <- hsr_readmission_risks(my_report, "HF")
+hf_risks <- hsr_readmission_risks(bundle_path, "HF")
 hf_risks
 
 # Compute the ERR from scratch
@@ -58,18 +75,4 @@ hf_risks |>
    ERR = Predicted / Expected
  )
 
-
-# Check that this matches the report table
-hsr_cohort_summary(my_report) |>
- dplyr::select(
-  dplyr::matches(
-     paste0(
-       "^Measure|",
-       "^Number of Eligible Discharges|",
-       "^Predicted|",
-       "^Expected|",
-       "^Excess"
-     )
-   )
- )
 }

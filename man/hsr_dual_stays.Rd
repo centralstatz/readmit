@@ -7,13 +7,14 @@
 hsr_dual_stays(file)
 }
 \arguments{
-\item{file}{File path to a report}
+\item{file}{A parsed HSR bundle, a local source bundle path, or a legacy file
+path.}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble::tibble()}}
 }
 \description{
-Parses the discharge-level records from the HSR of patients who were
+Extracts the discharge-level records from the HSR of patients who were
 dually-eligible for Medicare and Medicaid benefits (see details).
 
 \emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}

@@ -1,10 +1,12 @@
 #' Extract cohort summary information from a Hospital-Specific Report (HSR)
 #'
-#' @param file File path to a report.
+#' @param file A parsed HSR bundle, a local source bundle path, or a legacy file
+#'   path.
 #'
 #' @description
-#' Parses the Table 2 cohort summary from the HSR, including (but not limited to) the discharge/readmission volumes,
-#' predicted/expected readmission rates, peer group medians, and DRG ratios.
+#' Extracts cohort summary information from the HSR, including (but not limited
+#' to) the discharge/readmission volumes, predicted/expected readmission rates,
+#' peer group medians, and DRG ratios.
 #'
 #' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
 #'
@@ -22,6 +24,10 @@ hsr_cohort_summary <-
     # Check arguments
     if (rlang::is_missing(file)) {
       stop("Specify path to a CMS HRRP Hospital-Specific Report (HSR)")
+    }
+
+    if (is_hsr_bundle(file) || (is.character(file) && length(file) == 1 && dir.exists(file))) {
+      return(hsr_require_component(file, "cohort_summary"))
     }
 
     # Sheet names extracted from the report

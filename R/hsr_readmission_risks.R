@@ -1,12 +1,11 @@
 #' Compute discharge-level readmission risks in a Hospital-Specific Report (HSR)
 #'
-#' @param file File path to a report
+#' @param file A parsed HSR bundle or a local source bundle path.
 #' @param cohort Cohort to compute readmission risks for. One of `c("AMI", "COPD", "HF", "PN", "CABG", "HK")`
 #'
 #' @description
-#' Computes the _predicted_ and _expected_ readmission risks for each eligible discharge in the specified cohort.
-#'
-#' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
+#' Computes the _predicted_ and _expected_ readmission risks for each eligible
+#' discharge in the specified cohort from parsed HSR components.
 #'
 #' @details
 #' The [readmission measure](https://qualitynet.cms.gov/inpatient/measures/readmission) is what [CMS](https://www.cms.gov/) uses to grade performance
@@ -33,11 +32,29 @@
 #' @export
 #'
 #' @examples
-#' # Access a report
-#' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
+#' bundle_path <- file.path(tempdir(), "hsr_bundle")
+#' dir.create(bundle_path, recursive = TRUE)
+#' utils::write.csv(
+#'   data.frame(
+#'     cohort = c("HF", "HF"),
+#'     `ID Number` = c(1001, 1002),
+#'     AGE = c(1, 0)
+#'   ),
+#'   file.path(bundle_path, "discharges.csv"),
+#'   row.names = FALSE
+#' )
+#' utils::write.csv(
+#'   data.frame(
+#'     cohort = c("HF", "HF", "HF"),
+#'     term = c("AGE", "HOSP_EFFECT", "AVG_EFFECT"),
+#'     value = c(0.25, -0.10, -0.20)
+#'   ),
+#'   file.path(bundle_path, "coefficients.csv"),
+#'   row.names = FALSE
+#' )
 #'
 #' # Compute readmission risks for HF discharges
-#' hf_risks <- hsr_readmission_risks(my_report, "HF")
+#' hf_risks <- hsr_readmission_risks(bundle_path, "HF")
 #' hf_risks
 #'
 #' # Compute the ERR from scratch
@@ -49,80 +66,110 @@
 #'    ERR = Predicted / Expected
 #'  )
 #'
-#'
-#' # Check that this matches the report table
-#' hsr_cohort_summary(my_report) |>
-#'  dplyr::select(
-#'   dplyr::matches(
-#'      paste0(
-#'        "^Measure|",
-#'        "^Number of Eligible Discharges|",
-#'        "^Predicted|",
-#'        "^Expected|",
-#'        "^Excess"
-#'      )
-#'    )
-#'  )
 hsr_readmission_risks <-
   function(file, cohort) {
-    # Extract the discharges
+    if (rlang::is_missing(file)) {
+      stop("Specify path to a CMS HRRP Hospital-Specific Report (HSR)")
+    }
+    cohort <- rlang::arg_match(
+      cohort,
+      values = c("AMI", "COPD", "HF", "PN", "CABG", "HK")
+    )
+
     discharges <-
-      hsr_discharges(
-        file = file,
-        cohort = cohort,
-        discharge_phi = FALSE,
-        risk_factors = TRUE,
-        eligible_only = TRUE
+      hsr_require_component(file, "discharges") |>
+      hsr_require_fields("discharges", c("cohort", "ID Number")) |>
+      hsr_filter_component_cohort("discharges", cohort)
+
+    inclusion_fields <- hsr_component_inclusion_fields(discharges)
+    if (length(inclusion_fields) > 0) {
+      discharges <- discharges |>
+        dplyr::filter(
+          dplyr::if_all(
+            dplyr::all_of(inclusion_fields),
+            \(.inc) .inc == "0"
+          )
+        )
+    }
+
+    risk_factor_fields <- hsr_risk_factor_fields(discharges)
+    if (length(risk_factor_fields) < 1) {
+      stop(
+        "HSR component `discharges` does not contain any risk factor fields for ",
+        "readmission risk calculation."
       )
+    }
 
-    # Extract model coefficients
-    model_weights <-
-      hsr_coefficients(
-        file = file,
-        cohort = cohort
-      ) |>
+    coefficients <-
+      hsr_require_component(file, "coefficients") |>
+      hsr_require_fields("coefficients", c("cohort", "term", "value")) |>
+      hsr_filter_component_cohort("coefficients", cohort) |>
+      dplyr::mutate(value = as.numeric(.data$value))
 
-      # Rename for relevance
-      dplyr::rename(Weight = .data$Value)
-
-    # Extract intercepts
     intercepts <-
-      model_weights |>
-      dplyr::filter(stringr::str_detect(.data$Factor, "_EFFECT$")) |>
-      tidyr::pivot_wider(names_from = .data$Factor, values_from = .data$Weight)
+      coefficients |>
+      dplyr::filter(.data$term %in% c("HOSP_EFFECT", "AVG_EFFECT"))
 
-    # Compute probabilities
-    discharges |>
+    if (!all(c("HOSP_EFFECT", "AVG_EFFECT") %in% intercepts$term)) {
+      stop(
+        "HSR component `coefficients` must contain both `HOSP_EFFECT` and ",
+        "`AVG_EFFECT` for readmission risk calculation."
+      )
+    }
 
-      # Send down the rows
+    model_weights <-
+      coefficients |>
+      dplyr::filter(!stringr::str_detect(.data$term, "_EFFECT$")) |>
+      dplyr::transmute(Factor = .data$term, Weight = .data$value)
+
+    if (nrow(model_weights) < 1) {
+      stop(
+        "HSR component `coefficients` does not contain any non-intercept model ",
+        "weights for readmission risk calculation."
+      )
+    }
+
+    long_discharges <-
+      discharges |>
+      dplyr::select(dplyr::all_of(c("ID Number", risk_factor_fields))) |>
       tidyr::pivot_longer(
-        cols = -c(dplyr::all_of("ID Number")),
+        cols = -dplyr::all_of("ID Number"),
         names_to = "Factor",
         values_to = "Value"
       ) |>
+      dplyr::mutate(Value = as.numeric(.data$Value))
 
-      # Join to attach model weights
+    joined <-
+      long_discharges |>
       dplyr::inner_join(
         y = model_weights,
         by = "Factor"
-      ) |>
+      )
 
-      # Compute weighted-sum
+    if (nrow(joined) < 1) {
+      stop(
+        "No overlapping risk factor terms were found between the parsed ",
+        "`discharges` and `coefficients` components."
+      )
+    }
+
+    intercept_values <-
+      intercepts |>
+      dplyr::select(.data$term, .data$value) |>
+      tibble::deframe()
+
+    joined |>
       dplyr::summarize(
         LP = sum(.data$Value * .data$Weight),
         .by = .data$`ID Number`
       ) |>
-
-      # Add intercept terms; map to probability scale
       dplyr::mutate(
-        Predicted = .data$LP + intercepts$HOSP_EFFECT,
-        Expected = .data$LP + intercepts$AVG_EFFECT,
+        Predicted = .data$LP + intercept_values[["HOSP_EFFECT"]],
+        Expected = .data$LP + intercept_values[["AVG_EFFECT"]],
         dplyr::across(
           c(.data$Predicted, .data$Expected),
           \(x) 1 / (1 + exp(-x))
         )
       ) |>
-
-      # Remove linear predictor
       dplyr::select(-.data$LP)
   }

@@ -1,9 +1,10 @@
 #' Extract dually-eligible discharges from a Hospital-Specific Report (HSR)
 #'
-#' @param file File path to a report
+#' @param file A parsed HSR bundle, a local source bundle path, or a legacy file
+#'   path.
 #'
 #' @description
-#' Parses the discharge-level records from the HSR of patients who were
+#' Extracts the discharge-level records from the HSR of patients who were
 #' dually-eligible for Medicare and Medicaid benefits (see details).
 #'
 #' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
@@ -32,6 +33,10 @@ hsr_dual_stays <-
     # Check arguments
     if (rlang::is_missing(file)) {
       stop("Specify path to a CMS HRRP Hospital-Specific Report (HSR)")
+    }
+
+    if (is_hsr_bundle(file) || (is.character(file) && length(file) == 1 && dir.exists(file))) {
+      return(hsr_require_component(file, "dual_stays"))
     }
 
     # Sheet names extracted from the report

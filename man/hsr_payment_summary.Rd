@@ -28,7 +28,9 @@ hsr_payment_adjustment_factor(file)
 hsr_payment_penalty(file)
 }
 \arguments{
-\item{file}{File path to a report. For convenience functions, this can also be the pre-parsed table from \code{hsr_extract_payment_summary()} (to minimize file I/O).}
+\item{file}{A parsed HSR bundle, a local source bundle path, or a legacy file
+path. For convenience functions, this can also be the pre-parsed payment
+summary table itself (to minimize file I/O).}
 }
 \value{
 \itemize{
@@ -37,8 +39,9 @@ hsr_payment_penalty(file)
 }
 }
 \description{
-Parses the Table 1 payment summary from the HSR, including (but not limited to) the payment penalty,
-peer group the hospital was compared against, and dual proportion that determines peer group assignment.
+Extracts payment summary information from the HSR, including (but not
+limited to) the payment penalty, peer group the hospital was compared
+against, and dual proportion that determines peer group assignment.
 
 \emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }

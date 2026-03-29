@@ -13,7 +13,7 @@ hsr_discharges(
 )
 }
 \arguments{
-\item{file}{File path to a report}
+\item{file}{A parsed HSR bundle or a local source bundle path.}
 
 \item{cohort}{Cohort to extract the discharges for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}}
 
@@ -27,46 +27,31 @@ hsr_discharges(
 A \code{\link[tibble:tibble]{tibble::tibble()}}
 }
 \description{
-Parses out the discharge-level data for a specific program cohort that contributed to penalty program in the reporting fiscal year (FY).
-
-\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
+Extracts discharge-level data for a specific cohort from a parsed HSR
+bundle.
 }
 \details{
-The first set of columns in the discharge level data (typically through column R) contain the protected health information (PHI)
-associated with the discharges, such as medical record identifiers, admission/discharge/readmission dates, index diagnoses, etc. which
-can be used to identify the specific patients contributing (and not contributing) to the CMS penalty calculation for the cohort.
+Parsed discharge components must already have any file-structure differences
+resolved upstream by the parser layer. This helper operates only on the
+conceptual \code{discharges} component in the parsed bundle.
 
-The risk factors contain the discharge-level clinical information used for individual risk adjustment by
-CMS to estimate individual level readmission rates. These can be useful to explore to understand risk factor
-distributions and prevalence, especially in combination with \code{\link[=hsr_coefficients]{hsr_coefficients()}} which indicates the
-risk factors most heavily-weighted in the readmission risk calculation.
-
-The HSR contains discharges that were not necessarily included/eligible to be counted in the
-\href{https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp}{Hospital Readmissions Reduction Program (HRRP)}.
-Setting \code{eligible_only = TRUE} will filter the returned result to only those that are eligible, and thus should match the denominator
-displayed in \code{\link[=hsr_cohort_summary]{hsr_cohort_summary()}}.
+\code{eligible_only = TRUE} is supported when the parsed component contains one or
+more cohort inclusion columns. The \code{discharge_phi} and \code{risk_factors}
+arguments currently only support the default behavior
+(\code{discharge_phi = TRUE}, \code{risk_factors = FALSE}); other combinations fail
+clearly until richer discharge field metadata is available in parsed bundles.
 }
 \examples{
-# Access a report
-my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
-
-# All discharges
-hsr_discharges(my_report, "HF")
-
-
-# Discharges eligible for HRRP
-hsr_discharges(my_report, "HF", eligible_only = TRUE)
-
-
-# Only show risk factors for eligible discharges
-hsr_discharges(
-   file = my_report,
-   cohort = "HF",
-   discharge_phi = FALSE,
-   risk_factors = TRUE,
-   eligible_only = TRUE
+bundle_path <- file.path(tempdir(), "hsr_bundle")
+dir.create(bundle_path, recursive = TRUE)
+utils::write.csv(
+  data.frame(
+    cohort = c("HF", "HF"),
+    `ID Number` = c(1001, 1002),
+    index_stay = c(1, 1)
+  ),
+  file.path(bundle_path, "discharges.csv"),
+  row.names = FALSE
 )
-
-# Row count matches denominator for HF
-hsr_cohort_summary(my_report)
+hsr_discharges(bundle_path, "HF")
 }

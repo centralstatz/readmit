@@ -7,7 +7,7 @@
 hsr_coefficients(file, cohort)
 }
 \arguments{
-\item{file}{File path to a report}
+\item{file}{A parsed HSR bundle or a local source bundle path.}
 
 \item{cohort}{Cohort to extract the coefficients for. One of \code{c("AMI", "COPD", "HF", "PN", "CABG", "HK")}}
 }
@@ -19,16 +19,20 @@ A \code{\link[tibble:tibble]{tibble::tibble()}} containing the columns:
 }
 }
 \description{
-Parses out the regression coefficients from the logistic regression model
-used by CMS to estimate discharge-level readmission risk,
-including the hospital-level and hospital average intercept terms.
-
-\emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
+Extracts the regression coefficients from the parsed HSR \code{coefficients}
+component for a given cohort.
 }
 \examples{
-# Access a report
-my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
-
-# Show coefficients for heart failure model
-hsr_coefficients(my_report, "HF")
+bundle_path <- file.path(tempdir(), "hsr_bundle")
+dir.create(bundle_path, recursive = TRUE)
+utils::write.csv(
+  data.frame(
+    cohort = c("HF", "HF"),
+    term = c("AGE", "HOSP_EFFECT"),
+    value = c(0.25, -0.10)
+  ),
+  file.path(bundle_path, "coefficients.csv"),
+  row.names = FALSE
+)
+hsr_coefficients(bundle_path, "HF")
 }

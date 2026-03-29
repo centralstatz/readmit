@@ -7,14 +7,16 @@
 hsr_cohort_summary(file)
 }
 \arguments{
-\item{file}{File path to a report.}
+\item{file}{A parsed HSR bundle, a local source bundle path, or a legacy file
+path.}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble::tibble()}} containing the full Table 2 parsed from the report.
 }
 \description{
-Parses the Table 2 cohort summary from the HSR, including (but not limited to) the discharge/readmission volumes,
-predicted/expected readmission rates, peer group medians, and DRG ratios.
+Extracts cohort summary information from the HSR, including (but not limited
+to) the discharge/readmission volumes, predicted/expected readmission rates,
+peer group medians, and DRG ratios.
 
 \emph{\strong{Note}: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see \href{https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2}{here}). The current HSR functions support formats through FY2025.}
 }

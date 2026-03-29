@@ -1,58 +1,43 @@
 #' Extract discharge-level data from a Hospital-Specific Report (HSR)
 #'
-#' @param file File path to a report
+#' @param file A parsed HSR bundle or a local source bundle path.
 #' @param cohort Cohort to extract the discharges for. One of `c("AMI", "COPD", "HF", "PN", "CABG", "HK")`
 #' @param discharge_phi Should discharge PHI be included? Defaults to `TRUE` (see details).
 #' @param risk_factors Should readmission risk factors be included? Defaults to `FALSE` (see details).
 #' @param eligible_only Should only eligible discharges be included? Defaults to `FALSE` (see details).
 #'
 #' @description
-#' Parses out the discharge-level data for a specific program cohort that contributed to penalty program in the reporting fiscal year (FY).
-#'
-#' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
+#' Extracts discharge-level data for a specific cohort from a parsed HSR
+#' bundle.
 #'
 #' @details
-#' The first set of columns in the discharge level data (typically through column R) contain the protected health information (PHI)
-#' associated with the discharges, such as medical record identifiers, admission/discharge/readmission dates, index diagnoses, etc. which
-#' can be used to identify the specific patients contributing (and not contributing) to the CMS penalty calculation for the cohort.
+#' Parsed discharge components must already have any file-structure differences
+#' resolved upstream by the parser layer. This helper operates only on the
+#' conceptual `discharges` component in the parsed bundle.
 #'
-#' The risk factors contain the discharge-level clinical information used for individual risk adjustment by
-#' CMS to estimate individual level readmission rates. These can be useful to explore to understand risk factor
-#' distributions and prevalence, especially in combination with [hsr_coefficients()] which indicates the
-#' risk factors most heavily-weighted in the readmission risk calculation.
-#'
-#' The HSR contains discharges that were not necessarily included/eligible to be counted in the
-#' [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp).
-#' Setting `eligible_only = TRUE` will filter the returned result to only those that are eligible, and thus should match the denominator
-#' displayed in [hsr_cohort_summary()].
+#' `eligible_only = TRUE` is supported when the parsed component contains one or
+#' more cohort inclusion columns. The `discharge_phi` and `risk_factors`
+#' arguments currently only support the default behavior
+#' (`discharge_phi = TRUE`, `risk_factors = FALSE`); other combinations fail
+#' clearly until richer discharge field metadata is available in parsed bundles.
 #'
 #' @return A [tibble::tibble()]
 #'
 #' @export
 #'
 #' @examples
-#' # Access a report
-#' my_report <- hsr_mock_reports("FY2025_HRRP_MockHSR.xlsx")
-#'
-#' # All discharges
-#' hsr_discharges(my_report, "HF")
-#'
-#'
-#' # Discharges eligible for HRRP
-#' hsr_discharges(my_report, "HF", eligible_only = TRUE)
-#'
-#'
-#' # Only show risk factors for eligible discharges
-#' hsr_discharges(
-#'    file = my_report,
-#'    cohort = "HF",
-#'    discharge_phi = FALSE,
-#'    risk_factors = TRUE,
-#'    eligible_only = TRUE
+#' bundle_path <- file.path(tempdir(), "hsr_bundle")
+#' dir.create(bundle_path, recursive = TRUE)
+#' utils::write.csv(
+#'   data.frame(
+#'     cohort = c("HF", "HF"),
+#'     `ID Number` = c(1001, 1002),
+#'     index_stay = c(1, 1)
+#'   ),
+#'   file.path(bundle_path, "discharges.csv"),
+#'   row.names = FALSE
 #' )
-#'
-#' # Row count matches denominator for HF
-#' hsr_cohort_summary(my_report)
+#' hsr_discharges(bundle_path, "HF")
 hsr_discharges <-
   function(
     file,
@@ -70,10 +55,51 @@ hsr_discharges <-
       values = c("AMI", "COPD", "HF", "PN", "CABG", "HK")
     )
 
-    # Sheet names extracted from the report
+    discharges <- hsr_require_component(file, "discharges") |>
+      hsr_require_fields("discharges", c("cohort", "ID Number")) |>
+      hsr_filter_component_cohort("discharges", cohort)
+
+    # Check for eligible only inclusion
+    if (eligible_only) {
+      inclusion_cols <- names(discharges)[stringr::str_detect(names(discharges), "Cohort Inclusion")]
+
+      if (length(inclusion_cols) < 1) {
+        stop(
+          "HSR component `discharges` does not contain cohort inclusion fields ",
+          "required for `eligible_only = TRUE`."
+        )
+      }
+
+      discharges <-
+        discharges |>
+        dplyr::filter(
+          dplyr::if_all(
+            dplyr::all_of(inclusion_cols),
+            \(.inc) .inc == "0"
+          )
+        )
+    }
+
+    if (!identical(discharge_phi, TRUE) || !identical(risk_factors, FALSE)) {
+      stop(
+        "HSR component `discharges` does not yet support customized ",
+        "`discharge_phi` or `risk_factors` selection."
+      )
+    }
+
+    discharges
+  }
+
+hsr_discharges_legacy <-
+  function(
+    file,
+    cohort,
+    discharge_phi = TRUE,
+    risk_factors = FALSE,
+    eligible_only = FALSE
+  ) {
     sheets <- readxl::excel_sheets(file)
 
-    # Import file (with extra rows we don't want)
     temp_discharges <-
       readxl::read_xlsx(
         path = file,
@@ -84,23 +110,16 @@ hsr_discharges <-
         skip = 6,
         na = c("--", "N/A")
       ) |>
-
-      # Remove special (control) characters
       dplyr::rename_with(
         \(x) {
           stringr::str_remove_all(x, "[[:cntrl:]]") |>
             stringr::str_replace("^ID.{0,}Number$", "ID Number")
         }
       ) |>
-
-      # Always remove model intercept columns
       dplyr::select(-dplyr::matches("_EFFECT$"))
 
-    # Identify rows to keep
     discharges <-
       temp_discharges |>
-
-      # Parse extraneous values to missing
       dplyr::mutate(
         dplyr::across(
           dplyr::all_of("ID Number"),
@@ -113,11 +132,8 @@ hsr_discharges <-
           }
         )
       ) |>
-
-      # Filter out "missing" ID's
       dplyr::filter(!is.na(.data$`ID Number`))
 
-    # Check for eligible only inclusion
     if (eligible_only) {
       discharges <-
         discharges |>
@@ -129,13 +145,8 @@ hsr_discharges <-
         )
     }
 
-    ## Identify columns to keep
-
-    # Get initial possible column set
     candidates <-
       temp_discharges[1, ] |>
-
-      # Send down the rows
       tidyr::pivot_longer(
         cols = dplyr::everything(),
         names_to = "Column",
@@ -143,7 +154,6 @@ hsr_discharges <-
         values_transform = list(Value = as.character)
       )
 
-    # Sequentially apply filters
     if (!discharge_phi) {
       candidates <- candidates |> dplyr::filter(!is.na(.data$Value))
     }
@@ -151,7 +161,6 @@ hsr_discharges <-
       candidates <- candidates |> dplyr::filter(is.na(.data$Value))
     }
 
-    # Make final selection
     discharges |>
       dplyr::select(
         dplyr::any_of(

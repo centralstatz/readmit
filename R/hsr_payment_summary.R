@@ -1,10 +1,13 @@
 #' Extract payment summary information from a Hospital-Specific Report (HSR)
 #'
-#' @param file File path to a report. For convenience functions, this can also be the pre-parsed table from `hsr_extract_payment_summary()` (to minimize file I/O).
+#' @param file A parsed HSR bundle, a local source bundle path, or a legacy file
+#'   path. For convenience functions, this can also be the pre-parsed payment
+#'   summary table itself (to minimize file I/O).
 #'
 #' @description
-#' Parses the Table 1 payment summary from the HSR, including (but not limited to) the payment penalty,
-#' peer group the hospital was compared against, and dual proportion that determines peer group assignment.
+#' Extracts payment summary information from the HSR, including (but not
+#' limited to) the payment penalty, peer group the hospital was compared
+#' against, and dual proportion that determines peer group assignment.
 #'
 #' _**Note**: CMS changed the format of Hospital-Specific Reports (HSRs) for FY2026 (see [here](https://qualitynet.cms.gov/inpatient/hrrp/reports#tab2)). The current HSR functions support formats through FY2025._
 #'
@@ -32,6 +35,10 @@ hsr_payment_summary <-
     # Check arguments
     if (rlang::is_missing(file)) {
       stop("Specify path to a CMS HRRP Hospital-Specific Report (HSR)")
+    }
+
+    if (is_hsr_bundle(file) || (is.character(file) && length(file) == 1 && dir.exists(file))) {
+      return(hsr_require_component(file, "payment_summary"))
     }
 
     # Sheet names extracted from the report
@@ -119,8 +126,8 @@ hsr_payment_penalty <- function(file) {
 # Helper function to retrieve the table
 hsr_get_payment_summary_table <-
   function(file) {
-    # If it's a string, then import the file; otherwise it's already the table
-    if (is.character(file)) {
+    # If it is not already the extracted table, route through the main helper
+    if (!inherits(file, "data.frame")) {
       file <- hsr_payment_summary(file)
     }
 
