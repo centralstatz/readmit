@@ -13,12 +13,12 @@ Source:
 
 Zajichek A (2026). *readmit: An R Interface to the Readmission Risk Pool
 platform*. R package version 0.0.1.9000,
-<https://centralstatz.github.io/readmit/>.
+<https://readmit.centralstatz.com/>.
 
     @Manual{,
       title = {readmit: An R Interface to the Readmission Risk Pool platform},
       author = {Alex Zajichek},
       year = {2026},
       note = {R package version 0.0.1.9000},
-      url = {https://centralstatz.github.io/readmit/},
+      url = {https://readmit.centralstatz.com/},
     }
