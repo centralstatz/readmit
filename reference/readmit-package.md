@@ -1,10 +1,6 @@
-# readmit: Tools for Working with Hospital Readmissions Data
+# readmit: R Interface to the Readmission Risk Pool
 
-Contains tools for working with and analyzing hospital readmissions
-data. The package provides utilities for components of the Hospital
-Readmissions Reduction Program (HRRP), including program timeline
-functions, Hospital-Specific Report (HSR) helpers, and general importing
-tools for the Provider Data Catalog (PDC).
+`readmit` provides an R interface to the Readmission Risk Pool platform.
 
 ## See also
 
@@ -14,9 +10,14 @@ Useful links:
 
 - <https://github.com/centralstatz/readmit>
 
+- <https://github.com/centralstatz/readmission-risk-pool-platform>
+
 - Report bugs at <https://github.com/centralstatz/readmit/issues>
 
 ## Author
 
-**Maintainer**: Alex Zajichek <alex@centralstatz.com> \[copyright
-holder\]
+**Maintainer**: Alex Zajichek <alex@centralstatz.com>
+
+Other contributors:
+
+- CentralStatz Statistical & Data Sciences LLC \[copyright holder\]
