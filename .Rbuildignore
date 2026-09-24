@@ -1,6 +1,4 @@
-^readmit\.Rproj$
-^\.Rproj\.user$
-^DEVNOTES\.md$
+\^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
 ^codecov\.yml$
@@ -9,10 +7,3 @@
 ^docs$
 ^pkgdown$
 ^\.DS_Store$
-^data-raw$
-^vignettes/articles$
-^vignettes/articles/\.quarto$
-^vignettes/articles/*_files$
-^cran-comments\.md$
-^CRAN-SUBMISSION$
-^dev/

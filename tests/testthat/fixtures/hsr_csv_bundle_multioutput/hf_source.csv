@@ -1,5 +1,0 @@
-.component,cohort,id,term,value
-discharges,HF,1001,,
-discharges,HF,1002,,
-coefficients,HF,,AGE,0.25
-coefficients,HF,,HOSP_EFFECT,-0.10

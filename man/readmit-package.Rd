@@ -4,23 +4,27 @@
 \name{readmit-package}
 \alias{readmit}
 \alias{readmit-package}
-\title{readmit: Tools for Working with Hospital Readmissions Data}
+\title{readmit: R Interface to the Readmission Risk Pool}
 \description{
-\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
-
-Contains tools for working with and analyzing hospital readmissions data. The package provides utilities for components of the Hospital Readmissions Reduction Program (HRRP), including program timeline functions, Hospital-Specific Report (HSR) helpers, and general importing tools for the Provider Data Catalog (PDC).
+\code{readmit} provides an R interface to the Readmission Risk Pool platform.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://centralstatz.github.io/readmit/}
   \item \url{https://github.com/centralstatz/readmit}
+  \item \url{https://github.com/centralstatz/readmission-risk-pool-platform}
   \item Report bugs at \url{https://github.com/centralstatz/readmit/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Alex Zajichek \email{alex@centralstatz.com} [copyright holder]
+\strong{Maintainer}: Alex Zajichek \email{alex@centralstatz.com}
+
+Other contributors:
+\itemize{
+  \item CentralStatz Statistical & Data Sciences LLC [copyright holder]
+}
 
 }
 \keyword{internal}

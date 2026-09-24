@@ -10,26 +10,3 @@ template:
     base_font: {google: "Lexend"}
     heading_font: {google: "Tomorrow"}
     code_font: {google: "JetBrains Mono"}
-
-reference:
-- title: Hospital Readmissions Reduction Program (hrrp)
-  desc: >
-    Datasets and functions for extracting key dates from the
-    [Hospital Readmissions Reduction Program (HRRP)](https://www.cms.gov/medicare/payment/prospective-payment-systems/acute-inpatient-pps/hospital-readmissions-reduction-program-hrrp)
-  contents:
-  - starts_with("hrrp_")
-
-- title: Hospital-Specific Reports (HSR)
-  desc: >
-    Functions for extracting and analyzing data from
-    [CMS Hospital-Specific Reports](https://qualitynet.cms.gov/inpatient/hrrp/reports).
-  contents:
-  - starts_with("hsr_")
-
-- title: Provider Data Catalog (PDC)
-  desc: >
-    Functions for importing data from the
-    [CMS Provider Data Catalog](https://data.cms.gov/provider-data/).
-  contents:
-  - starts_with("pdc_")
-
