@@ -6,11 +6,9 @@
 
 Useful links:
 
-- <https://centralstatz.github.io/readmit/>
+- <https://readmit.centralstatz.com/>
 
 - <https://github.com/centralstatz/readmit>
-
-- <https://github.com/centralstatz/readmission-risk-pool-platform>
 
 - Report bugs at <https://github.com/centralstatz/readmit/issues>
 
