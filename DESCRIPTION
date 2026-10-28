@@ -1,8 +1,8 @@
 Package: readmit
-Title: An R Interface to the Readmission Risk Pool platform
+Title: Readmission Risk Pool platform
 Version: 0.0.1.9000
 Authors@R: c(person("Alex", "Zajichek", email = "alex@centralstatz.com", role = c("aut", "cre")), person("CentralStatz Statistical & Data Sciences LLC", role = "cph"))
-Description: Provides an R interface to the Readmission Risk Pool platform.
+Description: The Readmission Risk Pool (RRP) platform facilitates hospital readmissions prediction and management.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -10,7 +10,7 @@ RoxygenNote: 7.3.3
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: https://readmit.centralstatz.com/, https://github.com/centralstatz/readmit, https://github.com/centralstatz/readmission-risk-pool-platform
+URL: https://readmit.centralstatz.com/, https://github.com/centralstatz/readmit
 BugReports: https://github.com/centralstatz/readmit/issues
 Depends:
     R (>= 4.1.0)

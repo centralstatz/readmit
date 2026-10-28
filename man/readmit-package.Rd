@@ -11,9 +11,8 @@
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://centralstatz.github.io/readmit/}
+  \item \url{https://readmit.centralstatz.com/}
   \item \url{https://github.com/centralstatz/readmit}
-  \item \url{https://github.com/centralstatz/readmission-risk-pool-platform}
   \item Report bugs at \url{https://github.com/centralstatz/readmit/issues}
 }
 
