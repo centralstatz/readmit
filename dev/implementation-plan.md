@@ -19,25 +19,25 @@ Build a complete structural skeleton first, then make its ordinary project workf
 ### Stage 2 — Project authoring and canonical source
 
 - **Objective:** Make the two ordinary project authoring points usable.
-- **Major scope:** Load project configuration and the supplied source and provider functions; make project validation useful; implement the minimum discharge-episode and terminal-event canonical input contract, including essential fields, identities, timestamps, and relationships. Fail clearly when supplied canonical data cannot be interpreted.
-- **Expected outcome:** A project owner can supply usable canonical data through the source-mapping script; the package can interpret the shared facts needed for later eligibility and history without silently discarding unusable input.
-- **Verification:** Focused tests with small test-suite fixtures for project loading, essential structure, and canonical input usability; package check.
-- **Dependencies or boundaries:** Requires Stage 1 project files and resources. Defer assessment persistence and products. Clinical definitions, source quality, and private model predictors remain the project author's responsibility.
+- **Major scope:** Load project configuration and the supplied source and provider functions; make project validation useful; document the minimal discharge-episode and terminal-event input contract, including the expectation that supplied episodes have been discharged by analytical time `t`. Add only checks needed for operations to proceed.
+- **Expected outcome:** A project owner can supply canonical data through the source-mapping script according to a clear contract; the package can use those shared facts for later eligibility and history.
+- **Verification:** Focused tests with small test-suite fixtures for project loading, essential structure, and use of the documented canonical input; package check.
+- **Dependencies or boundaries:** Requires Stage 1 project files and resources. Defer assessment persistence and products. The project author owns source population, clinical definitions, source quality, and private model predictors; comprehensive contract enforcement is outside this stage.
 
 ### Stage 3 — Risk assessment and persistent history
 
 - **Objective:** Execute the fixed remaining-readmission-risk target and retain assessments across runs.
-- **Major scope:** Initialize project analytical state; apply analytical time, the 30-day window, and known readmission/death eligibility to every supplied discharge episode; invoke the project risk provider for eligible episodes and check its probability or failure result; retain accepted, failed, and ineligible dispositions in project-owned history; expose useful run, status, and history reads. Use DuckDB where it naturally fits the established history requirement.
-- **Expected outcome:** An owner-supplied project can execute assessments at more than one analytical time. Every supplied episode has an inspectable disposition, run counts reconcile, and earlier results remain inspectable after later runs.
-- **Verification:** Focused tests with small test-suite fixtures for target and eligibility meaning, event availability, provider outcomes, complete episode accounting, repeated runs, and persisted reads; package check.
-- **Dependencies or boundaries:** Requires usable canonical source and provider interfaces from Stage 2. Product publication and app data display remain later stages. Do not validate private predictor timing, provenance, or methodology or add a public backup, restore, or history-correction lifecycle.
+- **Major scope:** Initialize project analytical state; apply analytical time, the 30-day window, and known readmission/death eligibility to canonical episodes processed through the normal workflow; invoke the project risk provider for eligible episodes and check its probability or failure result; retain meaningful accepted, failed, and ineligible outcomes in project-owned history; expose useful run, status, and history reads. Use DuckDB where it naturally fits the established history requirement.
+- **Expected outcome:** A user-owned project can execute assessments at more than one analytical time. Its ordinary analytical outcomes and earlier results remain inspectable after later runs.
+- **Verification:** Focused tests with small test-suite fixtures for target and eligibility meaning, event availability, provider outcomes, ineligible dispositions, repeated runs, and persisted reads; package check.
+- **Dependencies or boundaries:** Requires usable canonical source and provider interfaces from Stage 2. Product publication and app data display remain later stages. Do not add special handling for inappropriate canonical input, validate private predictors, or add a public backup, restore, or history-correction lifecycle.
 
 ### Stage 4 — Analytical products
 
 - **Objective:** Turn retained history into the three established analytical product categories.
 - **Major scope:** Generate current remaining risk, observed risk trajectories, and operational scope summaries; implement the separate product-refresh operation and write project-owned CSV data under the state area.
-- **Expected outcome:** A completed run can produce readable files for analysis and app consumption without executing another assessment. Its scope summary accounts for all supplied episodes across accepted, failed, and ineligible outcomes.
-- **Verification:** Focused checks of product meaning and scope reconciliation against retained history, including an empty or zero-result case where meaningful; package check.
+- **Expected outcome:** A completed run can produce readable files for analysis and app consumption without executing another assessment. Its scope summary describes the assessed population and retained outcomes.
+- **Verification:** Focused checks of product meaning against retained history, including an empty or zero-result case where meaningful; package check.
 - **Dependencies or boundaries:** Requires Stage 3 history. The exact source-history selection and physical CSV details can be chosen when this stage begins. Do not add an elaborate freshness framework or modify app source during refresh.
 
 ### Stage 5 — Populated Shiny experience
@@ -64,7 +64,7 @@ Before each stage, inspect the code produced so far and plan only the immediate 
 
 - `readmit` is a valid, installable, conventional R package with documented public project operations.
 - A user can initialize an independent project and operate it through the intended lifecycle after supplying source mapping and a risk provider.
-- Assessments implement the accepted remaining-readmission-risk meaning, including analytical time, eligibility, and canonical event information availability. Every supplied discharge episode has an inspectable accepted, failed, or ineligible disposition, and run counts reconcile.
+- Assessments implement the accepted remaining-readmission-risk meaning, including analytical time, eligibility, and canonical event information availability. Episodes processed through the normal workflow have meaningful, inspectable accepted, failed, or ineligible outcomes.
 - Historical assessments and episode dispositions persist across runs and can be inspected.
 - Product refresh generates the current-risk, trajectory, and scope-summary outputs from retained history.
 - A project-owned Shiny app launches with empty states before products and displays generated products afterward.
