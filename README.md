@@ -13,5 +13,5 @@ coverage](https://codecov.io/gh/centralstatz/readmit/graph/badge.svg)](https://a
 [![R-CMD-check](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-*This package is being repurposed as the [Readmission Risk Pool
-Platform](https://github.com/centralstatz/readmission-risk-pool-platform).*
+*This package is being repurposed as the Readmission Risk Pool
+Platform*.
