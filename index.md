@@ -1,4 +1,4 @@
 # readmit
 
-*This package is being repurposed as the [Readmission Risk Pool
-Platform](https://github.com/centralstatz/readmission-risk-pool-platform).*
+*This package is being repurposed as the Readmission Risk Pool
+Platform*.
