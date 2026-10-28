@@ -23,7 +23,7 @@ The public interface is a small set of ordinary exported R functions. Each opera
 | --- | --- | --- |
 | `rrp_project_init()` | Create editable configuration, source and provider scripts, project guidance, branding, and a Shiny app. It does not initialize analytical state or run assessments. | Creates a project. |
 | `rrp_reference_init()` | Create an immediately usable synthetic project with source data, mapping, provider, configuration, and app. | Creates a project and its synthetic source. |
-| `rrp_project_validate()` | Check project configuration and the presence of callable source and provider interfaces without running an assessment. | Reads a project. |
+| `rrp_project_validate()` | Make lightweight checks of required project structure and the availability of source and provider functions without running an assessment. | Reads a project. |
 | `rrp_state_init()` | Establish the project's persistent analytical state before its first run. | Creates project state. |
 | `rrp_run()` | Canonicalize source data, assess eligible episodes at an analytical time, and retain results in history. | Runs analytics and modifies history. |
 | `rrp_refresh_products()` | Derive and write the available analytical products from retained history; it does not rerun the source adapter or provider. | Modifies generated products. |
@@ -35,7 +35,7 @@ Project initialization, state initialization, assessment execution, product refr
 
 ## RRP project structure
 
-An initialized project is an ordinary directory its owner can inspect, edit, version-control, copy, and operate with familiar R tooling. The historical generic initializer creates `README.md`, two DCF files, three R scripts, `_brand.yml`, and `assets/project-logo.png`. The v1.0.0 initializer retains this recognizable layout and adds the project-owned Shiny app at the same time:
+An initialized project is an ordinary directory its owner can inspect, edit, version-control, copy, and operate with familiar R tooling. The v1.0.0 initializer retains the established configuration, two analytical authoring scripts, README, and branding assets, and creates the project-owned Shiny app at the same time:
 
 ```text
 my-rrp-project/
@@ -46,7 +46,6 @@ my-rrp-project/
 ├── assets/
 │   └── project-logo.png     # initial branding asset
 ├── R/
-│   ├── register.R           # thin generated wiring; normally not edited
 │   ├── produce-canonical.R  # user-authored source access and mapping
 │   └── calculate-risk.R     # user-authored risk-provider implementation
 └── app/
@@ -65,7 +64,7 @@ The two established configuration files remain distinct. `rrp-project.dcf` ident
 
 The normal authoring task is to edit two R scripts. A source-mapping function, conceptually `rrp_produce_canonical(project_root, as_of_time)`, obtains project-approved clinical source data, maps local identities and event codes, and supplies the shared discharge-episode and terminal-event tables as known at the analytical time. A risk-provider function, conceptually `rrp_calculate_risk(project_root, request)`, receives an eligible episode's canonical identity and assessment context, resolves any private model inputs, and returns one risk probability in `[0,1]` or a clear failure. Its private predictors must have been available by the assessment time. The exact R signatures and failure representation are provisional; users should only need to fill in these two scripts and relevant configuration.
 
-`readmit` loads the selected project's configuration and thin generated `R/register.R` wiring to find the two conventional scripts and their named functions, then invokes them during a run. The wiring is produced once by the initializer and is not part of normal project authoring. Users integrate their data and model by editing `R/produce-canonical.R`, `R/calculate-risk.R`, and relevant configuration, without changing registration mechanics. `readmit` owns target and eligibility logic, execution, and history recording. Project authors own source access, mapping, model inputs, and the risk calculation. Source-native identifiers, crosswalks, credentials, and private predictors stay in project-controlled code and data rather than entering the shared canonical tables.
+`R/produce-canonical.R` and `R/calculate-risk.R` are the only required project-authored analytical interfaces. `readmit` is responsible for locating, loading, and invoking their supplied functions in the selected project; users do not provide a registration file or manage dispatch. An internal helper may be chosen during implementation if useful. Users integrate their data and model by editing these two scripts and relevant configuration. `readmit` owns target and eligibility logic, execution, and history recording. Project authors own source access, mapping, model inputs, and the risk calculation. Source-native identifiers, crosswalks, credentials, and private predictors stay in project-controlled code and data rather than entering the shared canonical tables.
 
 ## Canonical data model
 
@@ -86,7 +85,7 @@ Assessment uses both occurrence and availability time: only events that occurred
 
 ## Analytical execution lifecycle
 
-1. **Initialize a project:** Create its configuration, authoring scripts, generated registration wiring, branding, and editable app. Reference initialization also supplies ready-to-use synthetic data and implementations.
+1. **Initialize a project:** Create its configuration, authoring scripts, branding, and editable app. Reference initialization also supplies ready-to-use synthetic data and implementations.
 2. **Initialize analytical state:** Establish persistent project history as a distinct operation.
 3. **Execute assessments:** At a chosen analytical time, canonicalize source data, determine eligibility, invoke the project provider for eligible episodes, and record accepted estimates or other dispositions. Return an identity or context for the run.
 4. **Inspect history:** Read retained assessments and their outcomes across runs without changing them.
@@ -119,7 +118,13 @@ The package bundles a visibly synthetic, nonclinical project using the same stru
 
 ## Testing and validation
 
-Use `R CMD check` and conventional R package documentation and dependency checks. Focused functional tests should cover canonicalization, eligibility and risk meaning, the source and provider interfaces, retained history, product generation, and project operations. An end-to-end reference-project test should exercise initialization through app-ready products. A focused app check should cover normal launch and empty views before products, then product display after refresh. This establishes reasonable confidence without importing the previous platform's formal qualification infrastructure.
+Validation means lightweight checks of essential project structure and analytical inputs. Runtime checks should catch missing required components, unusable canonical data, and invalid provider outputs. They should establish the correctness needed for the workflow without becoming a general-purpose validation framework.
+
+Use `R CMD check` and focused `testthat` tests for important analytical behavior and package functions. A minimal end-to-end reference-project test should exercise initialization through app-ready products. A practical Shiny smoke test should cover normal launch and empty views before products, then product display after refresh. No formal qualification infrastructure, evidence registries, elaborate contract certification, or extensive hypothetical failure simulations are required.
+
+## Implementation principles
+
+Use conventional R package design and familiar R tools. Favor direct, readable functions and simple data structures; use DuckDB and CSV where they naturally satisfy the established history and product needs. Keep user-facing interfaces stable while allowing internal details to evolve. Avoid speculative abstractions, generalized frameworks, unnecessary indirection, and custom software lifecycle machinery. Treat the previous RRP repository as an analytical and behavioral reference, not an implementation blueprint. Favor a complete minimal working workflow over partially implemented sophisticated infrastructure.
 
 ## Architectural boundaries and remaining choices
 
