@@ -8,11 +8,11 @@ Each increment section describes its **current** implementation. When later work
 
 ## Current implementation status
 
-- **Overall stage:** Stage 1 — Complete Structural Scaffolding remains **Verified / Complete**. Stage 2 — Project Authoring and Canonical Source is **In progress**; Stage 2.1 is the latest verified increment.
-- **Available now:** A conventional, installable R package; `rrp_project_init()` creates complete user-owned resources and a branded, empty-state Shiny app. An internal loader now reads project DCF files and returns the two configured project-authored functions without calling them.
-- **Not yet available:** Public project validation, canonical source-mapper invocation or return checks, risk assessments, persistent history, and analytical products. The two analytical authoring functions remain stubs; a package app launcher is not planned.
-- **Current use and limitation:** Create a project at a new destination with `rrp_project_init(path, project_id)`, edit its configuration, authoring scripts, and branding, and launch its app directly with Shiny after installing the app's documented packages. The loader is internal; initialization creates no analytical state, and application-only packages are not package dependencies.
-- **Next increment:** Stage 2.2 — Canonical Contract and Source-Mapper Use.
+- **Overall stage:** Stage 1 — Complete Structural Scaffolding remains **Verified / Complete**. Stage 2 — Project Authoring and Canonical Source is **In progress**; Stage 2.2 is the latest verified increment.
+- **Available now:** A conventional, installable R package; `rrp_project_init()` creates complete user-owned resources and a branded, empty-state Shiny app. Internal operations load configured authoring functions, call a project source mapper on request, and check its canonical return structure.
+- **Not yet available:** Public project validation, risk-provider invocation, risk assessments, persistent history, and analytical products. The generated authoring functions remain stubs until the project owner implements them; a package app launcher is not planned.
+- **Current use and limitation:** Create a project at a new destination with `rrp_project_init(path, project_id)`, edit its configuration, authoring scripts, and branding, and launch its app directly with Shiny after installing the app's documented packages. Canonical source use is internal, initialization creates no analytical state, and application-only packages are not package dependencies.
+- **Next increment:** Stage 2.3 — Practical Project Validation.
 
 ## Implementation records
 
@@ -28,11 +28,11 @@ Each increment section describes its **current** implementation. When later work
 
 | Component | Current responsibility |
 | --- | --- |
-| `README.md` | Brief guidance on project ownership, the two authoring scripts, configuration, branding, the app's runtime packages and their installation, and direct Shiny launch. |
-| `rrp-project.dcf` | One `Project-ID` field with the `@@RRP_PROJECT_ID@@` placeholder. No project configuration is loaded or applied yet. |
-| `rrp-authoring.dcf` | `Source-Mapping-Script: R/produce-canonical.R` and `Risk-Provider-Script: R/calculate-risk.R` identify the two authoring locations. No dispatch or configuration parser exists yet. |
+| `README.md` | Guidance on project ownership, configuration, branding, the canonical source contract, authoring scripts, app runtime packages, and direct Shiny launch. |
+| `rrp-project.dcf` | One `Project-ID` field with the `@@RRP_PROJECT_ID@@` placeholder; Stage 2.1 now reads the initialized value. |
+| `rrp-authoring.dcf` | `Source-Mapping-Script: R/produce-canonical.R` and `Risk-Provider-Script: R/calculate-risk.R` identify the two authoring locations read by the Stage 2.1 loader. No registration or public project validation exists yet. |
 | `_brand.yml` and `assets/project-logo.png` | Editable name, primary color, and logo references. The shield/trajectory PNG is byte-identical to the historical project's logo. The Stage 1.2 app now reads this branding and serves the logo. |
-| `R/produce-canonical.R` | Defines `rrp_produce_canonical(project_root, as_of_time)` and explains project-owned source population and mapping. It stops with “Project author must implement canonical source mapping.” It does not return canonical data. |
+| `R/produce-canonical.R` | Defines `rrp_produce_canonical(project_root, as_of_time)` and summarizes the canonical source contract and project-owned mapping. It stops with “Project author must implement canonical source mapping.” It does not return canonical data. |
 | `R/calculate-risk.R` | Defines `rrp_calculate_risk(project_root, request)` and explains project-owned prediction methodology and private predictors. It stops with “Project author must implement the risk provider.” It does not estimate risk. |
 
 **Relationship to the plan.** The seven files fulfill the planned Stage 1.1 resource set and keep the historical two-file configuration and branding conventions in a smaller form. The historical logo was reused; historical registration, extension-library, resource-catalog, and provider-framework machinery was not carried over. There is no material deviation from the planned increment.
@@ -92,7 +92,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 #### Stage 2.1 — Project Configuration and Authoring-Function Loading
 
 - **Status:** Verified
-- **Initial implementation:** 2026-10-29 (current working tree)
+- **Initial implementation:** 2026-10-29 (Git commit `59b4f5d`, “2.1 complete”)
 - **Last verified:** 2026-10-29
 
 **Implementation.** `R/project-authoring.R` adds the internal `rrp_load_project_authoring(project_root)` helper. It reads one record from each project DCF file with base `read.dcf()`: `Project-ID` from `rrp-project.dcf` and `Source-Mapping-Script` and `Risk-Provider-Script` from `rrp-authoring.dcf`. It resolves the configured project-relative script paths against the explicit project root, sources each script into a fresh environment whose parent is the ordinary R global environment, and obtains `rrp_produce_canonical(project_root, as_of_time)` and `rrp_calculate_risk(project_root, request)`. The returned named list contains the normalized project root, project ID, resolved script paths, and both callable functions. Sourcing evaluates top-level project code, but the loader does not call either authoring function. The template's deliberate stubs load successfully, and helpers defined within a sourced script remain available through lexical scoping. No public API, template resource, package dependency, or app behavior changed.
@@ -101,4 +101,20 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 **Verification performed on 2026-10-29.** New focused `testthat` tests in `tests/testthat/test-project-authoring.R` passed for a project created by the initializer, configured script relocation, lexical helpers, absence of global function pollution, successful loading of template stubs, and representative DCF, script, binding, and formal-argument failures. The full package test suite passed. `R CMD build` and installation of the built package succeeded; an installed-package smoke check created and loaded a project and confirmed that the app resource was unchanged and `shiny`, `bslib`, and `yaml` were not loaded. `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Repository-index access emitted restricted-network warnings without changing the check result. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable.
 
-**Current limitation and next increment.** The loader is internal and confirms only that configured functions can be loaded with the expected arguments. It does not establish whether their bodies work or what canonical data they return. Stage 2.2 will document and exercise source-mapper output and its essential structural checks.
+**Current limitation.** The loader itself only obtains callable bindings. Stage 2.2 now calls the source mapper and checks its canonical return through a separate internal operation; the risk provider remains uninvoked.
+
+#### Stage 2.2 — Canonical Contract and Source-Mapper Use
+
+- **Status:** Verified
+- **Initial implementation:** 2026-10-29 (current working tree)
+- **Last verified:** 2026-10-29
+
+**Implementation.** `R/canonical-source.R` adds the internal `rrp_produce_project_canonical(project_root, as_of_time)` operation and direct structural helpers. It checks that `as_of_time` is one finite UTC `POSIXct` instant, reuses the Stage 2.1 loader, calls only `rrp_produce_canonical(project_root, as_of_time)`, validates the returned list, and returns it unchanged. A source-mapper error is reported as a canonical source-production failure with the original message; no empty tables are substituted. The project may source supporting R scripts from inside its mapper using `project_root`. No new public operation or package dependency was added.
+
+**Canonical contract and checks.** The mapper returns `discharge_episode` and `terminal_event` data frames. Episodes require character `episode_id`, `patient_id`, and `index_encounter_id`, plus UTC `POSIXct` `admission_time` and `discharge_time`. Events require character `terminal_event_id`, `episode_id`, and `event_type` (`readmission` or `death`), plus UTC `POSIXct` `occurred_at` and `available_at`. The helper checks required columns, nonmissing/nonblank identifiers, finite timestamps, unique episode and event IDs, recognized event types, and event references to supplied episodes. It accepts typed zero-row tables and leaves additional columns unchanged. It neither filters events by analytical time nor checks eligibility, clinical definitions, or event ordering. `followup_window_end` is not an input; the fixed endpoint remains a Stage 3 derivation.
+
+**Documentation and relationship to the plan.** The generated project `README.md` now describes both tables, their column types, `as_of_time`, the discharge-population expectation, occurrence versus availability, platform-owned endpoint, and optional supporting project scripts. Comments in `R/produce-canonical.R` summarize that contract while retaining the deliberate stub. Roxygen generated internal help at `man/rrp_produce_project_canonical.Rd`. These changes implement the planned source boundary without provider invocation, state, or assessment logic. The provider stub and Shiny app remain unchanged.
+
+**Verification performed on 2026-10-29.** New focused tests in `tests/testthat/test-canonical-source.R` passed for multiple episodes (including one patient with two episodes), readmission and death events, delayed event availability, typed empty event and episode tables, supporting-script loading, source-error propagation, and representative structure, type, identity, timestamp, event-type, and reference failures. The full package suite passed. `R CMD build` and installation of the built package succeeded. An installed-package project used the updated copied template, returned canonical facts through the internal operation without state or provider execution, and retained unchanged provider and app resources. `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Restricted-network repository-index warnings did not change the check result. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable. `git diff --check` passed.
+
+**Current limitation and next increment.** Canonical facts are available only through an internal operation; the generated mapper still requires project-owner implementation. Public structural project validation begins in Stage 2.3. Eligibility, the 30-day endpoint, provider execution, state, and history remain later-stage work.
