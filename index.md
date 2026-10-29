@@ -1,4 +1,39 @@
 # readmit
 
-*This package is being repurposed as the Readmission Risk Pool
-Platform*.
+`readmit` currently creates editable Readmission Risk Pool (RRP)
+projects. Each project includes configuration, source-mapping and
+risk-provider scripts, branding, and its own Shiny application.
+Analytical execution, state, and products are not yet implemented.
+
+## Create and open a project
+
+After installing `readmit`, create a project at a new destination:
+
+``` r
+
+readmit::rrp_project_init(
+  path = "my-rrp-project",
+  project_id = "my-rrp-project"
+)
+```
+
+The path is relative to your current working directory unless you supply
+an absolute path. Its parent directory must already exist, and the
+destination must not exist, even as an empty directory. The generated
+files belong to you: edit `rrp-project.dcf`, `rrp-authoring.dcf`,
+`_brand.yml`, `R/produce-canonical.R`, and `R/calculate-risk.R` for your
+project.
+
+The application uses `shiny`, `bslib`, and `yaml` in the environment
+where it runs. Install them there, then launch the app directly from the
+same working directory used in the example:
+
+``` r
+
+install.packages(c("shiny", "bslib", "yaml"))
+shiny::runApp("my-rrp-project/app")
+```
+
+The app opens with Current Risk Pool and Overview views and shows empty
+states until analytical products become available in a later development
+stage.

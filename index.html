@@ -62,7 +62,23 @@
 </div>
 <!-- badges: start -->
 
-<p><em>This package is being repurposed as the Readmission Risk Pool Platform</em>.</p>
+<p><code>readmit</code> currently creates editable Readmission Risk Pool (RRP) projects. Each project includes configuration, source-mapping and risk-provider scripts, branding, and its own Shiny application. Analytical execution, state, and products are not yet implemented.</p>
+<div class="section level2">
+<h2 id="create-and-open-a-project">Create and open a project<a class="anchor" aria-label="anchor" href="#create-and-open-a-project"></a>
+</h2>
+<p>After installing <code>readmit</code>, create a project at a new destination:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">readmit</span><span class="fu">::</span><span class="fu"><a href="reference/rrp_project_init.html">rrp_project_init</a></span><span class="op">(</span></span>
+<span>  path <span class="op">=</span> <span class="st">"my-rrp-project"</span>,</span>
+<span>  project_id <span class="op">=</span> <span class="st">"my-rrp-project"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The path is relative to your current working directory unless you supply an absolute path. Its parent directory must already exist, and the destination must not exist, even as an empty directory. The generated files belong to you: edit <code>rrp-project.dcf</code>, <code>rrp-authoring.dcf</code>, <code>_brand.yml</code>, <code>R/produce-canonical.R</code>, and <code>R/calculate-risk.R</code> for your project.</p>
+<p>The application uses <code>shiny</code>, <code>bslib</code>, and <code>yaml</code> in the environment where it runs. Install them there, then launch the app directly from the same working directory used in the example:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shiny"</span>, <span class="st">"bslib"</span>, <span class="st">"yaml"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">shiny</span><span class="fu">::</span><span class="fu">runApp</span><span class="op">(</span><span class="st">"my-rrp-project/app"</span><span class="op">)</span></span></code></pre></div>
+<p>The app opens with Current Risk Pool and Overview views and shows empty states until analytical products become available in a later development stage.</p>
+</div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
