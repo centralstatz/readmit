@@ -136,7 +136,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 #### Stage 2.4 — Integrated Authoring Workflow and Package Check
 
 - **Status:** Verified
-- **Initial implementation:** 2026-10-29 (current working tree)
+- **Initial implementation:** 2026-10-29 (Git commit `a7a89b6`, “Stage 2 complete”)
 - **Last verified:** 2026-10-29
 
 **Implementation and relationship to the plan.** A single focused `testthat` integration test initializes a temporary project through the public API, validates its untouched deliberate stubs, replaces only its project-owned producer with a small function that sources a supporting R script, and validates the edited project again. It loads both configured authoring bindings, then invokes the producer through the existing internal canonical operation. The accepted return has three discharge episodes and readmission and death events, including one that occurred before the analytical time but became available afterward; it has no project-supplied follow-up endpoint. The generated provider script remains unchanged, loadable, and uninvoked. The workflow creates no analytical state or products. No implementation defect required a package-code change, and no dependency was added. The package README now explains initialization, structural validation, deliberate stubs, the source-mapping responsibility, and the current internal execution boundary; the generated project README adds the short validate–edit–validate sequence and supporting-script guidance. The app and provider template are unchanged.
