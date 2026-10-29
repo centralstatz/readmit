@@ -28,9 +28,8 @@ The public interface is a small set of ordinary exported R functions. Each opera
 | `rrp_refresh_products()` | Derive and write the available analytical products from retained history; it does not rerun the source adapter or provider. | Modifies generated products. |
 | `rrp_project_status()` | Summarize project configuration, state, runs, and product availability. | Reads a project. |
 | `rrp_inspect_history()` | Read selected run or episode assessments and retained history. | Reads project history. |
-| `rrp_run_app()` | Launch the project's Shiny application, including before any products exist; ordinary `shiny::runApp()` remains available. | Runs the app against available products or its empty state. |
 
-Project initialization, state initialization, assessment execution, product refresh, inspection, and app launch remain distinct. The v1.0.0 public API does not include backup, restore, retry, invalidation, or restatement operations. It does not reproduce the previous platform's software-management commands or require a custom CLI.
+Project initialization, state initialization, assessment execution, product refresh, and inspection remain distinct package operations. Users launch the generated app directly with ordinary Shiny tooling. The v1.0.0 public API does not include backup, restore, retry, invalidation, or restatement operations. It does not reproduce the previous platform's software-management commands or require a custom CLI.
 
 ## RRP project structure
 
@@ -49,7 +48,7 @@ my-rrp-project/
 │   └── calculate-risk.R     # user-authored risk-provider implementation
 └── app/
     ├── app.R                # generated once, then user-owned Shiny entry point
-    ├── R/                   # supporting Shiny source; then user-owned
+    ├── R/                   # optional supporting Shiny source; then user-owned
     └── www/                 # styling and assets; then user-owned
 ```
 
@@ -89,7 +88,7 @@ Assessment uses both occurrence and availability time: only events that occurred
 3. **Execute assessments:** At a chosen analytical time, obtain canonical source data, determine eligibility for episodes processed through the normal workflow, invoke the project provider for eligible episodes, and record accepted estimates or other dispositions. Return an identity or context for the run.
 4. **Inspect history:** Read retained assessments and their outcomes across runs without changing them.
 5. **Refresh products:** Derive the current risk view, observed trajectories, and scope summary from retained history and write the files consumed by the app. This operation does not execute new assessments.
-6. **Use the app:** Launch the project-contained Shiny application at any time. Before products exist, its normal navigation and views show appropriate empty states. Once products are available, it reads and displays them. It does not run the source adapter or provider or write history.
+6. **Use the app:** Launch the project-contained application with `shiny::runApp()` or RStudio's Run App action. Before products exist, its normal navigation and views show appropriate empty states. Once products are available, it reads and displays them. It does not run the source adapter or provider or write history.
 
 No automatic synchronization is required between a run, product refresh, and the app. The project owner chooses when to refresh products and maintain their currency. The exact way a refresh selects source history remains to be defined; v1.0.0 does not require an elaborate freshness validator or mandatory run-and-cutoff selection mechanism.
 
@@ -109,9 +108,11 @@ CSV files under `state/products/` are the current preference for generated produ
 
 ## Shiny application architecture
 
-Each project receives a conventional Shiny app when it is initialized. It is generated once, then belongs to the project owner, who may edit its R source, styling, and assets and run or deploy it with established Shiny tooling. Later product refreshes alter only the data the app reads; they do not overwrite user-edited application files. `rrp_run_app()` is a convenience launch function.
+Each project receives a conventional Shiny app when it is initialized. It is generated once, then belongs to the project owner, who may edit its R source, styling, and assets and run or deploy it with established Shiny tooling. Later product refreshes alter only the data the app reads; they do not overwrite user-edited application files. No package-specific app launcher or deployment operation is required.
 
-The app launches normally immediately after project initialization, with its established interface and navigation visible. **Current Risk Pool** displays accepted current episode estimates and an episode's actual risk trajectory when those products exist. **Overview** summarizes current risk and the analytical scope when its products exist. Views that lack products show an appropriate empty state instead of failing or blocking launch. After product refresh, the app reads and displays the available products through its normal data-access behavior. It presents descriptive analysis, not clinical recommendations or intervention workflows, and does not read raw clinical sources, model predictors, or live provider calls. No additional app lifecycle or product freshness enforcement is required.
+The app runs independently of the package's analytical operations. Its runtime dependencies are documented in the generated project and installed in the environment that runs the app. Merely distributing the app files does not make those packages dependencies of `readmit`; package dependency declarations follow actual use by package code, tests, documentation, or optional package functionality. Project initialization, assessments, history, and product generation must remain usable without installing application-only packages.
+
+With its documented runtime dependencies installed, the app launches normally immediately after project initialization, with its established interface and navigation visible. **Current Risk Pool** displays accepted current episode estimates and an episode's actual risk trajectory when those products exist. **Overview** summarizes current risk and the analytical scope when its products exist. Views that lack products show an appropriate empty state instead of failing or blocking launch. After product refresh, the app reads and displays the available products through its normal data-access behavior. It presents descriptive analysis, not clinical recommendations or intervention workflows, and does not read raw clinical sources, model predictors, or live provider calls. No additional app lifecycle or product freshness enforcement is required.
 
 ## Testing and validation
 
