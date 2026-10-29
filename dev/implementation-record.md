@@ -8,11 +8,11 @@ Each increment section describes its **current** implementation. When later work
 
 ## Current implementation status
 
-- **Overall stage:** Stage 1 — Complete Structural Scaffolding remains **Verified / Complete**. Stage 2 — Project Authoring and Canonical Source is **In progress**; Stage 2.3 is the latest verified increment.
-- **Available now:** A conventional, installable R package; `rrp_project_init()` creates complete user-owned resources and a branded, empty-state Shiny app. `rrp_project_validate()` checks essential project configuration and authoring-function structure. Internal operations load configured authoring functions, call a project source mapper on request, and check its canonical return structure.
-- **Not yet available:** Risk-provider invocation, risk assessments, persistent history, and analytical products. The generated authoring functions remain stubs until the project owner implements them; a package app launcher is not planned.
-- **Current use and limitation:** Create a project at a new destination with `rrp_project_init(path, project_id)`, edit its configuration, authoring scripts, and branding, validate its structural setup with `rrp_project_validate(path)`, and launch its app directly with Shiny after installing the app's documented packages. Validation does not establish analytical readiness; canonical source use is internal, initialization creates no analytical state, and application-only packages are not package dependencies.
-- **Next increment:** Stage 2.4 — Integrated Authoring Workflow and Package Check.
+- **Overall stage:** Stage 1 — Complete Structural Scaffolding and Stage 2 — Project Authoring and Canonical Source are both **Verified / Complete**.
+- **Available now:** A conventional, installable R package; `rrp_project_init()` creates complete user-owned resources and a branded, empty-state Shiny app. `rrp_project_validate()` checks essential project configuration and authoring-function structure. Internal operations load configured authoring functions, call a project source mapper, and check its canonical return structure. The installed-package authoring workflow has been verified.
+- **Not yet available:** Risk-provider execution, risk assessments, persistent history, analytical products, or populated Shiny views. Project owners must implement the generated source mapper and provider stubs; a package app launcher is not planned.
+- **Current use and limitation:** Create a project at a new destination with `rrp_project_init(path, project_id)`, edit its configuration, authoring scripts, and branding, validate its structural setup with `rrp_project_validate(path)`, and launch its app directly with Shiny after installing the app's documented packages. Validation does not establish analytical readiness; canonical source production remains internal package machinery, initialization creates no analytical state, and application-only packages are not package dependencies.
+- **Next stage:** Stage 3 — Risk Assessment and Persistent History.
 
 ## Implementation records
 
@@ -30,7 +30,7 @@ Each increment section describes its **current** implementation. When later work
 | --- | --- |
 | `README.md` | Guidance on project ownership, configuration, branding, the canonical source contract, authoring scripts, app runtime packages, and direct Shiny launch. |
 | `rrp-project.dcf` | One `Project-ID` field with the `@@RRP_PROJECT_ID@@` placeholder; Stage 2.1 now reads the initialized value. |
-| `rrp-authoring.dcf` | `Source-Mapping-Script: R/produce-canonical.R` and `Risk-Provider-Script: R/calculate-risk.R` identify the two authoring locations read by the Stage 2.1 loader. No registration or public project validation exists yet. |
+| `rrp-authoring.dcf` | `Source-Mapping-Script: R/produce-canonical.R` and `Risk-Provider-Script: R/calculate-risk.R` identify the two authoring locations read by the Stage 2.1 loader and checked by the Stage 2.3 public validator. No registration is required. |
 | `_brand.yml` and `assets/project-logo.png` | Editable name, primary color, and logo references. The shield/trajectory PNG is byte-identical to the historical project's logo. The Stage 1.2 app now reads this branding and serves the logo. |
 | `R/produce-canonical.R` | Defines `rrp_produce_canonical(project_root, as_of_time)` and summarizes the canonical source contract and project-owned mapping. It stops with “Project author must implement canonical source mapping.” It does not return canonical data. |
 | `R/calculate-risk.R` | Defines `rrp_calculate_risk(project_root, request)` and explains project-owned prediction methodology and private predictors. It stops with “Project author must implement the risk provider.” It does not estimate risk. |
@@ -89,6 +89,8 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 ### Stage 2 — Project Authoring and Canonical Source
 
+- **Status:** Verified / Complete
+
 #### Stage 2.1 — Project Configuration and Authoring-Function Loading
 
 - **Status:** Verified
@@ -122,11 +124,23 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 #### Stage 2.3 — Practical Project Validation
 
 - **Status:** Verified
-- **Initial implementation:** 2026-10-29 (current working tree)
+- **Initial implementation:** 2026-10-29 (Git commit `70293a9`, “2.3 complete”)
 - **Last verified:** 2026-10-29
 
 **Implementation.** Exported `rrp_project_validate(path)` is a thin wrapper around the Stage 2.1 `rrp_load_project_authoring()` helper. It checks the project root, required DCF configuration, configured scripts, required function bindings, and their formal arguments, then returns `TRUE` invisibly. Existing loader errors retain their specific messages. Sourcing the scripts can evaluate their top-level code, but validation does not invoke either authoring function. The generated stubs therefore pass. The app, branding, source data, state, and products are not validation prerequisites. Roxygen generated the export and `man/rrp_project_validate.Rd`; the generated project README briefly explains the check. No package dependency or validation framework was added.
 
 **Verification performed on 2026-10-29.** Focused `testthat` tests passed for an initialized project with no analytical state, a relocated configured script, optional app and branding resources, and representative configuration, script, binding, and formal-argument errors. The full package test suite passed. `R CMD build` and installation of the built package succeeded. An installed-package smoke check confirmed the public export, invisible `TRUE`, copied guidance, absence of created state, and no loading of app-only packages. `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Restricted-network repository-index warnings did not change the check result. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable.
 
-**Current limitation and next increment.** Structural validation does not call the source mapper or risk provider and does not establish canonical-data or analytical readiness. Integrated authoring workflow and package verification are planned for Stage 2.4; eligibility, the 30-day endpoint, assessments, state, history, and products remain later-stage work.
+**Current limitation.** Structural validation does not call the source mapper or risk provider and does not establish canonical-data or analytical readiness. Stage 2.4 now verifies the integrated authoring workflow. Eligibility, the 30-day endpoint, assessments, state, history, and products remain later-stage work.
+
+#### Stage 2.4 — Integrated Authoring Workflow and Package Check
+
+- **Status:** Verified
+- **Initial implementation:** 2026-10-29 (current working tree)
+- **Last verified:** 2026-10-29
+
+**Implementation and relationship to the plan.** A single focused `testthat` integration test initializes a temporary project through the public API, validates its untouched deliberate stubs, replaces only its project-owned producer with a small function that sources a supporting R script, and validates the edited project again. It loads both configured authoring bindings, then invokes the producer through the existing internal canonical operation. The accepted return has three discharge episodes and readmission and death events, including one that occurred before the analytical time but became available afterward; it has no project-supplied follow-up endpoint. The generated provider script remains unchanged, loadable, and uninvoked. The workflow creates no analytical state or products. No implementation defect required a package-code change, and no dependency was added. The package README now explains initialization, structural validation, deliberate stubs, the source-mapping responsibility, and the current internal execution boundary; the generated project README adds the short validate–edit–validate sequence and supporting-script guidance. The app and provider template are unchanged.
+
+**Verification performed on 2026-10-29.** The focused integration test passed, followed by the full package test suite. `R CMD build` and installation of the built package succeeded. The same integration test passed against the separately installed build; checks also confirmed the two existing public exports, installed project guidance, unchanged app template, and absence of loaded app-only packages. `R CMD check --no-manual` finished with **Status: OK**, including installed-package tests and examples, with no check NOTE or WARNING. Repository-index access emitted restricted-network warnings without changing the check result. The README was regenerated with RStudio's bundled Pandoc; badge-fetch warnings reflected the same network restriction. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable. `git diff --check` passed.
+
+**Current limitation.** Stage 2 provides no public analytical execution command. Provider requests and execution, eligibility, the 30-day endpoint, assessments, persistent history, products, and populated app views remain for later stages. Stage 3 is next.

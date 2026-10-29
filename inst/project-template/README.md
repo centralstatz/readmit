@@ -16,6 +16,10 @@ these files with your usual R tools.
 From the project directory, `readmit::rrp_project_validate(".")` checks that
 the configuration and both authoring functions load. It does not run them or
 check clinical data; the initial function stubs pass this structural check.
+After implementing the source mapper below, validate again. The mapper is an
+ordinary R function and may source supporting project-owned scripts. The
+package will use it when analytical execution becomes available; validation
+does not inspect its returned canonical data.
 
 ## Canonical source mapping
 
