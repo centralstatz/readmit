@@ -14,3 +14,7 @@ URL: https://readmit.centralstatz.com/, https://github.com/centralstatz/readmit
 BugReports: https://github.com/centralstatz/readmit/issues
 Depends:
     R (>= 4.1.0)
+Imports:
+    bslib,
+    shiny,
+    yaml

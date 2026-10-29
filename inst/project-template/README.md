@@ -15,5 +15,6 @@ these files with your usual R tools.
 
 `readmit` owns the shared analytical target, eligibility rules, history, and
 products. You supply the source mapping and prediction engine for your project.
-An RRP project can also contain a Shiny application under `app/`; its source and
-styling belong to you.
+The Shiny application lives under `app/`; its source and styling belong to you.
+You can launch it with `shiny::runApp("app")`, even before analytical products
+exist. It will show empty views until products are available.

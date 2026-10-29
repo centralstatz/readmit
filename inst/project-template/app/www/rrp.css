@@ -1,0 +1,114 @@
+:root {
+  --rrp-ink: #182631;
+  --rrp-muted: #5b6975;
+  --rrp-line: #dce4e9;
+  --rrp-surface: #ffffff;
+  --rrp-canvas: #f4f7f8;
+  --rrp-teal: #16697a;
+}
+
+body {
+  background: var(--rrp-canvas);
+  color: var(--rrp-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.navbar {
+  border-bottom: 3px solid var(--bs-primary, #1f4e79);
+  box-shadow: 0 2px 12px rgba(24, 38, 49, 0.08);
+}
+
+.rrp-brand-identity {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.7rem;
+  max-width: min(52vw, 32rem);
+}
+
+.rrp-brand-logo {
+  height: 2.5rem;
+  object-fit: contain;
+  width: 3rem;
+}
+
+.rrp-brand-name {
+  font-size: 1rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rrp-page {
+  margin: 0 auto;
+  max-width: 1680px;
+  padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
+}
+
+.rrp-page-intro { margin-bottom: 1.6rem; }
+.rrp-page-intro h1 { margin: 0.25rem 0 0.35rem; }
+.rrp-page-intro p { color: var(--rrp-muted); margin: 0; }
+
+.rrp-eyebrow {
+  color: var(--rrp-teal);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.rrp-content-grid { align-items: stretch; }
+
+.rrp-panel {
+  background: var(--rrp-surface);
+  border: 1px solid var(--rrp-line);
+  box-shadow: 0 4px 16px rgba(24, 38, 49, 0.04);
+  min-height: 21rem;
+}
+
+.rrp-panel .card-header {
+  background: var(--rrp-surface);
+  border-bottom: 1px solid var(--rrp-line);
+  padding: 1rem 1.25rem;
+}
+
+.rrp-panel h2 { font-size: 1.1rem; margin: 0; }
+.rrp-panel .card-body { display: flex; padding: 1.25rem; }
+
+.rrp-empty-state {
+  align-items: center;
+  border: 1px dashed #aebbc4;
+  border-radius: 0.5rem;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 14rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+.rrp-empty-state::before {
+  background: var(--rrp-teal);
+  border-radius: 50%;
+  content: "";
+  display: block;
+  height: 0.45rem;
+  margin-bottom: 1rem;
+  width: 0.45rem;
+}
+
+.rrp-empty-state h3 { font-size: 1.05rem; margin: 0 0 0.5rem; }
+.rrp-empty-state p { color: var(--rrp-muted); margin: 0; max-width: 27rem; }
+
+@media (max-width: 900px) {
+  .rrp-content-grid { display: block !important; }
+  .rrp-content-grid > * + * { margin-top: 1.25rem; }
+  .rrp-panel { min-height: 16rem; }
+}
+
+@media (max-width: 640px) {
+  .rrp-page { padding: 1.25rem 1rem 2rem; }
+  .rrp-brand-logo { height: 2rem; width: 2.4rem; }
+  .rrp-brand-name { font-size: 0.9rem; }
+  .rrp-empty-state { min-height: 11rem; }
+}
