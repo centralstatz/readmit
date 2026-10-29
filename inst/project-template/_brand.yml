@@ -1,0 +1,10 @@
+meta:
+  name:
+    full: "@@RRP_PROJECT_ID@@"
+    short: "@@RRP_PROJECT_ID@@"
+color:
+  primary: "#1F4E79"
+logo:
+  medium:
+    path: assets/project-logo.png
+    alt: "@@RRP_PROJECT_ID@@ logo"
