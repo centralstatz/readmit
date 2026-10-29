@@ -76,7 +76,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 #### Stage 1.4 — Focused Integration and Package Check
 
 - **Status:** Verified
-- **Initial implementation:** 2026-10-29 (current working tree)
+- **Initial implementation:** 2026-10-29 (Git commit `e53fe15`, “Stage 1 complete”)
 - **Last verified:** 2026-10-29
 
 **Implementation and review.** Stage 1.1–1.3 already supplied the intended structural workflow. The existing `testthat` tests cover complete template copying, identity substitution, unchanged nested authoring and app files, absence of analytical state, editable project ownership, and rejection of existing destinations without changing them. They were retained without duplicate tests or package-code changes. The genuine gap was package-level guidance: `README.Rmd` now describes the working initializer, new-destination and parent-directory rules, editable project resources, app dependency installation and direct launch, empty views, and the analytical operations still unavailable. `README.md` was regenerated from it. The generated project README already documented its ownership, authoring files, branding, app packages, and direct launch, so it was unchanged. The maintainer also reported successful project creation, app launch, and repeat-destination rejection; this supplements the reproducible checks below.
