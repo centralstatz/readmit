@@ -8,11 +8,11 @@ Each increment section describes its **current** implementation. When later work
 
 ## Current implementation status
 
-- **Overall stage:** Stage 1 — Complete Structural Scaffolding is underway. Stage 1.2 is the latest verified increment.
-- **Available now:** A conventional, installable R package skeleton; the Stage 1.1 project-authoring resources; and a project-contained Shiny app with branding, Current Risk Pool and Overview navigation, and empty analytical views. The two analytical authoring functions remain stubs.
-- **Not yet available:** Public project initialization, canonical processing, risk assessments, persistent history, and analytical products. The package exports no project operations; a package app launcher is not planned.
-- **Current use and limitation:** The installed template can be copied into a project and its app launched directly with `shiny::runApp()` when the project's documented app packages are installed. The package cannot yet create a project or replace template identity placeholders for the user. Application-only packages are not package dependencies.
-- **Next increment:** Stage 1.3 — Project Initializer.
+- **Overall stage:** Stage 1 — Complete Structural Scaffolding is underway. Stage 1.3 is the latest verified increment.
+- **Available now:** A conventional, installable R package; `rrp_project_init()` creates a complete user-owned project from the installed template, including editable configuration and authoring resources and a branded Shiny app with Current Risk Pool and Overview navigation and empty analytical views. The two analytical authoring functions remain stubs.
+- **Not yet available:** Canonical processing, risk assessments, persistent history, and analytical products. A package app launcher is not planned.
+- **Current use and limitation:** Create a project at a new destination with `rrp_project_init(path, project_id)`, edit its authoring scripts and branding, and launch its app directly with Shiny after installing the app's documented packages. Initialization creates no analytical state, and application-only packages are not package dependencies.
+- **Next increment:** Stage 1.4 — Focused Integration and Package Check.
 
 ## Implementation records
 
@@ -41,7 +41,7 @@ Each increment section describes its **current** implementation. When later work
 
 The previous implementation report said an unrestricted `R CMD check` reached the PDF-manual step but could not complete because `pdflatex` was unavailable. That unrestricted check was not repeated for this record; `pdflatex` is still absent from the current environment. The successful check above is specifically `R CMD check --no-manual`.
 
-**Current limitation.** No code copies the template into a new project or substitutes its identity placeholders. Those responsibilities belong to Stage 1.3; the analytical scripts still require project-owner implementation.
+**Current limitation.** The analytical scripts still require project-owner implementation. Stage 1.3 now copies these resources and substitutes their project identity placeholders.
 
 #### Stage 1.2 — Permanent Empty-State App Shell
 
@@ -55,4 +55,20 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 **Verification performed on 2026-10-29.** The package installed successfully with no app-only dependency declarations. Loading its namespace did not load `shiny`, `bslib`, or `yaml`; `system.file()` still located the installed app files. A temporary project copied from the installed template had no `source/`, `state/`, or products. `shiny::runApp()` served the app locally; HTTP requests returned its page, stylesheet, and project logo, with the latter two matching the project files. The page contained both navigation views and all four empty regions; a headless browser selected **Overview** and showed its two empty summaries. The app source and CSS are unchanged from the prior desktop and responsive visual inspection. `R CMD build` succeeded, and `R CMD check --no-manual` finished with **Status: OK**, including the existing `testthat` load test and no unused-imports NOTE. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable.
 
-**Current limitation.** The app always shows empty states until later product-reading work; this is the intended Stage 1.2 behavior. Project initialization belongs to Stage 1.3. The app packages are installed in this R environment, so installation was not tested in an environment where they are physically absent; the package metadata and namespace check establish the intended separation here.
+**Current limitation.** The app always shows empty states until later product-reading work; this is the intended Stage 1.2 behavior. Stage 1.3 copies it into initialized projects without changing its source. The app packages are installed in this R environment, so installation was not tested in an environment where they are physically absent; the package metadata and namespace check establish the intended separation here.
+
+#### Stage 1.3 — Project Initializer
+
+- **Status:** Verified
+- **Initial implementation:** 2026-10-29 (current working tree)
+- **Last verified:** 2026-10-29
+
+**Implementation.** `rrp_project_init(path, project_id)` is the first exported project operation. Both arguments are required. `path` names a new destination whose parent already exists; `project_id` is a nonempty ASCII identifier beginning with a letter or digit and otherwise containing letters, digits, `.`, `_`, or `-`. The function returns the normalized project path invisibly. Its roxygen help documents the created resources, authoring responsibility, absence of analytical state, and direct Shiny launch. `R/rrp-project-init.R` implements the operation; roxygen generated its `NAMESPACE` export and `man/rrp_project_init.Rd`. `tests/testthat/test-rrp-project-init.R` covers the ordinary copy and destination behavior. No package dependency was added.
+
+**Copying and safety.** The function locates `inst/project-template/` through `system.file()` in the installed package, creates the requested directory, and copies all template entries, including nested and hidden files, with base `file.copy()`. It replaces `@@RRP_PROJECT_ID@@` only in `rrp-project.dcf` and `_brand.yml`, filling the DCF identity and the initial brand names and logo text. All other files, including the app, styling, and authoring stubs, are copied unchanged and become user-owned. Existing directories (even empty ones) and files are rejected before creation; repeat initialization cannot overwrite edits. If copying or substitution fails after directory creation, the function attempts to remove only that newly created incomplete destination. It does not create `source/`, `state/`, or products.
+
+**Relationship to the plan.** This is the planned small, installed-template initializer. It adds no launcher, analytical operation, template framework, or application dependency. The project ID uses a simple filename-friendly syntax so the same value can fill the existing unquoted DCF and quoted YAML fields without a template-rendering dependency. No material scope deviation was needed.
+
+**Verification performed on 2026-10-29.** Focused `testthat` tests passed for complete template copying, identity substitution, unchanged app and script resources, absence of analytical state, and rejection of existing empty directories, nonempty directories, files, and repeat initialization without changing their contents. `R CMD INSTALL` succeeded. Using that installed package, the public export and generated help were found; a project was created; both DCF files remained readable; `_brand.yml` parsed with the app's YAML package and contained the selected identity; and the generated file tree matched the installed template. Loading only the `readmit` namespace did not load `shiny`, `bslib`, or `yaml`. The initialized project's app launched directly with `shiny::runApp()` and served both navigation views, all four empty states, the selected brand, CSS, and logo; the served CSS and logo matched the project files. `R CMD build` succeeded, and `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Repository-index access emitted warnings in this restricted environment but did not change the check status. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable.
+
+**Current limitation.** The initializer provides the generic editable project only. The owner must implement the two analytical scripts; analytical state, execution, and products remain future work. The application runtime packages were available in this verification environment, so physical installation without those packages was not exercised.
