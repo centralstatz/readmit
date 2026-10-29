@@ -8,11 +8,11 @@ Each increment section describes its **current** implementation. When later work
 
 ## Current implementation status
 
-- **Overall stage:** Stage 1 — Complete Structural Scaffolding is underway. Stage 1.3 is the latest verified increment.
-- **Available now:** A conventional, installable R package; `rrp_project_init()` creates a complete user-owned project from the installed template, including editable configuration and authoring resources and a branded Shiny app with Current Risk Pool and Overview navigation and empty analytical views. The two analytical authoring functions remain stubs.
-- **Not yet available:** Canonical processing, risk assessments, persistent history, and analytical products. A package app launcher is not planned.
-- **Current use and limitation:** Create a project at a new destination with `rrp_project_init(path, project_id)`, edit its authoring scripts and branding, and launch its app directly with Shiny after installing the app's documented packages. Initialization creates no analytical state, and application-only packages are not package dependencies.
-- **Next increment:** Stage 1.4 — Focused Integration and Package Check.
+- **Overall stage:** Stage 1 — Complete Structural Scaffolding: **Verified / Complete**. Stage 1.4 is the latest verified increment.
+- **Available now:** A conventional, installable R package; `rrp_project_init()` creates a complete user-owned project from the installed template, including editable configuration and authoring resources and a branded Shiny app with Current Risk Pool and Overview navigation and empty analytical views. The structural workflow has passed installed-package integration verification.
+- **Not yet available:** Project validation, canonical processing, risk assessments, persistent history, and analytical products. The two analytical authoring functions remain stubs; a package app launcher is not planned.
+- **Current use and limitation:** Create a project at a new destination with `rrp_project_init(path, project_id)`, edit its configuration, authoring scripts, and branding, and launch its app directly with Shiny after installing the app's documented packages. Initialization creates no analytical state, and application-only packages are not package dependencies.
+- **Next stage:** Stage 2 — Project Authoring and Canonical Source. It has not begun.
 
 ## Implementation records
 
@@ -37,7 +37,7 @@ Each increment section describes its **current** implementation. When later work
 
 **Relationship to the plan.** The seven files fulfill the planned Stage 1.1 resource set and keep the historical two-file configuration and branding conventions in a smaller form. The historical logo was reused; historical registration, extension-library, resource-catalog, and provider-framework machinery was not carried over. There is no material deviation from the planned increment.
 
-**Verification performed on 2026-10-29.** `R CMD INSTALL -l <temporary-library> .` passed. From the installed package, `system.file()` located the template; all seven files existed; base `read.dcf()` read both DCF files; both scripts parsed; and invoking each function produced its intended error. A byte comparison confirmed that the PNG matches the historical project asset. `R CMD build` succeeded, and `R CMD check --no-manual` on that source package finished with **Status: OK**, including the existing `testthat` load test. The repository currently has no automated test dedicated to these static resources.
+**Verification performed on 2026-10-29.** `R CMD INSTALL -l <temporary-library> .` passed. From the installed package, `system.file()` located the template; all seven files existed; base `read.dcf()` read both DCF files; both scripts parsed; and invoking each function produced its intended error. A byte comparison confirmed that the PNG matches the historical project asset. `R CMD build` succeeded, and `R CMD check --no-manual` on that source package finished with **Status: OK**, including the existing `testthat` load test. Stage 1.3 later added automated coverage of the installed template's copied resources.
 
 The previous implementation report said an unrestricted `R CMD check` reached the PDF-manual step but could not complete because `pdflatex` was unavailable. That unrestricted check was not repeated for this record; `pdflatex` is still absent from the current environment. The successful check above is specifically `R CMD check --no-manual`.
 
@@ -60,7 +60,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 #### Stage 1.3 — Project Initializer
 
 - **Status:** Verified
-- **Initial implementation:** 2026-10-29 (current working tree)
+- **Initial implementation:** 2026-10-29 (Git commit `a4375d9`, “Stage 1.3 complete”)
 - **Last verified:** 2026-10-29
 
 **Implementation.** `rrp_project_init(path, project_id)` is the first exported project operation. Both arguments are required. `path` names a new destination whose parent already exists; `project_id` is a nonempty ASCII identifier beginning with a letter or digit and otherwise containing letters, digits, `.`, `_`, or `-`. The function returns the normalized project path invisibly. Its roxygen help documents the created resources, authoring responsibility, absence of analytical state, and direct Shiny launch. `R/rrp-project-init.R` implements the operation; roxygen generated its `NAMESPACE` export and `man/rrp_project_init.Rd`. `tests/testthat/test-rrp-project-init.R` covers the ordinary copy and destination behavior. No package dependency was added.
@@ -72,3 +72,17 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 **Verification performed on 2026-10-29.** Focused `testthat` tests passed for complete template copying, identity substitution, unchanged app and script resources, absence of analytical state, and rejection of existing empty directories, nonempty directories, files, and repeat initialization without changing their contents. `R CMD INSTALL` succeeded. Using that installed package, the public export and generated help were found; a project was created; both DCF files remained readable; `_brand.yml` parsed with the app's YAML package and contained the selected identity; and the generated file tree matched the installed template. Loading only the `readmit` namespace did not load `shiny`, `bslib`, or `yaml`. The initialized project's app launched directly with `shiny::runApp()` and served both navigation views, all four empty states, the selected brand, CSS, and logo; the served CSS and logo matched the project files. `R CMD build` succeeded, and `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Repository-index access emitted warnings in this restricted environment but did not change the check status. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable.
 
 **Current limitation.** The initializer provides the generic editable project only. The owner must implement the two analytical scripts; analytical state, execution, and products remain future work. The application runtime packages were available in this verification environment, so physical installation without those packages was not exercised.
+
+#### Stage 1.4 — Focused Integration and Package Check
+
+- **Status:** Verified
+- **Initial implementation:** 2026-10-29 (current working tree)
+- **Last verified:** 2026-10-29
+
+**Implementation and review.** Stage 1.1–1.3 already supplied the intended structural workflow. The existing `testthat` tests cover complete template copying, identity substitution, unchanged nested authoring and app files, absence of analytical state, editable project ownership, and rejection of existing destinations without changing them. They were retained without duplicate tests or package-code changes. The genuine gap was package-level guidance: `README.Rmd` now describes the working initializer, new-destination and parent-directory rules, editable project resources, app dependency installation and direct launch, empty views, and the analytical operations still unavailable. `README.md` was regenerated from it. The generated project README already documented its ownership, authoring files, branding, app packages, and direct launch, so it was unchanged. The maintainer also reported successful project creation, app launch, and repeat-destination rejection; this supplements the reproducible checks below.
+
+**Dependency boundary.** `DESCRIPTION` still declares only R and test-only `testthat`; `shiny`, `bslib`, and `yaml` remain documented app runtime packages, not `readmit` dependencies. The initializer uses base R to copy files and did not load those packages in the installed-package verification. No launcher or dependency-management code was added.
+
+**Verification performed on 2026-10-29.** Focused `testthat` tests passed. `R CMD build` and installation of the built package succeeded. Through the installed public API, a fresh project was created at the requested path with the expected normalized return value; its file tree matched the installed template, DCF files were readable, YAML branding parsed with the selected identity, the authoring stubs and app resources matched the template, and no `source/`, `state/`, or products existed. The generated app launched directly through `shiny::runApp()` and served Current Risk Pool, Overview, all four empty states, project identity, CSS, and logo; the served CSS and logo matched project files. The app source contains no analytical or package operation calls. Existing automated tests also establish repeat-destination protection and preservation of user edits. `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Restricted-network repository-index warnings occurred during the check, and README rendering warned that external badge images could not be fetched; neither affected the generated README or package check. `git diff --check` passed. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable.
+
+**Stage 1 completion and limits.** Stage 1's install, initialize, inspect/edit, and empty-app workflow is complete. Source mapping, risk calculation, validation, analytical state, execution, and products belong to later stages. The app packages were present in this environment, so physical installation without them was not tested; the metadata and unloaded namespace support the intended dependency separation.
