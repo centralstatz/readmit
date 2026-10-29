@@ -103,3 +103,21 @@ surrounding it.**
 Every additional abstraction, dependency, validation mechanism, or
 operational process should have a clear purpose tied to RRP’s
 functionality, correctness, usability, or maintainability.
+
+## R Package Development Conventions
+
+- **Follow established R package conventions.** Use [R Packages
+  (2e)](https://r-pkgs.org/) by Hadley Wickham and Jenny Bryan as a
+  preferred reference for package structure, development workflows,
+  documentation, testing, dependency management, and general best
+  practices. Treat its guidance as a strong convention rather than a
+  strict rule; favor practical decisions appropriate to this package.
+
+- **Prefer minimal, purposeful dependencies.** Keep external
+  dependencies to those that provide meaningful value. Prefer base R for
+  straightforward operations when it offers a reasonably simple,
+  readable solution rather than introducing a dependency for convenience
+  alone. Use established packages when they materially improve clarity,
+  functionality, maintainability, or development efficiency. Avoid
+  unnecessary dependency avoidance that would result in more complex
+  custom code.

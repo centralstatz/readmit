@@ -84,6 +84,11 @@
 <p><strong>Build a rigorous analytical product, not an elaborate software system surrounding it.</strong></p>
 <p>Every additional abstraction, dependency, validation mechanism, or operational process should have a clear purpose tied to RRP’s functionality, correctness, usability, or maintainability.</p>
 </div>
+<div class="section level2">
+<h2 id="r-package-development-conventions">R Package Development Conventions<a class="anchor" aria-label="anchor" href="#r-package-development-conventions"></a></h2>
+<ul><li><p><strong>Follow established R package conventions.</strong> Use <a href="https://r-pkgs.org/" class="external-link">R Packages (2e)</a> by Hadley Wickham and Jenny Bryan as a preferred reference for package structure, development workflows, documentation, testing, dependency management, and general best practices. Treat its guidance as a strong convention rather than a strict rule; favor practical decisions appropriate to this package.</p></li>
+<li><p><strong>Prefer minimal, purposeful dependencies.</strong> Keep external dependencies to those that provide meaningful value. Prefer base R for straightforward operations when it offers a reasonably simple, readable solution rather than introducing a dependency for convenience alone. Use established packages when they materially improve clarity, functionality, maintainability, or development efficiency. Avoid unnecessary dependency avoidance that would result in more complex custom code.</p></li>
+</ul></div>
 </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
