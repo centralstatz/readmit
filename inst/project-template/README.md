@@ -16,5 +16,13 @@ these files with your usual R tools.
 `readmit` owns the shared analytical target, eligibility rules, history, and
 products. You supply the source mapping and prediction engine for your project.
 The Shiny application lives under `app/`; its source and styling belong to you.
-You can launch it with `shiny::runApp("app")`, even before analytical products
-exist. It will show empty views until products are available.
+Its runtime packages are separate from the dependencies needed for `readmit`'s
+analytical operations. In the R environment that will run the app, install:
+
+```r
+install.packages(c("shiny", "bslib", "yaml"))
+```
+
+From the project root, launch it with `shiny::runApp("app")`, or open `app/app.R`
+in RStudio and use Run App. The app shows empty views before analytical products
+are available.
