@@ -13,6 +13,10 @@ these files with your usual R tools.
   authoring scripts.
 - `_brand.yml` and `assets/project-logo.png` provide editable project branding.
 
+From the project directory, `readmit::rrp_project_validate(".")` checks that
+the configuration and both authoring functions load. It does not run them or
+check clinical data; the initial function stubs pass this structural check.
+
 ## Canonical source mapping
 
 Implement `rrp_produce_canonical(project_root, as_of_time)` in
