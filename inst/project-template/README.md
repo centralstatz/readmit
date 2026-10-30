@@ -19,7 +19,7 @@ check clinical data; the initial function stubs pass this structural check.
 After implementing both scripts below, validate again. The mapper is an
 ordinary R function and may source supporting project-owned scripts. The
 package calls it during `rrp_run()`; validation does not inspect its returned
-canonical data.
+canonical data or guarantee that an assessment will complete.
 
 ## Canonical source mapping
 
@@ -87,7 +87,10 @@ run and its episode outcomes; it does not generate products.
 and the most recently recorded run. `rrp_inspect_history()` requires state and
 returns stored assessment rows, with optional exact run and episode filters.
 Neither inspection function sources your scripts. The app continues to show
-empty views until products are generated in a later increment.
+empty views until products are generated in a later increment. A provider
+failure is retained for that episode while other eligible episodes continue.
+Completed runs append history; later event knowledge does not rewrite earlier
+assessment rows.
 
 `readmit` owns the shared analytical target, eligibility rules, history, and
 products. You supply the source mapping and prediction engine for your project.

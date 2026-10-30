@@ -8,11 +8,11 @@ Each increment section describes its **current** implementation. When later work
 
 ## Current implementation status
 
-- **Overall stage:** Stage 1 — Complete Structural Scaffolding and Stage 2 — Project Authoring and Canonical Source are both **Verified / Complete**. Stage 3 — Risk Assessment and Persistent History is **In progress**; Stage 3.5 is the latest verified increment.
-- **Available now:** A conventional, installable R package; `rrp_project_init()` creates user-owned resources and an empty-state Shiny app, `rrp_project_validate()` checks structural authoring setup, and `rrp_state_init()` creates project-owned DuckDB history. After the owner implements both authoring scripts, `rrp_run(path, as_of_time)` retains a completed assessment and returns its run ID and outcome counts. Public `rrp_project_status()` and `rrp_inspect_history()` read project identity and retained outcomes without sourcing analytical scripts. The installed-package inspection workflow has been verified.
+- **Overall stage:** Stages 1 — Complete Structural Scaffolding, 2 — Project Authoring and Canonical Source, and 3 — Risk Assessment and Persistent History are **Verified / Complete**. Stage 3.6 is the latest verified increment.
+- **Available now:** A conventional, installable R package; `rrp_project_init()` creates user-owned resources and an empty-state Shiny app, `rrp_project_validate()` checks structural authoring setup, and `rrp_state_init()` creates project-owned DuckDB history. After the owner implements both authoring scripts, `rrp_run(path, as_of_time)` retains a completed assessment and returns its run ID and outcome counts. Public `rrp_project_status()` and `rrp_inspect_history()` read project identity and retained outcomes without sourcing analytical scripts. A complete installed-package workflow has been verified across fresh R processes.
 - **Not yet available:** Analytical products or populated Shiny views. A package app launcher is not planned.
-- **Current use and limitation:** Create a project, implement its source mapper and provider, validate its structure, initialize state explicitly, run assessments at UTC analytical times, and inspect project status and stored assessment rows. Status works before state; history inspection requires state. The project app remains empty until product-generation work is implemented, and application-only packages are not package dependencies.
-- **Next increment:** Stage 3.6 — Stage 3 Integration and Verification.
+- **Current use and limitation:** Create a project, implement its source mapper and provider, validate its structure, initialize state explicitly, run assessments at UTC analytical times, and inspect project status and stored assessment rows. Status works before state; history inspection requires state. Completed runs append history without revising earlier assessments. The project app remains empty until product-generation work is implemented, and application-only packages are not package dependencies.
+- **Next increment:** Stage 4.1 — Analytical products; detailed Stage 4 planning remains to be developed.
 
 ## Implementation records
 
@@ -147,7 +147,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 ### Stage 3 — Risk Assessment and Persistent History
 
-- **Status:** In progress
+- **Status:** Verified / Complete
 
 #### Stage 3.1 — Analytical Time and Eligibility
 
@@ -204,7 +204,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 #### Stage 3.5 — Status and History Inspection
 
 - **Status:** Verified
-- **Initial implementation:** 2026-10-30 (current working tree)
+- **Initial implementation:** 2026-10-30 (Git commit `a261be1`, “3.5 complete”)
 - **Last verified:** 2026-10-30
 
 **Implementation.** `R/project-inspection.R` adds exported `rrp_project_status(path)` and `rrp_inspect_history(path, run_id = NULL, episode_id = NULL)`, with two small internal checks for project identity and existing state. Both read `rrp-project.dcf` without sourcing or invoking project-authored R scripts. Status returns an ordinary list with configured `project_id`, logical `state_initialized`, integer `run_count`, character `latest_run_id`, and UTC `POSIXct` `latest_as_of_time`. Before state it reports false, zero, and typed missing latest fields; initialized empty state reports true and zero. It identifies the latest completed run by stored `created_at`, with `run_id` breaking equal-time ties, rather than by greatest analytical `as_of_time`. A partial, corrupt, or inaccessible existing state raises an error rather than appearing uninitialized.
@@ -213,4 +213,20 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 **Documentation and verification performed on 2026-10-30.** Roxygen generated both exports and help files. The package and generated-project READMEs show validation, state initialization, a run, status, and inspection, while retaining the product and app boundaries. The Stage 3.5 implementation plan now explicitly describes pre-state status, state-required inspection, no script sourcing, latest-recorded-run selection, typed rows, and zero-episode behavior. Focused tests passed for pre-state and empty-state status, typed empty reads, out-of-order analytical times, outcome and terminal-event preservation, exact and combined filters, stable ordering, script-sourcing isolation, read-only connection reuse, zero-episode runs, invalid paths and filters, and partial or corrupt state. The full package suite passed. `R CMD build`, installation of the built package, the focused workflow against that separate installation, and export/help checks passed; app-only packages remained unloaded. `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Restricted-network repository-index and README badge-fetch warnings did not change those results. `git diff --check` passed. No dependency, schema, Shiny, product, or analytical-contract change was made, and there was no deviation from the approved Stage 3.5 scope.
 
-**Current limitation and next increment.** Stage 3.6 will verify the complete Stage 3 workflow and reconcile its documentation and implementation record. CSV products and populated app views remain later-stage work.
+**Current limitation.** Stage 3.6 has now verified the complete installed-package workflow. CSV products and populated app views remain later-stage work.
+
+#### Stage 3.6 — Installed-Package Workflow and Check
+
+- **Status:** Verified
+- **Initial implementation:** 2026-10-30 (current working tree)
+- **Last verified:** 2026-10-30
+
+**Installed-package acceptance.** `tests/stage3-installed-workflow.R` uses only exported functions from a built package installed into a separate temporary library. It initializes a project outside the repository, replaces the two deliberate authoring stubs with small project-owned scripts, validates the project, observes status before and after explicit state initialization, and inspects typed empty history. Its seven-episode fixture includes accepted risk, reported failure, unusable result, thrown provider error, a delayed-availability readmission, known death, and a closed follow-up window. The source mapper returns both canonical tables at each assessment time, including the not-yet-available event. The project provider records each eight-field request locally; no model or private predictor system is introduced.
+
+**Analytical findings.** At 2026-01-10 12:00:00.125 UTC, the first run processed seven episodes: two accepted, three provider failures, and two ineligible. The delayed readmission was not yet available, so its episode received an accepted probability. At 2026-01-13 12:00:00.125 UTC, the second run processed seven: one accepted, three provider failures, and three ineligible; that episode was now `known_readmission`. A third run repeated the later analytical time with the same counts and a distinct UUID. Thirteen provider requests were recorded in the expected episode order; known death, closed-window, and later known-readmission rows never invoked the provider. Requests carried exactly the approved identifiers, UTC times, endpoint, and remaining seconds. Persisted history retained all three failure kinds and reasons, nullable probabilities, selected death/readmission event identity and times, and the first run's unchanged accepted outcome after later event knowledge became available. Run summaries, status count, run/episode filters, 21 stored assessment rows, append-only identities, UTC instants, and fractional seconds matched the explicit fixture expectations.
+
+**Durability and error boundaries.** A fresh R process loaded the separate installation and inspected the first and repeated-time runs after both project scripts were replaced with top-level errors; inspection succeeded without sourcing or invoking either script. Missing state refused a run without creating state. A source exception and an invalid canonical return each stopped an attempted run without changing the three completed runs; history remained readable. Existing Stage 3.3–3.4 transaction tests cover fatal persistence rollback. No Stage 4 products or Stage 5 application changes were created.
+
+**Documentation and verification performed on 2026-10-30.** The package and generated-project READMEs now state that validation is structural, provider failures remain episode outcomes, completed runs append history, and later event knowledge does not rewrite earlier assessments. No production code, dependency, schema, or public API changed. The implementation plan gained only a minimal `4.1 — Analytical products` label because it previously had no Stage 4.1 title; detailed Stage 4 planning remains deferred. The installed-package acceptance script passed directly against the separate temporary library and again under `R CMD check`. The full `testthat` suite passed. `R CMD build` and installation of the built package succeeded. `R CMD check --no-manual` finished with **Status: OK**, including the standalone acceptance script, tests, and examples, with no check NOTE or WARNING. Restricted-network repository-index and README badge-fetch warnings did not change those results. `git diff --check` passed. There was no deviation from the approved Stage 3.6 analytical scope.
+
+**Current limitation and next increment.** Stage 3 is complete. Stage 4.1 — Analytical products is next for planning and implementation; its product selection and CSV details remain deferred.

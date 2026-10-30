@@ -113,6 +113,7 @@ Assign a distinct run ID to every completed run, including repeats at the same `
 
 ### Stage 4 — Analytical products
 
+- **Next planned increment:** **4.1 — Analytical products.** Its detailed implementation plan remains to be developed before Stage 4 work begins.
 - **Objective:** Turn retained history into the three established analytical product categories.
 - **Major scope:** Generate current remaining risk, observed risk trajectories, and operational scope summaries; implement the separate product-refresh operation and write project-owned CSV data under the state area.
 - **Expected outcome:** A completed run can produce readable files for analysis and app consumption without executing another assessment. Its scope summary describes the assessed population and retained outcomes.
