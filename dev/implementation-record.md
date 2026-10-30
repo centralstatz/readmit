@@ -218,7 +218,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 #### Stage 3.6 — Installed-Package Workflow and Check
 
 - **Status:** Verified
-- **Initial implementation:** 2026-10-30 (current working tree)
+- **Initial implementation:** 2026-10-30 (Git commit `4ee7a0b`, “Stage 3 complete”)
 - **Last verified:** 2026-10-30
 
 **Installed-package acceptance.** `tests/stage3-installed-workflow.R` uses only exported functions from a built package installed into a separate temporary library. It initializes a project outside the repository, replaces the two deliberate authoring stubs with small project-owned scripts, validates the project, observes status before and after explicit state initialization, and inspects typed empty history. Its seven-episode fixture includes accepted risk, reported failure, unusable result, thrown provider error, a delayed-availability readmission, known death, and a closed follow-up window. The source mapper returns both canonical tables at each assessment time, including the not-yet-available event. The project provider records each eight-field request locally; no model or private predictor system is introduced.
