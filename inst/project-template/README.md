@@ -46,6 +46,22 @@ source-specific IDs, crosswalks, and private model predictors in project-owned
 code and data. You may use more R files under `R/` and source them from the
 mapping function with paths built from `project_root`; no registration is needed.
 
+## Risk provider
+
+Implement `rrp_calculate_risk(project_root, request)` in `R/calculate-risk.R`.
+The package calls it once per eligible episode. `request` contains that episode's
+`episode_id`, `patient_id`, `index_encounter_id`, UTC `POSIXct`
+`admission_time`, `discharge_time`, `as_of_time`, and `followup_window_end`, plus
+positive `remaining_seconds`. Estimate the probability of its first readmission
+strictly after `as_of_time` through the inclusive 30-day endpoint. Use
+`project_root` to obtain private predictors and model code; these do not belong
+in the shared request.
+
+Return exactly one of `list(probability = 0.24)` (one finite number from 0 to 1,
+inclusive) or `list(failure = "Required predictor unavailable")` (one nonblank
+reason). The generated function is a deliberate stub until you implement it.
+Structural project validation loads this function but does not invoke it.
+
 `readmit` owns the shared analytical target, eligibility rules, history, and
 products. You supply the source mapping and prediction engine for your project.
 The Shiny application lives under `app/`; its source and styling belong to you.
