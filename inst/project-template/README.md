@@ -16,10 +16,10 @@ these files with your usual R tools.
 From the project directory, `readmit::rrp_project_validate(".")` checks that
 the configuration and both authoring functions load. It does not run them or
 check clinical data; the initial function stubs pass this structural check.
-After implementing the source mapper below, validate again. The mapper is an
+After implementing both scripts below, validate again. The mapper is an
 ordinary R function and may source supporting project-owned scripts. The
-package will use it when analytical execution becomes available; validation
-does not inspect its returned canonical data.
+package calls it during `rrp_run()`; validation does not inspect its returned
+canonical data.
 
 ## Canonical source mapping
 
@@ -65,17 +65,25 @@ Structural project validation loads this function but does not invoke it.
 ## Analytical state
 
 Project creation supplies editable files and an empty-state application, but
-does not create analytical state. After authoring and validating the project,
-initialize its durable history explicitly:
+does not create analytical state. After implementing both scripts and validating
+the project, initialize its durable history and run an assessment at one UTC
+analytical time:
 
 ```r
+readmit::rrp_project_validate(".")
 readmit::rrp_state_init(".")
+assessment <- readmit::rrp_run(
+  ".", as.POSIXct("2026-01-10 12:00:00", tz = "UTC")
+)
+assessment$run_id
 ```
 
-This creates `state/history.duckdb` with empty run and assessment tables. It
-refuses an existing `state/` directory and does not call your source mapper or
-risk provider. Assessment execution will be added in a later increment; there
-is no public run command yet. State initialization creates no products.
+State initialization creates `state/history.duckdb` with empty run and
+assessment tables. It refuses an existing `state/` directory and does not call
+your source mapper or risk provider. Each `rrp_run()` call appends a completed
+run and its episode outcomes; it does not generate products. The public history
+inspection function will be added later. The app continues to show empty views
+until products are generated in a later increment.
 
 `readmit` owns the shared analytical target, eligibility rules, history, and
 products. You supply the source mapping and prediction engine for your project.

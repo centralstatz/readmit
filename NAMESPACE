@@ -2,4 +2,5 @@
 
 export(rrp_project_init)
 export(rrp_project_validate)
+export(rrp_run)
 export(rrp_state_init)

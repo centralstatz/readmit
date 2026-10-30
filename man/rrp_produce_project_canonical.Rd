@@ -4,12 +4,15 @@
 \alias{rrp_produce_project_canonical}
 \title{Project canonical source contract}
 \usage{
-rrp_produce_project_canonical(project_root, as_of_time)
+rrp_produce_project_canonical(project_root, as_of_time, project = NULL)
 }
 \arguments{
 \item{project_root}{Path to the project that owns the source-mapping script.}
 
 \item{as_of_time}{One finite UTC \code{POSIXct} analytical instant.}
+
+\item{project}{Optional project authoring bindings already loaded for an
+integrated run. When omitted, they are loaded from \code{project_root}.}
 }
 \value{
 The validated canonical list, with its two data frames unchanged.

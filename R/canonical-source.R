@@ -22,14 +22,17 @@
 #'
 #' @param project_root Path to the project that owns the source-mapping script.
 #' @param as_of_time One finite UTC `POSIXct` analytical instant.
+#' @param project Optional project authoring bindings already loaded for an
+#'   integrated run. When omitted, they are loaded from `project_root`.
 #' @return The validated canonical list, with its two data frames unchanged.
 #' @keywords internal
-rrp_produce_project_canonical <- function(project_root, as_of_time) {
+rrp_produce_project_canonical <- function(project_root, as_of_time,
+                                          project = NULL) {
   if (length(as_of_time) != 1L) {
     stop("`as_of_time` must be one finite UTC POSIXct instant.", call. = FALSE)
   }
   rrp_check_utc_time(as_of_time, "as_of_time")
-  project <- rrp_load_project_authoring(project_root)
+  if (is.null(project)) project <- rrp_load_project_authoring(project_root)
   canonical <- tryCatch(
     project$produce_canonical(project$project_root, as_of_time),
     error = function(error) {

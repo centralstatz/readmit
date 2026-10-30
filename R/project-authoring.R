@@ -91,6 +91,8 @@ rrp_load_project_authoring <- function(project_root) {
     project_id = project[["Project-ID"]],
     source_mapping_script = producer$path,
     risk_provider_script = provider$path,
+    source_mapping_reference = authoring[["Source-Mapping-Script"]],
+    risk_provider_reference = authoring[["Risk-Provider-Script"]],
     produce_canonical = producer$callable,
     calculate_risk = provider$callable
   )
