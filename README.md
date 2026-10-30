@@ -16,9 +16,9 @@ coverage](https://codecov.io/gh/centralstatz/readmit/graph/badge.svg)](https://a
 `readmit` creates editable, user-owned Readmission Risk Pool (RRP)
 projects. Each project includes configuration, source-mapping and
 risk-provider scripts, branding, and its own Shiny application.
-Persistent history can be initialized explicitly, and `rrp_run()`
-retains completed assessments. Public history inspection and analytical
-products are not yet available.
+Persistent history can be initialized explicitly, `rrp_run()` retains
+completed assessments, and status and history inspection are available.
+Analytical products are not yet available.
 
 ## Create and open a project
 
@@ -56,7 +56,8 @@ rrp_state_init(project)
 assessment <- rrp_run(
   project, as.POSIXct("2026-01-10 12:00:00", tz = "UTC")
 )
-assessment$run_id
+rrp_project_status(project)
+rrp_inspect_history(project, run_id = assessment$run_id)
 ```
 
 This creates empty `state/history.duckdb` tables in the project and
@@ -64,8 +65,10 @@ refuses to overwrite existing state. State initialization does not run
 either authoring function. Each `rrp_run()` call obtains canonical
 facts, assesses eligible episodes through the provider, and atomically
 appends the completed run and its episode outcomes. It returns the run
-ID and accepted, failed, and ineligible counts. Public history
-inspection and product generation will be added later.
+ID and accepted, failed, and ineligible counts. `rrp_project_status()`
+also works before state initialization; `rrp_inspect_history()` requires
+state. Both read retained information without sourcing your scripts.
+Product generation will be added later.
 
 The application uses `shiny`, `bslib`, and `yaml` in the environment
 where it runs. Install them there, then launch the app directly from the

@@ -75,15 +75,19 @@ readmit::rrp_state_init(".")
 assessment <- readmit::rrp_run(
   ".", as.POSIXct("2026-01-10 12:00:00", tz = "UTC")
 )
-assessment$run_id
+readmit::rrp_project_status(".")
+readmit::rrp_inspect_history(".", run_id = assessment$run_id)
 ```
 
 State initialization creates `state/history.duckdb` with empty run and
 assessment tables. It refuses an existing `state/` directory and does not call
 your source mapper or risk provider. Each `rrp_run()` call appends a completed
-run and its episode outcomes; it does not generate products. The public history
-inspection function will be added later. The app continues to show empty views
-until products are generated in a later increment.
+run and its episode outcomes; it does not generate products.
+`rrp_project_status()` works before state initialization and reports run count
+and the most recently recorded run. `rrp_inspect_history()` requires state and
+returns stored assessment rows, with optional exact run and episode filters.
+Neither inspection function sources your scripts. The app continues to show
+empty views until products are generated in a later increment.
 
 `readmit` owns the shared analytical target, eligibility rules, history, and
 products. You supply the source mapping and prediction engine for your project.
