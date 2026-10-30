@@ -15,8 +15,8 @@ output: github_document
 
 `readmit` creates editable, user-owned Readmission Risk Pool (RRP) projects.
 Each project includes configuration, source-mapping and risk-provider scripts,
-branding, and its own Shiny application. Risk assessment, persistent history,
-and analytical products are not yet available.
+branding, and its own Shiny application. Persistent history can be initialized
+explicitly; public risk assessment and analytical products are not yet available.
 
 ## Create and open a project
 
@@ -45,6 +45,17 @@ Implement the source mapper to return the canonical discharge episodes and
 terminal events described in the project README, then validate again after
 editing. The package can invoke that mapper internally, but there is no public
 analytical execution command yet.
+
+Initialize persistent project history separately when you are ready:
+
+```r
+rrp_state_init(project)
+```
+
+This creates empty `state/history.duckdb` tables in the project and refuses to
+overwrite existing state. It does not run the source mapper or provider, assess
+episodes, or create products. Internal history storage is available, but there
+is no public analytical run command yet.
 
 The application uses `shiny`, `bslib`, and `yaml` in the environment where it
 runs. Install them there, then launch the app directly from the same working

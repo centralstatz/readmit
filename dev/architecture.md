@@ -52,7 +52,7 @@ my-rrp-project/
     └── www/                 # styling and assets; then user-owned
 ```
 
-The app's entry point, supporting source, styling, and assets are user-owned after generation. The initializer creates no `source/`, `state/`, or products by default. Project owners may add local source files or connect to their sources through the mapping script. State initialization later creates `state/`, preferably with `state.dcf` and `history.duckdb`; product refresh writes generated CSV products under `state/products/`. These generated paths are distinct from the editable configuration, authoring scripts, branding, and app source. Exact generated metadata and storage details can be settled during implementation.
+The app's entry point, supporting source, styling, and assets are user-owned after generation. The initializer creates no `source/`, `state/`, or products by default. Project owners may add local source files or connect to their sources through the mapping script. State initialization creates `state/history.duckdb`; product refresh later writes generated CSV products under `state/products/`. These generated paths are distinct from the editable configuration, authoring scripts, branding, and app source.
 
 ## Configuration and extensibility
 

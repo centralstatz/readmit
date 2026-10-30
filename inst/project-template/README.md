@@ -62,6 +62,21 @@ inclusive) or `list(failure = "Required predictor unavailable")` (one nonblank
 reason). The generated function is a deliberate stub until you implement it.
 Structural project validation loads this function but does not invoke it.
 
+## Analytical state
+
+Project creation supplies editable files and an empty-state application, but
+does not create analytical state. After authoring and validating the project,
+initialize its durable history explicitly:
+
+```r
+readmit::rrp_state_init(".")
+```
+
+This creates `state/history.duckdb` with empty run and assessment tables. It
+refuses an existing `state/` directory and does not call your source mapper or
+risk provider. Assessment execution will be added in a later increment; there
+is no public run command yet. State initialization creates no products.
+
 `readmit` owns the shared analytical target, eligibility rules, history, and
 products. You supply the source mapping and prediction engine for your project.
 The Shiny application lives under `app/`; its source and styling belong to you.
