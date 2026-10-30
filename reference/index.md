@@ -6,5 +6,7 @@
   : Create an RRP project
 - [`rrp_project_validate()`](https://readmit.centralstatz.com/reference/rrp_project_validate.md)
   : Check an RRP project's authoring structure
+- [`rrp_run()`](https://readmit.centralstatz.com/reference/rrp_run.md) :
+  Run an RRP assessment and retain its history
 - [`rrp_state_init()`](https://readmit.centralstatz.com/reference/rrp_state_init.md)
   : Initialize persistent history for an RRP project

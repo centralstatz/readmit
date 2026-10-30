@@ -68,7 +68,7 @@ Additional columns are left unchanged but are not used by <code>readmit</code>.<
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rrp_produce_project_canonical</span><span class="op">(</span><span class="va">project_root</span>, <span class="va">as_of_time</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rrp_produce_project_canonical</span><span class="op">(</span><span class="va">project_root</span>, <span class="va">as_of_time</span>, project <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -81,6 +81,11 @@ Additional columns are left unchanged but are not used by <code>readmit</code>.<
 
 <dt id="arg-as-of-time">as_of_time<a class="anchor" aria-label="anchor" href="#arg-as-of-time"></a></dt>
 <dd><p>One finite UTC <code>POSIXct</code> analytical instant.</p></dd>
+
+
+<dt id="arg-project">project<a class="anchor" aria-label="anchor" href="#arg-project"></a></dt>
+<dd><p>Optional project authoring bindings already loaded for an
+integrated run. When omitted, they are loaded from <code>project_root</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

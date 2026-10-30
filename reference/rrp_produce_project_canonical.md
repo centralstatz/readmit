@@ -16,7 +16,7 @@ episode. Additional columns are left unchanged but are not used by
 ## Usage
 
 ``` r
-rrp_produce_project_canonical(project_root, as_of_time)
+rrp_produce_project_canonical(project_root, as_of_time, project = NULL)
 ```
 
 ## Arguments
@@ -28,6 +28,11 @@ rrp_produce_project_canonical(project_root, as_of_time)
 - as_of_time:
 
   One finite UTC `POSIXct` analytical instant.
+
+- project:
+
+  Optional project authoring bindings already loaded for an integrated
+  run. When omitted, they are loaded from `project_root`.
 
 ## Value
 
