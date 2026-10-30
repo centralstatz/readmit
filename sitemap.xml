@@ -7,8 +7,10 @@
 <url><loc>https://readmit.centralstatz.com/news/index.html</loc></url>
 <url><loc>https://readmit.centralstatz.com/reference/index.html</loc></url>
 <url><loc>https://readmit.centralstatz.com/reference/readmit-package.html</loc></url>
+<url><loc>https://readmit.centralstatz.com/reference/rrp_inspect_history.html</loc></url>
 <url><loc>https://readmit.centralstatz.com/reference/rrp_produce_project_canonical.html</loc></url>
 <url><loc>https://readmit.centralstatz.com/reference/rrp_project_init.html</loc></url>
+<url><loc>https://readmit.centralstatz.com/reference/rrp_project_status.html</loc></url>
 <url><loc>https://readmit.centralstatz.com/reference/rrp_project_validate.html</loc></url>
 <url><loc>https://readmit.centralstatz.com/reference/rrp_run.html</loc></url>
 <url><loc>https://readmit.centralstatz.com/reference/rrp_state_init.html</loc></url>
