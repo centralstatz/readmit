@@ -36,7 +36,9 @@ not run them. Both generated functions begin as deliberate stubs, so the
 untouched project passes this structural check. Implement the source
 mapper to return the canonical discharge episodes and terminal events
 described in the project README, and implement the risk provider for
-eligible episodes. Validate again after editing.
+eligible episodes. Validate again after editing. Validation checks that
+the scripts load; it does not establish that their data or predictions
+will work during a run.
 
 Then initialize persistent history and run at an explicit UTC analytical
 time:
@@ -63,7 +65,10 @@ counts.
 also works before state initialization;
 [`rrp_inspect_history()`](https://readmit.centralstatz.com/reference/rrp_inspect_history.md)
 requires state. Both read retained information without sourcing your
-scripts. Product generation will be added later.
+scripts. A provider failure is retained for its episode while other
+eligible episodes continue. Completed runs append history; later event
+knowledge does not rewrite earlier results. Product generation will be
+added later.
 
 The application uses `shiny`, `bslib`, and `yaml` in the environment
 where it runs. Install them there, then launch the app directly from the
