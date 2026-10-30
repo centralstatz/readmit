@@ -40,6 +40,10 @@ Supply episodes discharged by `as_of_time`. Keep event occurrence (`occurred_at`
 distinct from when the event became known (`available_at`); an event may become
 available after `as_of_time`. `readmit` derives the fixed 30-elapsed-day
 follow-up endpoint from `discharge_time`; do not supply that column.
+For operational assessments, supply the complete relevant discharge cohort each
+time. `readmit` applies its eligibility rules to those episodes; your source
+query need not reproduce them. A later partial run can become the selected
+current snapshot without merging episodes from an earlier run.
 
 Your source mapping owns the clinical definitions and data quality. Keep
 source-specific IDs, crosswalks, and private model predictors in project-owned
@@ -77,6 +81,7 @@ assessment <- readmit::rrp_run(
 )
 readmit::rrp_project_status(".")
 readmit::rrp_inspect_history(".", run_id = assessment$run_id)
+readmit::rrp_refresh_products(".")
 ```
 
 State initialization creates `state/history.duckdb` with empty run and
@@ -86,11 +91,21 @@ run and its episode outcomes; it does not generate products.
 `rrp_project_status()` works before state initialization and reports run count
 and the most recently recorded run. `rrp_inspect_history()` requires state and
 returns stored assessment rows, with optional exact run and episode filters.
-Neither inspection function sources your scripts. The app continues to show
-empty views until products are generated in a later increment. A provider
-failure is retained for that episode while other eligible episodes continue.
+Neither inspection function sources your scripts. A provider failure is
+retained for that episode while other eligible episodes continue.
 Completed runs append history; later event knowledge does not rewrite earlier
 assessment rows.
+
+After at least one completed run, `rrp_refresh_products()` derives three CSVs
+under `state/products/` from retained history. It selects the run with the
+greatest analytical `as_of_time`, not necessarily the most recently executed
+run. `current-remaining-risk.csv` includes every clinically eligible episode;
+provider failures have a missing probability, not zero or an earlier estimate.
+`remaining-risk-trajectory.csv` contains only recorded accepted estimates for
+those current eligible episodes, and `operational-scope-summary.csv` counts all
+outcomes in the selected run. Refresh does not invoke your mapper or provider,
+change history, or edit the app. Its three-file replacement is staged but not
+fully atomic if a filesystem error occurs during final replacement.
 
 `readmit` owns the shared analytical target, eligibility rules, history, and
 products. You supply the source mapping and prediction engine for your project.
@@ -104,4 +119,5 @@ install.packages(c("shiny", "bslib", "yaml"))
 
 From the project root, launch it with `shiny::runApp("app")`, or open `app/app.R`
 in RStudio and use Run App. The app shows empty views before analytical products
-are available.
+are available. Its views remain empty after product refresh until populated
+product views are implemented in a later stage.

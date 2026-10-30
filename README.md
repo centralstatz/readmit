@@ -18,7 +18,8 @@ projects. Each project includes configuration, source-mapping and
 risk-provider scripts, branding, and its own Shiny application.
 Persistent history can be initialized explicitly, `rrp_run()` retains
 completed assessments, and status and history inspection are available.
-Analytical products are not yet available.
+`rrp_refresh_products()` writes analytical CSVs from retained history;
+populated app views are a later development stage.
 
 ## Create and open a project
 
@@ -59,6 +60,7 @@ assessment <- rrp_run(
 )
 rrp_project_status(project)
 rrp_inspect_history(project, run_id = assessment$run_id)
+rrp_refresh_products(project)
 ```
 
 This creates empty `state/history.duckdb` tables in the project and
@@ -71,8 +73,19 @@ also works before state initialization; `rrp_inspect_history()` requires
 state. Both read retained information without sourcing your scripts. A
 provider failure is retained for its episode while other eligible
 episodes continue. Completed runs append history; later event knowledge
-does not rewrite earlier results. Product generation will be added
-later.
+does not rewrite earlier results. After at least one completed run,
+`rrp_refresh_products()` reads history and writes
+`state/products/current-remaining-risk.csv`,
+`remaining-risk-trajectory.csv`, and `operational-scope-summary.csv`. It
+selects the run with the greatest analytical time, which may differ from
+the most recently executed run. Supply the complete relevant discharge
+population for operational assessments: a later partial run replaces the
+earlier population in current products. The package determines clinical
+eligibility. Eligible provider-failure episodes stay in the current-risk
+file with a missing probability; earlier estimates are not substituted.
+Refresh does not rerun your scripts, change history, or edit the app. The
+three-file replacement is staged but is not fully atomic if a filesystem
+error occurs during final replacement.
 
 The application uses `shiny`, `bslib`, and `yaml` in the environment
 where it runs. Install them there, then launch the app directly from the
@@ -83,6 +96,6 @@ install.packages(c("shiny", "bslib", "yaml"))
 shiny::runApp("my-rrp-project/app")
 ```
 
-The app opens with Current Risk Pool and Overview views and shows empty
-states until analytical products become available in a later development
-stage.
+The app opens with Current Risk Pool and Overview views. Its current
+empty states remain until populated product views are implemented in a
+later stage.

@@ -1,5 +1,5 @@
 # Calculate the three Stage 4 products from one read-only history view.
-# This remains internal until the separate refresh operation is added.
+# The public refresh operation reuses this internal calculation.
 rrp_calculate_products <- function(path) {
   project <- rrp_inspection_project(path)
   connection <- rrp_history_connect(project$root, read_only = TRUE)
