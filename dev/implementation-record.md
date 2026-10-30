@@ -8,11 +8,11 @@ Each increment section describes its **current** implementation. When later work
 
 ## Current implementation status
 
-- **Overall stage:** Stage 1 — Complete Structural Scaffolding and Stage 2 — Project Authoring and Canonical Source are both **Verified / Complete**.
-- **Available now:** A conventional, installable R package; `rrp_project_init()` creates complete user-owned resources and a branded, empty-state Shiny app. `rrp_project_validate()` checks essential project configuration and authoring-function structure. Internal operations load configured authoring functions, call a project source mapper, and check its canonical return structure. The installed-package authoring workflow has been verified.
+- **Overall stage:** Stage 1 — Complete Structural Scaffolding and Stage 2 — Project Authoring and Canonical Source are both **Verified / Complete**. Stage 3 — Risk Assessment and Persistent History is **In progress**; Stage 3.1 is verified.
+- **Available now:** A conventional, installable R package; `rrp_project_init()` creates complete user-owned resources and a branded, empty-state Shiny app. `rrp_project_validate()` checks essential project configuration and authoring-function structure. Internal operations load configured authoring functions, call a project source mapper, check its canonical return structure, and determine episode eligibility and the fixed follow-up endpoint at an explicit analytical time. The installed-package authoring workflow has been verified.
 - **Not yet available:** Risk-provider execution, risk assessments, persistent history, analytical products, or populated Shiny views. Project owners must implement the generated source mapper and provider stubs; a package app launcher is not planned.
 - **Current use and limitation:** Create a project at a new destination with `rrp_project_init(path, project_id)`, edit its configuration, authoring scripts, and branding, validate its structural setup with `rrp_project_validate(path)`, and launch its app directly with Shiny after installing the app's documented packages. Validation does not establish analytical readiness; canonical source production remains internal package machinery, initialization creates no analytical state, and application-only packages are not package dependencies.
-- **Next stage:** Stage 3 — Risk Assessment and Persistent History.
+- **Next increment:** Stage 3.2 — Provider Request and Result Handling.
 
 ## Implementation records
 
@@ -119,7 +119,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 **Verification performed on 2026-10-29.** New focused tests in `tests/testthat/test-canonical-source.R` passed for multiple episodes (including one patient with two episodes), readmission and death events, delayed event availability, typed empty event and episode tables, supporting-script loading, source-error propagation, and representative structure, type, identity, timestamp, event-type, and reference failures. The full package suite passed. `R CMD build` and installation of the built package succeeded. An installed-package project used the updated copied template, returned canonical facts through the internal operation without state or provider execution, and retained unchanged provider and app resources. `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Restricted-network repository-index warnings did not change the check result. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable. `git diff --check` passed.
 
-**Current limitation.** Canonical facts are available only through an internal operation; the generated mapper still requires project-owner implementation. Stage 2.3 now provides public structural project validation. Eligibility, the 30-day endpoint, provider execution, state, and history remain later-stage work.
+**Current limitation.** Canonical facts are available only through an internal operation; the generated mapper still requires project-owner implementation. Stage 2.3 provides public structural project validation, and Stage 3.1 now derives the endpoint and eligibility internally. Provider execution, state, and history remain later-stage work.
 
 #### Stage 2.3 — Practical Project Validation
 
@@ -131,7 +131,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 **Verification performed on 2026-10-29.** Focused `testthat` tests passed for an initialized project with no analytical state, a relocated configured script, optional app and branding resources, and representative configuration, script, binding, and formal-argument errors. The full package test suite passed. `R CMD build` and installation of the built package succeeded. An installed-package smoke check confirmed the public export, invisible `TRUE`, copied guidance, absence of created state, and no loading of app-only packages. `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Restricted-network repository-index warnings did not change the check result. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable.
 
-**Current limitation.** Structural validation does not call the source mapper or risk provider and does not establish canonical-data or analytical readiness. Stage 2.4 now verifies the integrated authoring workflow. Eligibility, the 30-day endpoint, assessments, state, history, and products remain later-stage work.
+**Current limitation.** Structural validation does not call the source mapper or risk provider and does not establish canonical-data or analytical readiness. Stage 2.4 verifies the integrated authoring workflow; Stage 3.1 now derives eligibility and the endpoint internally. Assessments, state, history, and products remain later-stage work.
 
 #### Stage 2.4 — Integrated Authoring Workflow and Package Check
 
@@ -143,4 +143,20 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 **Verification performed on 2026-10-29.** The focused integration test passed, followed by the full package test suite. `R CMD build` and installation of the built package succeeded. The same integration test passed against the separately installed build; checks also confirmed the two existing public exports, installed project guidance, unchanged app template, and absence of loaded app-only packages. `R CMD check --no-manual` finished with **Status: OK**, including installed-package tests and examples, with no check NOTE or WARNING. Repository-index access emitted restricted-network warnings without changing the check result. The README was regenerated with RStudio's bundled Pandoc; badge-fetch warnings reflected the same network restriction. An unrestricted PDF-manual check was not run because `pdflatex` is unavailable. `git diff --check` passed.
 
-**Current limitation.** Stage 2 provides no public analytical execution command. Provider requests and execution, eligibility, the 30-day endpoint, assessments, persistent history, products, and populated app views remain for later stages. Stage 3 is next.
+**Current limitation.** Stage 2 provides no public analytical execution command. Stage 3.1 now provides internal eligibility and the fixed endpoint. Provider requests and execution, assessments, persistent history, products, and populated app views remain for later increments.
+
+### Stage 3 — Risk Assessment and Persistent History
+
+- **Status:** In progress
+
+#### Stage 3.1 — Analytical Time and Eligibility
+
+- **Status:** Verified
+- **Initial implementation:** 2026-10-29 (current working tree)
+- **Last verified:** 2026-10-29
+
+**Implementation.** `R/episode-eligibility.R` adds internal `rrp_evaluate_eligibility(canonical, as_of_time)`. It reuses Stage 2's canonical structural and finite UTC time checks and returns one ordinary data-frame row per supplied episode in source order. The result retains episode, patient, and index-encounter IDs; admission and discharge times; the derived `discharge_time + 30 * 24 * 60 * 60` endpoint; and an eligibility disposition. The dispositions are `eligible`, `window_closed`, `known_readmission`, and `known_death`. It uses `not_yet_discharged` only as an internal result for an episode supplied contrary to the mapper's documented discharge-population responsibility; this is not a new persisted outcome or source-population check. A closed window takes precedence. An event is known only when both occurrence and availability are at or before `as_of_time`; among known events, the earliest occurrence wins, with readmission ahead of death at equal time and event ID as the remaining deterministic tie-breaker. Only when a selected event determines known-event ineligibility does the row carry its ID, type, occurrence time, and availability time. Other rows have typed missing event context, including UTC `POSIXct` times. No project-authored function is called and no state is created.
+
+**Verification performed on 2026-10-29.** Focused `testthat` tests passed for discharge, within-window, immediately-before-endpoint, exact-endpoint, after-endpoint, and pre-discharge times; elapsed-second arithmetic; invalid analytical times; empty tables; multiple episodes and event associations; known readmission and death; events occurring or becoming available later; earliest-event, readmission/death, and event-ID ties; closed-window precedence; typed missing context; and the same canonical facts at two assessment times. The full package test suite passed. `R CMD build` and installation of the built package succeeded. `R CMD check --no-manual` finished with **Status: OK**, including tests and examples, with no check NOTE or WARNING. Restricted-network repository-index warnings did not change the check result. No new dependency, export, or project template change was made.
+
+**Current limitation and next increment.** This is only an internal eligibility result, not a completed assessment or persisted history. Provider request and result handling begins in Stage 3.2; state, public runs, inspection, products, and populated app views remain later work.
