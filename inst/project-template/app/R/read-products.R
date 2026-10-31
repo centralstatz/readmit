@@ -93,7 +93,13 @@ rrp_app_read_products <- function(project_root) {
         !valid_id(data$project_id) ||
         !all(vapply(data[5:12], function(value) {
           is.integer(value) && !anyNA(value) && all(value >= 0L)
-        }, logical(1L)))) {
+        }, logical(1L))) ||
+        data$episodes_assessed != as.double(data$eligible_count) +
+          data$ineligible_count ||
+        data$eligible_count != as.double(data$accepted_count) +
+          data$provider_failure_count ||
+        data$ineligible_count != as.double(data$window_closed_count) +
+          data$known_readmission_count + data$known_death_count) {
       scope <- invalid(scope, "operational-scope-summary.csv")
     }
   }

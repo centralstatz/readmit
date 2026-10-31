@@ -91,6 +91,104 @@ rrp_observation_table <- function(history) {
   )
 }
 
+rrp_count_label <- function(value) {
+  format(value, big.mark = ",", trim = TRUE, scientific = FALSE)
+}
+
+rrp_snapshot_ui <- function(time) {
+  if (is.null(time)) return(shiny::tags$span(
+    class = "rrp-snapshot-empty", "No analytical product snapshot loaded"
+  ))
+  shiny::tags$span(
+    class = "rrp-snapshot-label", "SELECTED ANALYTICAL SNAPSHOT",
+    shiny::tags$strong(rrp_utc_label(time))
+  )
+}
+
+rrp_scope_ui <- function(scope) {
+  shiny::tags$div(
+    class = "rrp-scope-summary",
+    shiny::tags$div(
+      class = "rrp-scope-total",
+      shiny::tags$span("EPISODES ASSESSED"),
+      shiny::tags$strong(rrp_count_label(scope$episodes_assessed)),
+      shiny::tags$small("Episodes considered in the selected assessment run")
+    ),
+    shiny::tags$div(
+      class = "rrp-scope-groups",
+      shiny::tags$section(
+        class = "rrp-scope-group rrp-scope-eligible",
+        shiny::tags$div(class = "rrp-scope-group-head",
+                        shiny::tags$span("Eligible episodes"),
+                        shiny::tags$strong(rrp_count_label(scope$eligible_count))),
+        shiny::tags$p("Eligible for a current remaining-risk estimate"),
+        shiny::tags$dl(
+          shiny::tags$div(shiny::tags$dt("Accepted estimates"),
+                          shiny::tags$dd(rrp_count_label(scope$accepted_count))),
+          shiny::tags$div(shiny::tags$dt("Provider failures"),
+                          shiny::tags$dd(rrp_count_label(scope$provider_failure_count)))
+        )
+      ),
+      shiny::tags$section(
+        class = "rrp-scope-group rrp-scope-ineligible",
+        shiny::tags$div(class = "rrp-scope-group-head",
+                        shiny::tags$span("Ineligible episodes"),
+                        shiny::tags$strong(rrp_count_label(scope$ineligible_count))),
+        shiny::tags$p("Outside the current eligible pool"),
+        shiny::tags$dl(
+          shiny::tags$div(shiny::tags$dt("Follow-up window closed"),
+                          shiny::tags$dd(rrp_count_label(scope$window_closed_count))),
+          shiny::tags$div(shiny::tags$dt("Known readmission"),
+                          shiny::tags$dd(rrp_count_label(scope$known_readmission_count))),
+          shiny::tags$div(shiny::tags$dt("Known death"),
+                          shiny::tags$dd(rrp_count_label(scope$known_death_count)))
+        )
+      )
+    ),
+    shiny::tags$p(
+      class = "rrp-scope-reconcile",
+      "Assessed = eligible + ineligible. Eligible = accepted estimates + provider failures."
+    )
+  )
+}
+
+rrp_risk_summary_ui <- function(current) {
+  accepted <- current$probability[current$disposition == "accepted"]
+  if (!length(accepted)) return(shiny::tags$div(
+    class = "rrp-risk-summary",
+    shiny::tags$p(class = "rrp-risk-denominator",
+                  "0 accepted current estimates"),
+    empty_state(
+      "No current numerical risk estimates available",
+      "This snapshot has no accepted current predictions. Provider failures are not zero risk."
+    )
+  ))
+  shiny::tags$div(
+    class = "rrp-risk-summary",
+    shiny::tags$p(
+      class = "rrp-risk-denominator",
+      sprintf("%s accepted current estimates among %s eligible episodes",
+              rrp_count_label(length(accepted)), rrp_count_label(nrow(current)))
+    ),
+    shiny::tags$div(
+      class = "rrp-risk-metrics",
+      shiny::tags$div(class = "rrp-risk-metric",
+                      shiny::tags$span("Minimum"),
+                      shiny::tags$strong(rrp_percent_label(min(accepted)))),
+      shiny::tags$div(class = "rrp-risk-metric rrp-risk-median",
+                      shiny::tags$span("Median"),
+                      shiny::tags$strong(rrp_percent_label(stats::median(accepted)))),
+      shiny::tags$div(class = "rrp-risk-metric",
+                      shiny::tags$span("Maximum"),
+                      shiny::tags$strong(rrp_percent_label(max(accepted))))
+    ),
+    shiny::tags$p(
+      class = "rrp-risk-summary-note",
+      "Descriptive percentages from accepted current estimates only. Unavailable estimates and historical observations are excluded."
+    )
+  )
+}
+
 empty_state <- function(title, detail) {
   shiny::tags$div(
     class = "rrp-empty-state",
@@ -182,27 +280,24 @@ ui <- bslib::page_navbar(
         shiny::tags$span(class = "rrp-eyebrow", "READMISSION RISK POOL"),
         shiny::tags$h1("Overview"),
         shiny::tags$p(
-          "A descriptive view of current risk and the scope of assessments."
+          "A snapshot-level view of the assessed population and accepted ",
+          "current remaining-risk estimates."
         )
       ),
+      shiny::tags$div(class = "rrp-snapshot-bar rrp-overview-snapshot",
+                      shiny::uiOutput("rrp_overview_snapshot")),
       bslib::layout_columns(
-        col_widths = c(6, 6),
-        class = "rrp-content-grid",
+        col_widths = c(7, 5),
+        class = "rrp-content-grid rrp-overview-grid",
         bslib::card(
-          class = "rrp-panel",
-          bslib::card_header(shiny::tags$h2("Current risk")),
-          bslib::card_body(empty_state(
-            "Current-risk summary unavailable",
-            "Descriptive risk summaries are not displayed in this view yet."
-          ))
+          class = "rrp-panel rrp-overview-panel",
+          bslib::card_header(shiny::tags$h2("Operational Scope")),
+          bslib::card_body(shiny::uiOutput("rrp_overview_scope"))
         ),
         bslib::card(
-          class = "rrp-panel",
-          bslib::card_header(shiny::tags$h2("Operational scope")),
-          bslib::card_body(empty_state(
-            "Assessment summary unavailable",
-            "Scope counts are not displayed in this view yet."
-          ))
+          class = "rrp-panel rrp-overview-panel",
+          bslib::card_header(shiny::tags$h2("Current Risk Distribution")),
+          bslib::card_body(shiny::uiOutput("rrp_overview_risk"))
         )
       )
     )
@@ -220,6 +315,13 @@ server <- function(input, output, session) {
   current <- shiny::reactive({
     product <- products()$current
     if (product$status == "ok") product$data else NULL
+  })
+  snapshot_time <- shiny::reactive({
+    data <- current()
+    scope <- products()$scope
+    if (!is.null(data) && nrow(data)) return(data$as_of_time[[1L]])
+    if (scope$status == "ok") return(scope$data$as_of_time[[1L]])
+    NULL
   })
   no_products <- shiny::reactive(all(vapply(
     products(), function(product) product$status == "missing", logical(1L)
@@ -278,17 +380,34 @@ server <- function(input, output, session) {
   )
 
   output$rrp_snapshot <- shiny::renderUI({
-    data <- current()
-    scope <- products()$scope
-    time <- if (!is.null(data) && nrow(data)) data$as_of_time[[1L]] else
-      if (scope$status == "ok") scope$data$as_of_time[[1L]] else NULL
-    if (is.null(time)) return(shiny::tags$span(
-      class = "rrp-snapshot-empty", "No analytical product snapshot loaded"
+    rrp_snapshot_ui(snapshot_time())
+  })
+  output$rrp_overview_snapshot <- shiny::renderUI({
+    rrp_snapshot_ui(snapshot_time())
+  })
+  output$rrp_overview_scope <- shiny::renderUI({
+    product <- products()$scope
+    if (no_products()) return(empty_state(
+      "No analytical products yet",
+      "Run an assessment, then refresh products outside the app to view operational scope."
     ))
-    shiny::tags$span(
-      class = "rrp-snapshot-label", "SELECTED ANALYTICAL SNAPSHOT",
-      shiny::tags$strong(rrp_utc_label(time))
-    )
+    if (product$status != "ok") return(empty_state(
+      "Operational scope unavailable",
+      paste(product$message, "Refresh products outside the app if needed.")
+    ))
+    rrp_scope_ui(product$data)
+  })
+  output$rrp_overview_risk <- shiny::renderUI({
+    product <- products()$current
+    if (no_products()) return(empty_state(
+      "No analytical products yet",
+      "Run an assessment, then refresh products outside the app to view current risk."
+    ))
+    if (product$status != "ok") return(empty_state(
+      "Current risk summary unavailable",
+      paste(product$message, "Refresh products outside the app if needed.")
+    ))
+    rrp_risk_summary_ui(product$data)
   })
   output$rrp_product_notice <- shiny::renderUI({
     if (no_products()) return(NULL)

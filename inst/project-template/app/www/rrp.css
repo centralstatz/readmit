@@ -262,6 +262,71 @@ body {
 .rrp-observation-table td { border-bottom: 1px solid var(--rrp-line); padding: 0.45rem 0.35rem; }
 .rrp-observation-table td:last-child { overflow-wrap: anywhere; }
 
+.rrp-overview-panel { min-height: 29rem; }
+.rrp-overview-panel .card-body { padding: 1.25rem; }
+.rrp-overview-panel .rrp-empty-state { min-height: 23rem; }
+.rrp-scope-total {
+  background: #eaf3f5;
+  border: 1px solid #d8e8ec;
+  border-left: 4px solid var(--rrp-teal);
+  border-radius: 0.55rem;
+  display: grid;
+  gap: 0.1rem;
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+}
+.rrp-scope-total span,
+.rrp-risk-metric span {
+  color: var(--rrp-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+.rrp-scope-total strong { color: var(--rrp-ink); font-size: 2.2rem; line-height: 1.1; }
+.rrp-scope-total small { color: var(--rrp-muted); font-size: 0.78rem; }
+.rrp-scope-groups { display: grid; gap: 0.9rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rrp-scope-group {
+  background: #fbfcfc;
+  border: 1px solid var(--rrp-line);
+  border-radius: 0.55rem;
+  min-width: 0;
+  padding: 0.9rem;
+}
+.rrp-scope-eligible { border-top: 3px solid var(--rrp-teal); }
+.rrp-scope-ineligible { border-top: 3px solid #9baeb7; }
+.rrp-scope-group-head {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.6rem;
+  justify-content: space-between;
+}
+.rrp-scope-group-head span { font-size: 0.9rem; font-weight: 700; }
+.rrp-scope-group-head strong { font-size: 1.45rem; line-height: 1.1; }
+.rrp-scope-group > p { color: var(--rrp-muted); font-size: 0.75rem; margin: 0.3rem 0 0.8rem; }
+.rrp-scope-group dl { border-top: 1px solid var(--rrp-line); margin: 0; padding-top: 0.45rem; }
+.rrp-scope-group dl > div { display: flex; gap: 0.6rem; justify-content: space-between; padding: 0.25rem 0; }
+.rrp-scope-group dt { color: var(--rrp-muted); font-size: 0.78rem; font-weight: 500; }
+.rrp-scope-group dd { font-size: 0.82rem; font-weight: 700; margin: 0; }
+.rrp-scope-reconcile { color: var(--rrp-muted); font-size: 0.76rem; margin: 0.9rem 0 0; }
+
+.rrp-risk-denominator { color: var(--rrp-muted); font-size: 0.84rem; margin: 0 0 1rem; }
+.rrp-risk-metrics { display: grid; gap: 0.65rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.rrp-risk-metric {
+  background: #fbfcfc;
+  border: 1px solid var(--rrp-line);
+  border-radius: 0.55rem;
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0.9rem 0.7rem;
+}
+.rrp-risk-metric strong { font-size: clamp(1.15rem, 2vw, 1.7rem); line-height: 1.1; }
+.rrp-risk-median { background: #eaf3f5; border-color: #d8e8ec; }
+.rrp-risk-summary-note { color: var(--rrp-muted); font-size: 0.78rem; margin: 1rem 0 0; }
+.rrp-risk-summary .rrp-empty-state { min-height: 17rem; }
+
 .rrp-empty-state {
   align-items: center;
   border: 1px dashed #aebbc4;
@@ -302,5 +367,7 @@ body {
   .rrp-controls { gap: 0.8rem; grid-template-columns: 1fr; }
   .rrp-control-card .card-body { padding: 0.9rem; }
   .rrp-panel .card-body { padding: 0.9rem; }
+  .rrp-scope-groups { grid-template-columns: 1fr; }
+  .rrp-overview-panel .card-body { padding: 0.9rem; }
   .rrp-empty-state { min-height: 11rem; }
 }

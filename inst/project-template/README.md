@@ -149,7 +149,20 @@ observations for that episode. **History unavailable** means the trajectory
 CSV is missing, invalid, or incompatible with the current snapshot; the
 current pool remains usable. **Reload Data** rereads both current and historical
 CSV rows, updating the detail and sparklines. It keeps an episode selected only
-while that episode remains visible. The Overview page remains a placeholder.
+while that episode remains visible.
+
+**Overview** summarizes the selected analytical snapshot, not live status.
+**Episodes assessed** counts every episode considered in the selected run:
+eligible plus ineligible. Eligible episodes comprise accepted estimates and
+provider failures; the ineligible breakdown is closed follow-up windows, known
+readmissions, and known deaths. Minimum, median, and maximum remaining risk use
+only accepted **current** numerical estimates. Missing predictions and older
+historical estimates do not enter those statistics; no accepted estimates
+produce an explicit empty summary, not zero-valued risk. Pool search, sorting,
+range filtering, and selection do not change Overview. **Reload Data** updates
+it from the reread CSVs. If scope or current risk is missing, invalid, or from
+another snapshot, its area is marked unavailable while an independent valid
+area remains visible.
 
 The branded app launches normally before products exist and explains the empty
 state. A completed snapshot with zero eligible episodes shows a distinct empty

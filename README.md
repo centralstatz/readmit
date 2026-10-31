@@ -19,8 +19,8 @@ risk-provider scripts, branding, and its own Shiny application.
 Persistent history can be initialized explicitly, `rrp_run()` retains
 completed assessments, and status and history inspection are available.
 `rrp_refresh_products()` writes analytical CSVs from retained history. The
-project app displays an interactive Current Risk Pool and a selected episode's
-recorded risk trajectory; Overview remains a placeholder.
+project app displays an interactive Current Risk Pool, a selected episode's
+recorded risk trajectory, and a snapshot-level Overview.
 
 ## Create and open a project
 
@@ -107,5 +107,7 @@ filtering, and row selection. Failed predictions remain visible under numeric
 filtering and show **Unavailable** rather than zero risk. Selecting an episode
 shows its current estimate separately from accepted historical assessments in
 an interactive point chart and exact-observation table; compact sparklines
-appear in the pool. The app's **Reload Data** control rereads existing CSVs; it
-does not generate products. Overview content remains later work.
+appear in the pool. Overview summarizes operational counts and the minimum,
+median, and maximum of accepted current estimates, independent of pool filters.
+The app's **Reload Data** control rereads existing CSVs; it does not generate
+products.

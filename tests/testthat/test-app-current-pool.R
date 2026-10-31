@@ -142,6 +142,9 @@ test_that("reader flags snapshot mismatches without discarding current risk", {
   fixture$write(fixture$trajectory, "remaining-risk-trajectory.csv")
   scope <- fixture$scope
   scope$eligible_count <- 2L
+  scope$accepted_count <- 1L
+  scope$ineligible_count <- 1L
+  scope$window_closed_count <- 1L
   fixture$write(scope, "operational-scope-summary.csv")
   mismatch <- reader$rrp_app_read_products(project)
   expect_identical(mismatch$current$status, "ok")
