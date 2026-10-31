@@ -8,8 +8,9 @@ Persistent history can be initialized explicitly,
 retains completed assessments, and status and history inspection are
 available.
 [`rrp_refresh_products()`](https://readmit.centralstatz.com/reference/rrp_refresh_products.md)
-writes analytical CSVs from retained history; populated app views are a
-later development stage.
+writes analytical CSVs from retained history. The project app now
+displays the Current Risk Pool; its trajectory and Overview views remain
+placeholders.
 
 ## Create and open a project
 
@@ -89,19 +90,24 @@ Refresh does not rerun your scripts, change history, or edit the app.
 The three-file replacement is staged but is not fully atomic if a
 filesystem error occurs during final replacement.
 
-The application uses `shiny`, `bslib`, and `yaml` in the environment
-where it runs. Install them there, then launch the app directly from the
-same working directory used in the example:
+The application uses `shiny`, `bslib`, `reactable`, and `yaml` in the
+environment where it runs. Install them there, then launch the app
+directly from the same working directory used in the example:
 
 ``` r
 
-install.packages(c("shiny", "bslib", "yaml"))
+install.packages(c("shiny", "bslib", "reactable", "yaml"))
 shiny::runApp("my-rrp-project/app")
 ```
 
-The app opens with Current Risk Pool and Overview views. Its current
-empty states remain until populated product views are implemented in a
-later stage.
+The app opens with Current Risk Pool and Overview navigation. Before
+products exist, it shows a clear empty state. After refresh, Current
+Risk Pool displays accepted and failed eligible episodes with search,
+sorting, numeric-range filtering, and row selection. Failed predictions
+remain visible under numeric filtering and show **Unavailable** rather
+than zero risk. The app’s **Reload Data** control rereads existing CSVs;
+it does not generate products. Episode trajectory and Overview content
+remain later work.
 
 # Package index
 
