@@ -103,7 +103,9 @@ run. `current-remaining-risk.csv` includes every clinically eligible episode;
 provider failures have a missing probability, not zero or an earlier estimate.
 `remaining-risk-trajectory.csv` contains only recorded accepted estimates for
 those current eligible episodes, and `operational-scope-summary.csv` counts all
-outcomes in the selected run. Refresh does not invoke your mapper or provider,
+outcomes in the selected run. Read the files with ordinary CSV tools, for example
+`read.csv("state/products/current-remaining-risk.csv")` from the project root.
+Refresh does not invoke your mapper or provider,
 change history, or edit the app. Its three-file replacement is staged but not
 fully atomic if a filesystem error occurs during final replacement.
 

@@ -272,6 +272,229 @@ stage3_workflow <- function() {
             length(readRDS(file.path(project, "provider-requests.rds"))) == 13L,
             !dir.exists(file.path(project, "state", "products")))
   cat("Stage 3 installed-package acceptance workflow passed.\n")
+
+  # A later snapshot makes the current-failure/accepted-history distinction
+  # explicit without changing the Stage 3 expectations above.
+  expected_files <- c(
+    "README.md", "rrp-project.dcf", "rrp-authoring.dcf", "_brand.yml",
+    "assets/project-logo.png", "R/produce-canonical.R", "R/calculate-risk.R",
+    "app/app.R", "app/www/rrp.css"
+  )
+  stopifnot(all(file.exists(file.path(project, expected_files))))
+  writeLines(source_lines, source_script)
+  provider_lines_4 <- c(
+    provider_lines[1:5],
+    "  if (request$episode_id == 'episode-1')",
+    "    return(list(failure = 'Current predictor unavailable'))",
+    "  if (request$episode_id == 'episode-2')",
+    "    return(list(probability = 0.4))",
+    provider_lines[8:13]
+  )
+  writeLines(provider_lines_4, provider_script)
+  stopifnot(isTRUE(rrp_project_validate(project)))
+  time_4 <- stage3_time("2026-01-14 12:00:00.125")
+  extra <- episodes[1L, , drop = FALSE]
+  extra$episode_id <- "episode-8"
+  extra$patient_id <- "patient-8"
+  extra$index_encounter_id <- "encounter-8"
+  saveRDS(list(discharge_episode = rbind(episodes, extra),
+               terminal_event = events), file.path(project, "canonical.rds"))
+  run_4 <- rrp_run(project, time_4)
+  saveRDS(canonical, file.path(project, "canonical.rds"))
+  time_5 <- stage3_time("2026-01-15 12:00:00.125")
+  run_5 <- rrp_run(project, time_5)
+  stopifnot(identical(unlist(run_4[c("episodes_processed", "accepted",
+                                     "provider_failures", "ineligible")],
+                              use.names = FALSE), c(8L, 2L, 3L, 3L)),
+            identical(unlist(run_5[c("episodes_processed", "accepted",
+                                     "provider_failures", "ineligible")],
+                              use.names = FALSE), c(7L, 1L, 3L, 3L)),
+            identical(rrp_inspect_history(project, run_id = run_4$run_id)$
+                        disposition[8], "accepted"))
+  current_history <- rrp_inspect_history(project)
+  current_run <- rrp_inspect_history(project, run_id = run_5$run_id)
+  stopifnot(identical(rrp_project_status(project)$run_count, 5L),
+            nrow(current_history) == 36L,
+            identical(rrp_inspect_history(project, run_id = run_1$run_id),
+                      early),
+            identical(rrp_inspect_history(project, run_id = run_2$run_id),
+                      late),
+            identical(rrp_inspect_history(project, run_id = run_3$run_id),
+                      repeat_late),
+            identical(current_run$disposition, c(
+              "provider_failure", "accepted", "provider_failure",
+              "provider_failure", "known_readmission", "known_death",
+              "window_closed"
+            )),
+            is.na(current_run$probability[1]),
+            identical(current_run$probability[2], 0.4),
+            identical(early$probability[1], 0.25),
+            identical(late$probability[1], 0.25),
+            identical(repeat_late$probability[1], 0.25))
+
+  owned_files <- file.path(project, expected_files)
+  owned_before <- tools::md5sum(owned_files)
+  source_before <- readRDS(file.path(project, "source-times.rds"))
+  requests_before <- readRDS(file.path(project, "provider-requests.rds"))
+  refresh <- rrp_refresh_products(project)
+  product_names <- c(
+    current_risk = "current-remaining-risk.csv",
+    trajectory = "remaining-risk-trajectory.csv",
+    scope = "operational-scope-summary.csv"
+  )
+  stopifnot(identical(refresh$selected_run_id, run_5$run_id),
+            identical(refresh$as_of_time, time_5),
+            identical(names(refresh$files), names(product_names)),
+            identical(unname(refresh$files),
+                      file.path(root, "state", "products",
+                                unname(product_names))),
+            all(file.exists(refresh$files)),
+            identical(rrp_project_status(project)$run_count, 5L),
+            identical(rrp_inspect_history(project), current_history),
+            identical(readRDS(file.path(project, "source-times.rds")),
+                      source_before),
+            identical(readRDS(file.path(project, "provider-requests.rds")),
+                      requests_before),
+            identical(tools::md5sum(owned_files), owned_before))
+
+  # A completed empty run writes headers and a zero-count scope; no run fails.
+  zero_project <- tempfile("readmit-stage4-zero-")
+  on.exit(unlink(zero_project, recursive = TRUE), add = TRUE)
+  rrp_project_init(zero_project, "stage4-zero")
+  writeLines(c(
+    "rrp_produce_canonical <- function(project_root, as_of_time) list(",
+    "  discharge_episode = data.frame(",
+    "    episode_id = character(), patient_id = character(),",
+    "    index_encounter_id = character(),",
+    "    admission_time = as.POSIXct(character(), tz = 'UTC'),",
+    "    discharge_time = as.POSIXct(character(), tz = 'UTC')),",
+    "  terminal_event = data.frame(",
+    "    terminal_event_id = character(), episode_id = character(),",
+    "    event_type = character(),",
+    "    occurred_at = as.POSIXct(character(), tz = 'UTC'),",
+    "    available_at = as.POSIXct(character(), tz = 'UTC'))",
+    ")"
+  ), file.path(zero_project, "R", "produce-canonical.R"))
+  writeLines(
+    "rrp_calculate_risk <- function(project_root, request) list(probability = 0.5)",
+    file.path(zero_project, "R", "calculate-risk.R")
+  )
+  stopifnot(isTRUE(rrp_project_validate(zero_project)))
+  rrp_state_init(zero_project)
+  stage3_expect_error(rrp_refresh_products(zero_project),
+                      "no completed runs")
+  zero_time <- stage3_time("2026-01-16 12:00:00.125")
+  zero_run <- rrp_run(zero_project, zero_time)
+  stopifnot(identical(zero_run$episodes_processed, 0L),
+            identical(rrp_project_status(zero_project)$run_count, 1L),
+            nrow(rrp_inspect_history(zero_project)) == 0L)
+  zero_refresh <- rrp_refresh_products(zero_project)
+  stopifnot(identical(zero_refresh$selected_run_id, zero_run$run_id),
+            identical(zero_refresh$as_of_time, zero_time),
+            all(file.exists(zero_refresh$files)),
+            identical(rrp_project_status(zero_project)$run_count, 1L))
+
+  # Read actual CSV bytes in a fresh R process using base R alone.
+  saveRDS(list(run_1 = run_1, run_2 = run_2, run_3 = run_3,
+               run_4 = run_4, run_5 = run_5, zero_run = zero_run),
+          file.path(project, "product-expected.rds"))
+  csv_child <- tempfile("readmit-stage4-csv-", fileext = ".R")
+  on.exit(unlink(csv_child), add = TRUE)
+  writeLines(c(
+    "args <- commandArgs(trailingOnly = TRUE)",
+    "project <- args[[1L]]; zero_project <- args[[2L]]",
+    "expected <- readRDS(file.path(project, 'product-expected.rds'))",
+    "read_product <- function(root, name) read.csv(",
+    "  file.path(root, 'state', 'products', name),",
+    "  check.names = FALSE, stringsAsFactors = FALSE, na.strings = '')",
+    "current <- read_product(project, 'current-remaining-risk.csv')",
+    "trajectory <- read_product(project, 'remaining-risk-trajectory.csv')",
+    "scope <- read_product(project, 'operational-scope-summary.csv')",
+    "stopifnot(identical(names(current), c(",
+    "  'selected_run_id', 'as_of_time', 'episode_id', 'discharge_time',",
+    "  'followup_window_end', 'disposition', 'probability')),",
+    "  identical(names(trajectory), c(",
+    "    'selected_run_id', 'run_id', 'as_of_time', 'created_at',",
+    "    'episode_id', 'probability')),",
+    "  identical(names(scope), c(",
+    "    'selected_run_id', 'project_id', 'as_of_time', 'created_at',",
+    "    'episodes_assessed', 'eligible_count', 'accepted_count',",
+    "    'provider_failure_count', 'ineligible_count', 'window_closed_count',",
+    "    'known_readmission_count', 'known_death_count')))",
+    "selected <- expected$run_5$run_id",
+    "stopifnot(identical(current$episode_id, paste0('episode-', 1:4)),",
+    "  !anyDuplicated(current$episode_id),",
+    "  identical(current$disposition, c(",
+    "    'provider_failure', 'accepted', 'provider_failure',",
+    "    'provider_failure')),",
+    "  identical(current$probability, c(NA_real_, 0.4, NA_real_, NA_real_)),",
+    "  all(current$selected_run_id == selected),",
+    "  all(current$as_of_time == '2026-01-15T12:00:00.125000Z'),",
+    "  identical(as.numeric(as.POSIXct(current$as_of_time,",
+    "    format = '%Y-%m-%dT%H:%M:%OSZ', tz = 'UTC')),",
+    "    rep(as.numeric(expected$run_5$as_of_time), 4L)))",
+    "stopifnot(identical(trajectory$episode_id, c(",
+    "  rep('episode-1', 3L), rep('episode-2', 2L))),",
+    "  identical(trajectory$run_id, c(expected$run_1$run_id,",
+    "    expected$run_2$run_id, expected$run_3$run_id,",
+    "    expected$run_4$run_id, selected)),",
+    "  identical(trajectory$probability, c(0.25, 0.25, 0.25, 0.4, 0.4)),",
+    "  all(trajectory$selected_run_id == selected),",
+    "  identical(trajectory$as_of_time, c(",
+    "    '2026-01-10T12:00:00.125000Z',",
+    "    '2026-01-13T12:00:00.125000Z',",
+    "    '2026-01-13T12:00:00.125000Z',",
+    "    '2026-01-14T12:00:00.125000Z',",
+    "    '2026-01-15T12:00:00.125000Z')),",
+    "  all(as.POSIXct(trajectory$as_of_time,",
+    "    format = '%Y-%m-%dT%H:%M:%OSZ', tz = 'UTC') <=",
+    "    expected$run_5$as_of_time),",
+    "  all(trajectory$episode_id %in% current$episode_id),",
+    "  !any(trajectory$episode_id %in% paste0('episode-', 5:8)),",
+    "  !any(trajectory$run_id[trajectory$episode_id == 'episode-1'] == selected),",
+    "  all(nzchar(trajectory$created_at)))",
+    "counts <- c(episodes_assessed = 7L, eligible_count = 4L,",
+    "  accepted_count = 1L, provider_failure_count = 3L,",
+    "  ineligible_count = 3L, window_closed_count = 1L,",
+    "  known_readmission_count = 1L, known_death_count = 1L)",
+    "stopifnot(nrow(scope) == 1L,",
+    "  identical(scope$selected_run_id, selected),",
+    "  identical(scope$project_id, 'stage3-acceptance'),",
+    "  identical(scope$as_of_time, '2026-01-15T12:00:00.125000Z'),",
+    "  all(vapply(scope[names(counts)], is.integer, logical(1L))),",
+    "  identical(unlist(scope[names(counts)], use.names = TRUE), counts),",
+    "  scope$eligible_count == nrow(current),",
+    "  scope$eligible_count + scope$ineligible_count == scope$episodes_assessed,",
+    "  scope$accepted_count + scope$provider_failure_count ==",
+    "    scope$eligible_count,",
+    "  scope$window_closed_count + scope$known_readmission_count +",
+    "    scope$known_death_count == scope$ineligible_count,",
+    "  nzchar(scope$created_at))",
+    "zero_current <- read_product(zero_project, 'current-remaining-risk.csv')",
+    "zero_trajectory <- read_product(zero_project, 'remaining-risk-trajectory.csv')",
+    "zero_scope <- read_product(zero_project, 'operational-scope-summary.csv')",
+    "stopifnot(identical(names(zero_current), names(current)),",
+    "  identical(names(zero_trajectory), names(trajectory)),",
+    "  identical(names(zero_scope), names(scope)),",
+    "  nrow(zero_current) == 0L, nrow(zero_trajectory) == 0L,",
+    "  nrow(zero_scope) == 1L,",
+    "  identical(zero_scope$selected_run_id, expected$zero_run$run_id),",
+    "  identical(zero_scope$project_id, 'stage4-zero'),",
+    "  identical(zero_scope$as_of_time, '2026-01-16T12:00:00.125000Z'),",
+    "  all(vapply(zero_scope[names(counts)], is.integer, logical(1L))),",
+    "  all(unlist(zero_scope[names(counts)], use.names = FALSE) == 0L))",
+    "cat('Fresh-process CSV inspection passed.\\n')"
+  ), csv_child)
+  csv_output <- suppressWarnings(system2(
+    rscript, c("--vanilla", shQuote(csv_child), shQuote(project),
+               shQuote(zero_project)), stdout = TRUE, stderr = TRUE
+  ))
+  if (!is.null(attr(csv_output, "status")) && attr(csv_output, "status") != 0L) {
+    stop(paste(csv_output, collapse = "\n"))
+  }
+  stopifnot(any(grepl("Fresh-process CSV inspection passed", csv_output,
+                     fixed = TRUE)))
+  cat("Stage 4 installed-package acceptance workflow passed.\n")
 }
 
 stage3_workflow()
