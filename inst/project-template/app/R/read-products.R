@@ -98,8 +98,8 @@ rrp_app_read_products <- function(project_root) {
     }
   }
 
-  # Current risk anchors its own view. Other products must agree before a
-  # later app increment combines them with that view.
+  # Current risk anchors its own view. Companion products must agree before
+  # the app combines them with the selected pool.
   if (current$status == "ok" && nrow(current$data)) {
     selected_id <- current$data$selected_run_id[[1L]]
     selected_time <- current$data$as_of_time[[1L]]
@@ -123,7 +123,9 @@ rrp_app_read_products <- function(project_root) {
     }
     if (trajectory$status == "ok" && nrow(trajectory$data) &&
         (any(trajectory$data$selected_run_id != selected_id) ||
-         any(trajectory$data$as_of_time > selected_time))) {
+         any(trajectory$data$as_of_time > selected_time) ||
+         (current$status == "ok" &&
+          any(!trajectory$data$episode_id %in% current$data$episode_id)))) {
       trajectory <- mismatch(trajectory, "remaining-risk-trajectory.csv")
     }
   }

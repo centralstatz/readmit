@@ -224,14 +224,13 @@ test_that("app presents accepted, failed, zero, and filtered states", {
 
     session$setInputs(rrp_search = "", rrp_range = c(0, 1))
     session$setInputs(rrp_pool_table__reactable__selected = 3L)
-    expect_match(output$rrp_selected_episode$html, "episode-c")
+    expect_match(output$rrp_episode_detail$html, "episode-c")
     session$setInputs(rrp_pool_table__reactable__sorted = list(
       list(id = "probability", desc = TRUE)
     ))
-    expect_match(output$rrp_selected_episode$html, "episode-c")
+    expect_match(output$rrp_episode_detail$html, "episode-c")
     session$setInputs(rrp_search = "episode-b")
-    expect_match(output$rrp_selected_episode$html,
-                 "Select an episode in the table")
+    expect_match(output$rrp_episode_detail$html, "Select an episode")
 
     fixture$write(fixture$current[FALSE, ], "current-remaining-risk.csv")
     zero_scope <- fixture$scope

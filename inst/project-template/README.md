@@ -116,7 +116,7 @@ Its runtime packages are separate from the dependencies needed for `readmit`'s
 analytical operations. In the R environment that will run the app, install:
 
 ```r
-install.packages(c("shiny", "bslib", "reactable", "yaml"))
+install.packages(c("shiny", "bslib", "reactable", "plotly", "yaml"))
 ```
 
 From the project root, launch it with `shiny::runApp("app")`, or open `app/app.R`
@@ -135,8 +135,21 @@ pool. Click a column heading to sort, use **Find episode ID** to search, and
 adjust **Current probability range** to filter numeric estimates. Failed
 predictions remain visible under that range filter. The count above the table
 shows displayed rows against all eligible episodes. Clicking a row highlights
-its episode for inspection; the adjacent trajectory view and the Overview page
-remain placeholders until those views are populated.
+its episode and opens its detail card. The card labels the **current** estimate
+separately from recorded **historical** accepted assessments. Plotly markers
+show those assessments at their analytical times; hover shows UTC time, risk,
+and run ID. The small table lists every observation, including separate runs
+with the same time or probability. Table sparklines use only those accepted
+observations on a fixed 0% to 100% scale; a faint connector guides the eye but
+does not represent estimates between assessments. A failed current prediction
+remains **Unavailable** even when its episode has earlier accepted history.
+
+**No history** means the available trajectory product has no accepted
+observations for that episode. **History unavailable** means the trajectory
+CSV is missing, invalid, or incompatible with the current snapshot; the
+current pool remains usable. **Reload Data** rereads both current and historical
+CSV rows, updating the detail and sparklines. It keeps an episode selected only
+while that episode remains visible. The Overview page remains a placeholder.
 
 The branded app launches normally before products exist and explains the empty
 state. A completed snapshot with zero eligible episodes shows a distinct empty
