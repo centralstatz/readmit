@@ -116,10 +116,31 @@ Its runtime packages are separate from the dependencies needed for `readmit`'s
 analytical operations. In the R environment that will run the app, install:
 
 ```r
-install.packages(c("shiny", "bslib", "yaml"))
+install.packages(c("shiny", "bslib", "reactable", "yaml"))
 ```
 
 From the project root, launch it with `shiny::runApp("app")`, or open `app/app.R`
-in RStudio and use Run App. The app shows empty views before analytical products
-are available. Its views remain empty after product refresh until populated
-product views are implemented in a later stage.
+in RStudio and use Run App. The app reads generated CSVs at launch. **Reload Data**
+rereads those files while the app is open; it does not run an assessment
+or regenerate products. Run `readmit::rrp_refresh_products(".")` separately
+after assessments to update the files.
+
+The Current Risk Pool shows every clinically eligible episode in the selected
+snapshot, including provider failures. Accepted probabilities appear as
+percentages and fixed-scale bars from 0% to 100%; bar color is a visual aid, not
+a clinical risk category. A true 0% has a numeric label and an empty bar. A
+failed estimate says **Unavailable** and has no bar; an older estimate is never
+used as its current value. The selected analytical time is shown above the
+pool. Click a column heading to sort, use **Find episode ID** to search, and
+adjust **Current probability range** to filter numeric estimates. Failed
+predictions remain visible under that range filter. The count above the table
+shows displayed rows against all eligible episodes. Clicking a row highlights
+its episode for inspection; the adjacent trajectory view and the Overview page
+remain placeholders until those views are populated.
+
+The branded app launches normally before products exist and explains the empty
+state. A completed snapshot with zero eligible episodes shows a distinct empty
+pool. If an existing CSV cannot be read or products disagree on their selected
+snapshot, the app shows a named data message while keeping independent valid
+regions available where possible. Your app code and styling remain editable and
+are not overwritten by analytical runs or product refreshes.

@@ -5,6 +5,7 @@
   --rrp-surface: #ffffff;
   --rrp-canvas: #f4f7f8;
   --rrp-teal: #16697a;
+  --rrp-soft: #edf3f5;
 }
 
 body {
@@ -45,7 +46,7 @@ body {
   padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem;
 }
 
-.rrp-page-intro { margin-bottom: 1.6rem; }
+.rrp-page-intro { margin-bottom: 1.35rem; }
 .rrp-page-intro h1 { margin: 0.25rem 0 0.35rem; }
 .rrp-page-intro p { color: var(--rrp-muted); margin: 0; }
 
@@ -56,7 +57,83 @@ body {
   letter-spacing: 0.12em;
 }
 
-.rrp-content-grid { align-items: stretch; }
+.rrp-snapshot-bar {
+  align-items: center;
+  background: #eaf1f4;
+  border: 1px solid #d6e3e8;
+  border-radius: 0.65rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.rrp-snapshot-label {
+  color: var(--rrp-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  font-weight: 700;
+  gap: 0.3rem 0.7rem;
+  letter-spacing: 0.09em;
+}
+
+.rrp-snapshot-label strong {
+  color: var(--rrp-ink);
+  font-size: 0.83rem;
+  letter-spacing: 0;
+}
+
+.rrp-snapshot-empty { color: var(--rrp-muted); font-size: 0.88rem; }
+
+.rrp-reload-button.btn {
+  background: #fff;
+  border: 1px solid #b7cbd3;
+  color: #225267;
+  font-size: 0.8rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.rrp-reload-button.btn:hover,
+.rrp-reload-button.btn:focus-visible {
+  background: #dcebef;
+  border-color: var(--rrp-teal);
+}
+
+.rrp-control-card {
+  border: 1px solid var(--rrp-line);
+  margin-bottom: 1.2rem;
+}
+
+.rrp-control-card .card-body { padding: 1rem 1.25rem; }
+
+.rrp-controls {
+  align-items: start;
+  display: grid;
+  gap: 1.4rem;
+  grid-template-columns: minmax(13rem, 1fr) minmax(16rem, 1.5fr);
+}
+
+.rrp-controls .shiny-input-container { margin-bottom: 0; width: 100%; }
+.rrp-controls label { font-size: 0.82rem; font-weight: 700; }
+.rrp-control-note { color: var(--rrp-muted); font-size: 0.78rem; margin: 0.3rem 0 0; }
+.rrp-range-control .irs { margin: 0.1rem 0 0; }
+
+.rrp-product-notice {
+  background: #fff5ee;
+  border: 1px solid #e9c5ad;
+  border-left: 4px solid #b67649;
+  border-radius: 0.5rem;
+  color: #633d2b;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+}
+
+.rrp-product-notice p { font-size: 0.84rem; margin: 0.2rem 0 0; }
+
+.rrp-content-grid { align-items: start; }
 
 .rrp-panel {
   background: var(--rrp-surface);
@@ -72,7 +149,69 @@ body {
 }
 
 .rrp-panel h2 { font-size: 1.1rem; margin: 0; }
-.rrp-panel .card-body { display: flex; padding: 1.25rem; }
+.rrp-panel .card-body { display: block; padding: 1.1rem 1.25rem; }
+
+.rrp-panel-heading {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  justify-content: space-between;
+}
+
+.rrp-panel-heading .shiny-text-output {
+  color: var(--rrp-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.rrp-table-wrap { max-width: 100%; overflow-x: auto; }
+.rrp-current-table { min-width: 790px; }
+
+.rrp-current-table .rt-thead,
+.rrp-table-header {
+  background: var(--rrp-soft);
+  color: #334956;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.rrp-current-table .rt-td { align-items: center; font-size: 0.84rem; }
+.rrp-current-table .rt-tr-group { border-bottom-color: var(--rrp-line); }
+.rrp-current-table .rt-tr:hover { background: #f2f8fa; }
+.rrp-current-table .rt-tr-selected {
+  background: #e8f3f5;
+  box-shadow: inset 4px 0 var(--rrp-teal);
+}
+
+.rrp-current-table .rt-tr-selected:hover { background: #deedf0; }
+
+.rrp-risk-cell { min-width: 6.8rem; }
+.rrp-risk-value { color: var(--rrp-ink); display: block; font-weight: 750; }
+.rrp-risk-unavailable { color: #8d5545; font-weight: 700; }
+.rrp-risk-track {
+  background: #e8eff1;
+  border-radius: 1rem;
+  display: block;
+  height: 0.38rem;
+  margin-top: 0.32rem;
+  overflow: hidden;
+  width: 100%;
+}
+.rrp-risk-fill { border-radius: inherit; display: block; height: 100%; }
+
+.rrp-trajectory-shell .rrp-empty-state { min-height: 11rem; }
+.rrp-selected-note {
+  color: var(--rrp-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  gap: 0.3rem 0.6rem;
+  margin: 0 0 0.8rem;
+}
+.rrp-selected-note strong { color: var(--rrp-teal); }
 
 .rrp-empty-state {
   align-items: center;
@@ -110,5 +249,9 @@ body {
   .rrp-page { padding: 1.25rem 1rem 2rem; }
   .rrp-brand-logo { height: 2rem; width: 2.4rem; }
   .rrp-brand-name { font-size: 0.9rem; }
+  .rrp-snapshot-bar { align-items: flex-start; flex-direction: column; }
+  .rrp-controls { gap: 0.8rem; grid-template-columns: 1fr; }
+  .rrp-control-card .card-body { padding: 0.9rem; }
+  .rrp-panel .card-body { padding: 0.9rem; }
   .rrp-empty-state { min-height: 11rem; }
 }
