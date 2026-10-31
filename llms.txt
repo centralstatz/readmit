@@ -82,6 +82,9 @@ population for operational assessments: a later partial run replaces the
 earlier population in current products. The package determines clinical
 eligibility. Eligible provider-failure episodes stay in the current-risk
 file with a missing probability; earlier estimates are not substituted.
+The trajectory contains recorded accepted estimates for current eligible
+episodes. Read the generated files with ordinary CSV tools, such as
+`read.csv(file.path(project, "state/products/current-remaining-risk.csv"))`.
 Refresh does not rerun your scripts, change history, or edit the app.
 The three-file replacement is staged but is not fully atomic if a
 filesystem error occurs during final replacement.
