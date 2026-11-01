@@ -4,6 +4,8 @@ This working companion to `dev/architecture.md` preserves the original questions
 
 **Initial scaffolding priorities answered:** Q01–Q05 establish the analytical meaning, shared data, project authoring points, project contents, and operation boundaries. Q06–Q09 also have accepted direction. Q10–Q11 are deferred implementation choices with recorded preferences.
 
+**Stage 6 planning:** Q12–Q14 below are open product and release choices. None prevents review of the proposed eight-increment plan; resolve each before the named increment is finalized. The original Q01–Q11 answers remain unchanged.
+
 ## Analytical contract
 
 ### Q01 — Initial risk target and eligibility
@@ -125,3 +127,29 @@ This working companion to `dev/architecture.md` preserves the original questions
 - **Classification:** Implementation
 - **Status:** Deferred
 - **Answer**: Sure we can defer. Lean towards using what's established in the reference repo, but open to alternatives if there's a reason for it.
+
+## Stage 6 product and release planning
+
+### Q12 — Worked tutorial distribution
+
+- **Question:** Should the one comprehensive tutorial be an installed package vignette that pkgdown also publishes, or a website-only article?
+- **Why it matters:** Vignettes travel with the package but add build-time execution, dependency, portability, and CRAN-check considerations. A website-only article avoids some package-build costs but is less useful offline or from an installed package.
+- **Suggested direction:** Prefer one reproducible installed vignette that pkgdown renders, provided its simulated workflow stays compact and portable. Demonstrate Shiny launch without running it during rendering; choose a website-only article if the package-build burden is material.
+- **Classification:** Stage 6 planning
+- **Status:** Open — resolve in 6.4, before tutorial implementation.
+
+### Q13 — Public identity across package, app, and website
+
+- **Question:** What exact public naming and visual hierarchy should connect the Readmission Risk Pool platform, the `readmit` package, the package hex logo, GitHub banner, website, and project-owned app?
+- **Why it matters:** Consistent identity affects README language and assets, while initialized projects remain owner-editable and must not be silently restyled by later package work.
+- **Suggested direction:** Present **Readmission Risk Pool** as the platform and **readmit** as its R package; design related but purpose-specific hex, banner, and website assets. Align new project defaults with the platform without overwriting existing owners' files.
+- **Classification:** Stage 6 planning
+- **Status:** Open — confirm the wording in 6.3 and visual decisions in 6.5.
+
+### Q14 — GitHub release timing and CRAN corrections
+
+- **Question:** Should the public `v1.0.0` GitHub release follow CRAN acceptance, and how should any CRAN-requested source corrections affect the release commit, tag, and artifact?
+- **Why it matters:** The GitHub tag and source package should identify the accepted v1.0.0 source, even if the first CRAN submission needs a targeted correction. Publishing earlier could advertise a source state that CRAN does not accept.
+- **Suggested direction:** Follow the conventional post-acceptance GitHub release path, using the submitted commit recorded by `devtools::submit_cran()` and its temporary `CRAN-SUBMISSION` file where appropriate. Rebuild and verify any corrected submission, then tag and publish the accepted source commit; transition to `1.0.0.9000` afterward.
+- **Classification:** Stage 6 planning
+- **Status:** Open — confirm in 6.2 before fixing the release procedure; execute only in 6.8.
