@@ -26,9 +26,16 @@ rrp_inspect_history(path, run_id = NULL, episode_id = NULL)
 
 ## Value
 
-An ordinary data frame containing stored assessment identity, times,
-disposition, probability, failure detail, selected terminal-event
-context, and associated run metadata. Empty results retain the same
+An ordinary data frame with assessment identity `run_id`, `episode_id`,
+`patient_id`, and `index_encounter_id`; UTC times `admission_time`,
+`discharge_time`, and `followup_window_end`; outcome `disposition` and
+`probability`; provider `failure_kind` and `failure_reason`; selected
+event `terminal_event_id`, `terminal_event_type`,
+`terminal_occurred_at`, and `terminal_available_at`; and run context
+`project_id`, UTC `as_of_time`, UTC `created_at`,
+`source_mapping_script`, and `risk_provider_script`. A probability is
+present for accepted outcomes; failure and event fields are missing when
+inapplicable. Empty or unmatched filtered results retain the same
 columns and types, including UTC `POSIXct` timestamps.
 
 ## Details
@@ -39,6 +46,10 @@ before inspecting history. Rows are ordered by run creation time, run
 ID, and episode ID. Reads use a read-only connection and never create
 state or modify history. A completed run with zero episodes contributes
 no assessment row.
+[`rrp_run()`](https://readmit.centralstatz.com/reference/rrp_run.md)
+adds completed assessments;
+[`rrp_refresh_products()`](https://readmit.centralstatz.com/reference/rrp_refresh_products.md)
+derives CSVs from history.
 
 ## Examples
 
@@ -47,7 +58,7 @@ project <- tempfile("rrp-inspect-")
 rrp_project_init(project, "example-rrp")
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp3kGbrb/duckdb
+#> ℹ /tmp/RtmpJE9rSt/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -56,7 +67,7 @@ rrp_state_init(project)
 #> ℹ See ?duckdb_storage for details and alternatives.
 rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp3kGbrb/duckdb
+#> ℹ /tmp/RtmpJE9rSt/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
