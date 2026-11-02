@@ -58,7 +58,7 @@ project <- tempfile("rrp-inspect-")
 rrp_project_init(project, "example-rrp")
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpJE9rSt/duckdb
+#> ℹ /tmp/RtmprfLUlN/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -67,7 +67,7 @@ rrp_state_init(project)
 #> ℹ See ?duckdb_storage for details and alternatives.
 rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpJE9rSt/duckdb
+#> ℹ /tmp/RtmprfLUlN/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
