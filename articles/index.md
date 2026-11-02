@@ -2,5 +2,5 @@
 
 ### All vignettes
 
-- [Investigating a Hospital-Specific Report
-  (HSR)](https://centralstatz.github.io/readmit/articles/investigating-an-hsr.md):
+- [Implementing RRP: A Simulated Hospital
+  Walkthrough](https://readmit.centralstatz.com/articles/implementing-rrp.md):
