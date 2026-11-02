@@ -238,6 +238,14 @@ The [6.1 package-completeness assessment](assessments/2026-11-02_stage-6-1-packa
 
 **Overall 6.1 completion gate.** Confirm 6.1.A is recorded; F01, F02, and F04 are implemented and verified; automated coverage is measured; the maintainer-approved OIDC upload is accepted by Codecov; and the existing badge displays the coverage percentage. Build, separate-library installation, installed help/examples, focused tests, and ordinary package checks must pass. Preserve the public API and analytical architecture unless a concrete, approved defect warrants a change. The implementation record documents these outcomes. This gate is met; later Stage 6 work remains.
 
+#### Increment 6.2 — Versioning and Release Workflow Design: planning scaffold
+
+**Status:** In progress. 6.2.A is complete; maintainer review of its [assessment](assessments/2026-11-02_stage-6-2-release-conventions-assessment.md) and detailed planning of 6.2.B and 6.2.C are next. The maintainer prefers established *R Packages* and `usethis` conventions. The initial CRAN target is `1.0.0`, subject to CRAN feedback and the version actually accepted; no release operation occurs in 6.2.
+
+- **6.2.A — Release Conventions Assessment (Complete).** Evaluate repository state, historical CRAN publication, current release guidance, and actual release-tool behavior. Deliver a dated assessment with findings, recommendations, and outstanding decisions. Assessment only; no release implementation or execution.
+- **6.2.B — Release Procedure Design.** Use the assessment and maintainer decisions to define the release procedure for version management, CRAN submission and corrections, source provenance, GitHub publication, and post-release development. Deliver a maintainer-approved design. Keep its scope high-level until the assessment is reviewed.
+- **6.2.C — Release Procedure Scaffolding.** Document the approved procedure, principally in `dev/release-procedure.md`, and establish only necessary supporting files or conventions. No version bump, CRAN submission, release tag, GitHub publication, or custom release automation.
+
 ## Progressive stage planning
 
 Before each stage, inspect the code produced so far and plan only the immediate work needed for that stage. Reassess its scope, dependencies, and verification using actual behavior. If implementation reveals a better route or a material architectural change, update `dev/architecture.md` and this plan together. Future stages remain high-level until their turn; they are not a fixed task inventory.
