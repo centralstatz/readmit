@@ -240,7 +240,7 @@ The [6.1 package-completeness assessment](assessments/2026-11-02_stage-6-1-packa
 
 #### Increment 6.2 — Versioning and Release Workflow Design: detailed plan
 
-**Status:** In progress. [6.2.A](assessments/2026-11-02_stage-6-2-release-conventions-assessment.md) and 6.2.B are complete. **Next implementation activity:** 6.2.C. The initial CRAN target is `1.0.0`; the version CRAN accepts controls GitHub publication and the subsequent development version. All release execution remains in 6.8.
+**Status:** Complete. [6.2.A](assessments/2026-11-02_stage-6-2-release-conventions-assessment.md), 6.2.B, and 6.2.C are complete. **Next:** Review and plan Increment 6.3 — README and Public-Facing Messaging separately. The initial CRAN target remains `1.0.0`; the version CRAN accepts controls GitHub publication and the subsequent development version. All release execution remains in 6.8; Stage 6 remains in progress.
 
 **Approved decisions.** The current `DESCRIPTION` author, maintainer, CentralStatz copyright holder, and Apache License 2.0 attribution are correct and remain as they are. The existing CRAN `0.0.1` package had different functionality and an MIT license; the RRP purpose and public API change is intentional and breaking. Use conventional *R Packages*, `usethis`, `devtools`, Git, and CRAN practices. `usethis::use_version("major")` is the initial transition from `0.0.1.9000` to `1.0.0`; rejected submissions normally advance the patch version unless CRAN directs otherwise. After acceptance, use `usethis::use_github_release()` for the accepted version and `usethis::use_dev_version()` to derive its development successor. Do not require `usethis::use_release_issue()`, custom release automation, custom provenance or tarball preservation, or a manual GitHub tarball attachment. The concise, living maintainer reference will be `dev/release-procedure.md`.
 
@@ -259,7 +259,7 @@ The [6.1 package-completeness assessment](assessments/2026-11-02_stage-6-1-packa
 
 ##### 6.2.C — Release Procedure Scaffolding
 
-- **Status:** Planned; next implementation activity, following the completed 6.2.B design.
+- **Status:** Complete. The [maintainer procedure](release-procedure.md), `cran-comments.md` scaffold, and `.Rbuildignore` entry are in place and source-build exclusion is verified.
 - **Objective:** Put the approved design into lightweight maintainer-facing documentation and establish only conventional files needed for later release work.
 - **Scope:** Create `dev/release-procedure.md` as a concise, living guide for the maintainer and Codex. Cover the approved sequence, the 6.7/6.8 boundary, conventional commands and their meaningful file/Git/external side effects, email confirmation, patch resubmission and NEWS/CRAN-comments handling, the temporary `CRAN-SUBMISSION` record, accepted-commit GitHub publication, and development-version transition. Link to authoritative *R Packages*, `usethis`, `devtools`, and CRAN guidance instead of copying their manuals. Add a minimal `cran-comments.md` scaffold, preferably with `usethis::use_cran_comments()`, with only stable context or labeled placeholders; add the conventional `.Rbuildignore` entry and verify exclusion from a source build. Preserve the current development NEWS heading and historical `0.0.1` entry; final release notes and actual check/submission facts belong to later Stage 6 work.
 - **Deliverables:** `dev/release-procedure.md`, a minimal `cran-comments.md` scaffold, its `.Rbuildignore` entry, and an updated implementation record.

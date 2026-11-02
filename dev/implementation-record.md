@@ -10,9 +10,9 @@ Each increment section describes its **current** implementation. When later work
 
 - **Overall stage:** Stages 1 — Complete Structural Scaffolding, 2 — Project Authoring and Canonical Source, 3 — Risk Assessment and Persistent History, 4 — Analytical Products, and 5 — Populated Shiny App are **Verified / Complete**.
 - **Available now:** A conventional, installable R package; `rrp_project_init()` creates user-owned resources and a Shiny app, `rrp_project_validate()` checks structural authoring setup, and `rrp_state_init()` creates project-owned DuckDB history. After the owner implements both authoring scripts, `rrp_run(path, as_of_time)` retains completed assessments. Public `rrp_project_status()` and `rrp_inspect_history()` read retained outcomes, and `rrp_refresh_products(path)` produces three analytical CSVs from that history without another assessment. The project app reads those CSVs and offers an interactive Current Risk Pool with selected-episode history and a snapshot-level Overview.
-- **Not yet complete:** Stage 6 — v1.0.0 Product and Release Readiness. Increment 6.1 — Package Completeness and Public API is **Complete**. Increment 6.2 is **In progress**: 6.2.A and 6.2.B are complete; 6.2.C and 6.3–6.8 remain. A package app launcher is not planned.
+- **Not yet complete:** Stage 6 — v1.0.0 Product and Release Readiness. Increments 6.1 and 6.2 are **Complete**; 6.3–6.8 remain. A package app launcher is not planned.
 - **Current use and limitation:** Create a project, implement its source mapper and provider, validate its structure, initialize state, run assessments at UTC analytical times, inspect retained results, and explicitly refresh product CSVs. Completed runs append history without revising earlier assessments; refresh reads history without running the mapper or provider. The project app launches before products exist; after refresh it displays current and historical risk plus unfiltered operational and accepted-current-risk summaries. Application runtime packages are in `Suggests` for tests, not core `Imports`.
-- **Next step:** Implement the approved 6.2.C release procedure scaffolding as a separate increment. All release preparation and execution remain future work.
+- **Next step:** Collaboratively review and plan Increment 6.3 — README and Public-Facing Messaging. No 6.3 implementation or release execution has begun.
 
 ## Implementation records
 
@@ -398,7 +398,7 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 
 #### Increment 6.2 — Versioning and Release Workflow Design
 
-- **Status:** In progress; 6.2.A and 6.2.B complete, 6.2.C planned.
+- **Status:** Complete; 6.2.A, 6.2.B, and 6.2.C complete.
 
 ##### 6.2.A — Release Conventions Assessment
 
@@ -426,3 +426,13 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 **Communication and 6.2.C handoff.** The eventual CRAN comments will identify `readmit` as an update to the existing `0.0.1` package, state the intentional RRP purpose and breaking API change, highlight MIT to Apache License 2.0, and report actual checks and any resubmission response; update them for the exact release-source results in 6.8. `NEWS.md` will describe the RRP release under the development heading until version transition and retain the `0.0.1` history; Stage 6.3 owns README and related public messaging. During 6.2.C, create a concise living `dev/release-procedure.md` for the maintainer and Codex covering prerequisites, conventional command sequence, prompts and side effects, patch corrections, exact-source review, CRAN email/record, accepted-version GitHub publication, post-release development, and the 6.7/6.8 boundary, with links to *R Packages*, `usethis`, `devtools`, and CRAN guidance. A minimal `cran-comments.md` scaffold and `.Rbuildignore` entry belong to 6.2.C. No release issue, custom automation, artifact registry, special tarball preservation, manual GitHub tarball attachment, or separate release branch is required.
 
 **Verification and status.** Compared this design with the completed 6.2.A assessment and the approved detailed plan. Both initial and corrected acceptance paths retain the same accepted-version/commit relationship, and the CRAN acceptance gate precedes GitHub publication. Only planning/record status and this design changed; no release helper ran against `readmit`, no release file or metadata changed, and no submission, issue, tag, release, commit, or push occurred. **6.2.B is Complete; 6.2.C is Planned and next; Increment 6.2 and Stage 6 remain In progress.**
+
+##### 6.2.C — Release Procedure Scaffolding
+
+- **Status:** Complete.
+
+**Files and procedure.** Created [the maintainer release procedure](release-procedure.md) as a sequential Stage 6.7/6.8 guide. It starts with development-version readiness, then covers `use_version("major")`, exact release-source build/check and commit review, `submit_cran()` plus email confirmation, patch-version corrections and resubmission, the accepted-version/commit check through temporary `CRAN-SUBMISSION`, `use_github_release()` only after acceptance, and `use_dev_version()` afterward. It notes interactive prompts, commit/push and upload effects, the missing-record fallback risk, and the distinction between CRAN-built packages and GitHub source archives. The `1.0.0` and corrected `1.0.1` acceptance paths both lead to matching GitHub tags and `.9000` development versions. No custom automation, release branch, provenance registry, or tarball attachment requirement was added.
+
+**CRAN comments and build exclusion.** Ran installed `usethis` 3.2.1 `use_cran_comments(open = FALSE)`, which created `cran-comments.md` and added one `^cran-comments\.md$` entry to `.Rbuildignore`. Replaced its default example claim of one NOTE and a new release with confirmed context: earlier CRAN `0.0.1`, the RRP purpose and breaking API change, MIT-to-Apache-2.0 transition, and current `DESCRIPTION` attribution. The file has labeled placeholders for actual checks, CRAN/platform and reverse-dependency review, and any resubmission; no unperformed result is asserted. `NEWS.md` remains under its development heading with its historical `0.0.1` entry.
+
+**Verification and boundary.** A local `R CMD build` in a temporary directory produced `readmit_0.0.1.9000.tar.gz`. Inspection confirmed that the built source contains `DESCRIPTION`, `NEWS.md`, and package R files, excludes `cran-comments.md`, and still declares version `0.0.1.9000`. The installed `use_version()`, `use_dev_version()`, `submit_cran()`, `flag_release()`, and `use_github_release()` definitions were inspected against the prior assessment. No version change, CRAN submission, external builder upload, GitHub issue/release, tag, push, or commit occurred. **6.2.C and Increment 6.2 are Complete; Stage 6 remains In progress.** The next activity is a separate review and plan for 6.3; no 6.3 work began.

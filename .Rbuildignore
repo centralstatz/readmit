@@ -9,3 +9,4 @@
 ^\.DS_Store$
 ^dev$
 ^AGENTS\.md$
+^cran-comments\.md$
