@@ -10,9 +10,9 @@ Each increment section describes its **current** implementation. When later work
 
 - **Overall stage:** Stages 1 — Complete Structural Scaffolding, 2 — Project Authoring and Canonical Source, 3 — Risk Assessment and Persistent History, 4 — Analytical Products, and 5 — Populated Shiny App are **Verified / Complete**.
 - **Available now:** A conventional, installable R package; `rrp_project_init()` creates user-owned resources and a Shiny app, `rrp_project_validate()` checks structural authoring setup, and `rrp_state_init()` creates project-owned DuckDB history. After the owner implements both authoring scripts, `rrp_run(path, as_of_time)` retains completed assessments. Public `rrp_project_status()` and `rrp_inspect_history()` read retained outcomes, and `rrp_refresh_products(path)` produces three analytical CSVs from that history without another assessment. The project app reads those CSVs and offers an interactive Current Risk Pool with selected-episode history and a snapshot-level Overview.
-- **Not yet complete:** Stage 6 — v1.0.0 Product and Release Readiness. A package app launcher is not planned.
+- **Not yet complete:** Stage 6 — v1.0.0 Product and Release Readiness. Increment 6.1 is **In progress**: its initial package-completeness assessment is complete, with no remediation yet implemented. A package app launcher is not planned.
 - **Current use and limitation:** Create a project, implement its source mapper and provider, validate its structure, initialize state, run assessments at UTC analytical times, inspect retained results, and explicitly refresh product CSVs. Completed runs append history without revising earlier assessments; refresh reads history without running the mapper or provider. The project app launches before products exist; after refresh it displays current and historical risk plus unfiltered operational and accepted-current-risk summaries. Application runtime packages are in `Suggests` for tests, not core `Imports`.
-- **Next step:** Stage 6 — v1.0.0 Product and Release Readiness (high-level planning only at this point).
+- **Next step:** Maintainer review of the Stage 6.1 assessment and definition of targeted 6.1 implementation work.
 
 ## Implementation records
 
@@ -344,3 +344,16 @@ The previous implementation report said an unrestricted `R CMD check` reached th
 **Other completed snapshots and visual review.** A later public run in the same project produced four provider failures and no accepted current estimates; the browser and focused check showed four unavailable pool risks, the correct Overview counts, no fabricated numeric summary, and retained historical observations. A separate fresh project produced a legitimate zero-episode run through the public workflow; its directly launched app showed a completed empty pool, zero operational counts, and no numeric risk summary. Headless Chrome review covered no-products, mixed, all-failure, and zero-episode views. The mixed view was inspected at desktop, 700-pixel, and 390-pixel widths; other states were inspected at desktop or 700-pixel widths. The cards, controls, scrollable table, selected detail, chart, observation table, and Overview remained readable and coherent. No concrete usability or styling defect required a refinement.
 
 **Checks and remaining scope.** The standalone installed-workflow acceptance script passed directly from the separate library and again under `R CMD check`. The full `testthat` suite passed without failures, warnings, or skips. `R CMD build`, separate-library installation, and `R CMD check --no-manual` passed; the check completed with **Status: OK** and no check NOTE or WARNING. Restricted-network repository-index messages were environmental and did not change the check result. `git diff --check` passed. Stage 5 is complete. Stage 6 — v1.0.0 Product and Release Readiness remains high-level and unimplemented; no deployment, hosting, release, commit, or push was performed.
+
+### Stage 6 — v1.0.0 Product and Release Readiness
+
+#### Stage 6.1 — Package Completeness and Public API
+
+- **Status:** In progress
+- **Initial assessment:** Complete, 2026-11-02; see `dev/assessments/2026-11-02_stage-6-1-package-completeness-assessment.md`.
+
+**Assessment objective and scope.** Assess the completed Stage 1–5 package as an external user would encounter it, before defining 6.1 remediation. The assessment examined metadata, all seven exported functions and their installed help, dependencies, source and installed package contents, generated-project guidance, test and installed-workflow coverage, CI and Codecov configuration, and CRAN-facing context.
+
+**Verification and findings.** A temporary source-package build, separate-library installation, `R CMD check --no-manual` (**Status: OK**), installed-project initialization/validation/state smoke, temporary roxygen regeneration comparison, and local `covr` measurement (93.48404% line coverage) completed. Prior Stage 5 browser evidence was reviewed, not rerun. The assessment identifies the short `DESCRIPTION` text, missing/runnable-example gaps for `rrp_run()` and `rrp_refresh_products()`, and absent Codecov upload as required 6.1 work. It recommends small return-help clarifications and carries the prior CRAN release and license-history questions into later Stage 6 work. No public API redesign or additional framework is justified by the evidence.
+
+**Remaining work.** This was assessment only: no finding has been remediated, no coverage workflow added, and no package source, metadata, tests, templates, or version changed. Increment 6.1 and Stage 6 are not complete. Next, the maintainer should review the assessment and define targeted 6.1 implementation work.
