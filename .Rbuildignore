@@ -10,3 +10,4 @@
 ^dev$
 ^AGENTS\.md$
 ^cran-comments\.md$
+^vignettes/articles$

@@ -30,3 +30,7 @@ Depends:
 Imports:
     DBI,
     duckdb
+Config/Needs/website:
+    dplyr,
+    rmarkdown,
+    tidyr
