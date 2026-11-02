@@ -1,5 +1,8 @@
 # Readmission Risk Pool
 
+![Readmission Risk Pool wordmark and connected risk
+trajectory](reference/figures/rrp-banner.png)
+
 Hospital readmission risk can change after discharge as time passes and
 new information becomes available. A prediction made only at discharge
 cannot show how the remaining risk evolves during follow-up.

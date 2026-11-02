@@ -404,7 +404,7 @@ estimates for other episodes.
 
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -414,7 +414,7 @@ rrp_state_init(project)
 assessment_times <- origin + c(5.5, 9.5, 11.5, 15.5) * day
 runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -422,7 +422,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -430,7 +430,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -438,7 +438,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -446,7 +446,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -454,7 +454,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -462,7 +462,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -470,7 +470,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -495,7 +495,7 @@ run_summary
 # A later-executed historical backfill does not replace the newest snapshot.
 backfill <- rrp_run(project, assessment_times[[2L]])
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -503,7 +503,7 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -512,7 +512,7 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 #> ℹ See ?duckdb_storage for details and alternatives.
 status <- rrp_project_status(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -527,7 +527,7 @@ status[c("state_initialized", "run_count")]
 #> [1] 5
 history <- rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -637,7 +637,7 @@ relevant discharge cohort.
 
 products <- rrp_refresh_products(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpuqrJSh/duckdb
+#> ℹ /tmp/Rtmp2cOSPL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.

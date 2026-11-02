@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1080.00pt' height='300.00pt' viewBox='0 0 1080.00 300.00'>
+<g class='svglite'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+    .svglite g.glyphgroup path {
+      fill: inherit;
+      stroke: none;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #0B1428;'/>
+<defs>
+  <clipPath id='cpMC4wMHwxMDgwLjAwfDAuMDB8MzAwLjAw'>
+    <rect x='0.00' y='0.00' width='1080.00' height='300.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHwxMDgwLjAwfDAuMDB8MzAwLjAw)'>
+<rect x='0.00' y='0.00' width='1080.00' height='300.00' style='stroke-width: 0.75; stroke: none; fill: #0B1428;' />
+<rect x='0.00' y='0.00' width='10.50' height='300.00' style='stroke-width: 0.75; stroke: none; fill: #75B7FF;' />
+<polygon points='100.36,213.00 151.64,213.00 150.14,212.97 156.14,212.73 162.03,211.52 167.66,209.39 172.86,206.39 177.52,202.58 181.51,198.08 184.72,193.00 187.08,187.47 188.52,181.63 189.00,175.64 189.00,175.64 189.00,124.36 189.00,124.36 188.52,118.37 187.08,112.53 184.72,107.00 181.51,101.92 177.52,97.42 172.86,93.61 167.66,90.61 162.03,88.48 156.14,87.27 151.64,87.00 100.36,87.00 104.86,87.27 98.86,87.03 92.89,87.76 87.11,89.43 81.68,92.01 76.73,95.42 72.40,99.59 68.78,104.39 65.99,109.72 64.09,115.42 63.12,121.35 63.00,124.36 63.00,175.64 63.12,172.63 63.12,178.65 64.09,184.58 65.99,190.28 68.78,195.61 72.40,200.41 76.73,204.58 81.68,207.99 87.11,210.57 92.89,212.24 98.86,212.97 ' style='stroke-width: 2.48; stroke: #355987; fill: #111F3A;' />
+<polyline points='93.38,115.13 87.75,115.13 87.75,184.88 93.38,184.88 ' style='stroke-width: 4.27; stroke: #75B7FF;' />
+<polyline points='158.63,115.13 164.25,115.13 164.25,184.88 158.63,184.88 ' style='stroke-width: 4.27; stroke: #A38BFA;' />
+<polyline points='97.88,164.62 118.12,142.12 136.12,151.12 155.25,127.50 ' style='stroke-width: 5.96; stroke: #F5F8FF;' />
+<circle cx='97.88' cy='164.62' r='6.52' style='stroke-width: 1.35; stroke: #111F3A; fill: #75B7FF;' />
+<circle cx='118.12' cy='142.12' r='6.52' style='stroke-width: 1.35; stroke: #111F3A; fill: #75B7FF;' />
+<circle cx='136.12' cy='151.12' r='6.52' style='stroke-width: 1.35; stroke: #111F3A; fill: #A38BFA;' />
+<circle cx='155.25' cy='127.50' r='6.98' style='stroke-width: 1.35; stroke: #111F3A; fill: #A38BFA;' />
+<text x='234.00' y='136.97' style='font-size: 60.00px; font-weight: bold;fill: #F5F8FF; font-family: "Arial";' textLength='423.36px' lengthAdjust='spacingAndGlyphs'>READMISSION</text>
+<text x='234.00' y='207.31' style='font-size: 70.00px; font-weight: bold;fill: #B2C5E3; font-family: "Arial";' textLength='385.05px' lengthAdjust='spacingAndGlyphs'>RISK POOL</text>
+<polyline points='235.50,235.50 381.00,235.50 ' style='stroke-width: 4.50; stroke: #75B7FF;' />
+<polyline points='397.50,235.50 463.50,235.50 ' style='stroke-width: 4.50; stroke: #A38BFA;' />
+<polyline points='795.00,216.75 855.00,168.00 918.75,186.75 1001.25,94.50 ' style='stroke-width: 4.50; stroke: #385A84;' />
+<circle cx='795.00' cy='216.75' r='8.25' style='stroke-width: 2.25; stroke: #0B1428; fill: #537CA6;' />
+<circle cx='855.00' cy='168.00' r='8.25' style='stroke-width: 2.25; stroke: #0B1428; fill: #537CA6;' />
+<circle cx='918.75' cy='186.75' r='8.25' style='stroke-width: 2.25; stroke: #0B1428; fill: #6F629E;' />
+<circle cx='1001.25' cy='94.50' r='9.75' style='stroke-width: 2.25; stroke: #0B1428; fill: #A38BFA;' />
+<circle cx='818.25' cy='95.25' r='3.75' style='stroke-width: 0.75; stroke: none; fill: #253D5E;' />
+<circle cx='901.50' cy='79.50' r='5.25' style='stroke-width: 0.75; stroke: none; fill: #253D5E;' />
+<circle cx='977.25' cy='231.75' r='4.50' style='stroke-width: 0.75; stroke: none; fill: #253D5E;' />
+</g>
+</g>
+</svg>
