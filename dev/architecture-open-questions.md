@@ -4,7 +4,7 @@ This working companion to `dev/architecture.md` preserves the original questions
 
 **Initial scaffolding priorities answered:** Q01–Q05 establish the analytical meaning, shared data, project authoring points, project contents, and operation boundaries. Q06–Q09 also have accepted direction. Q10–Q11 are deferred implementation choices with recorded preferences.
 
-**Stage 6 planning:** Q12–Q14 below are open product and release choices. None prevents review of the proposed eight-increment plan; resolve each before the named increment is finalized. The original Q01–Q11 answers remain unchanged.
+**Stage 6 planning:** Q12–Q14 below record the maintainer's resolved tutorial, identity, and release decisions. Detailed implementation choices remain for their named increments. The original Q01–Q11 answers remain unchanged.
 
 ## Analytical contract
 
@@ -136,7 +136,8 @@ This working companion to `dev/architecture.md` preserves the original questions
 - **Why it matters:** Vignettes travel with the package but add build-time execution, dependency, portability, and CRAN-check considerations. A website-only article avoids some package-build costs but is less useful offline or from an installed package.
 - **Suggested direction:** Prefer one reproducible installed vignette that pkgdown renders, provided its simulated workflow stays compact and portable. Demonstrate Shiny launch without running it during rendering; choose a website-only article if the package-build burden is material.
 - **Classification:** Stage 6 planning
-- **Status:** Open — resolve in 6.4, before tutorial implementation.
+- **Status:** Resolved
+- **Decision:** Use two complementary resources. A comprehensive, reproducible pkgdown-only article is the primary simulated-hospital learning experience; a separate, short installed vignette teaches the essential public workflow and links to that article. Keep the vignette portable and suitable for CRAN distribution. Settle detailed data, model, and rendering choices in 6.4.
 
 ### Q13 — Public identity across package, app, and website
 
@@ -144,7 +145,8 @@ This working companion to `dev/architecture.md` preserves the original questions
 - **Why it matters:** Consistent identity affects README language and assets, while initialized projects remain owner-editable and must not be silently restyled by later package work.
 - **Suggested direction:** Present **Readmission Risk Pool** as the platform and **readmit** as its R package; design related but purpose-specific hex, banner, and website assets. Align new project defaults with the platform without overwriting existing owners' files.
 - **Classification:** Stage 6 planning
-- **Status:** Open — confirm the wording in 6.3 and visual decisions in 6.5.
+- **Status:** Resolved
+- **Decision:** Readmission Risk Pool is the platform; `readmit` is the R package that implements and distributes it; each generated Shiny app belongs to its project owner. Create related but purpose-specific platform logo, package hex, and GitHub banner. Begin with a dark analytical command-center direction, blue/purple accents, and subtle connected-network motifs, while deciding exact design in 6.5. New project defaults may evolve; existing owner-controlled app and branding files remain untouched.
 
 ### Q14 — GitHub release timing and CRAN corrections
 
@@ -152,4 +154,5 @@ This working companion to `dev/architecture.md` preserves the original questions
 - **Why it matters:** The GitHub tag and source package should identify the accepted v1.0.0 source, even if the first CRAN submission needs a targeted correction. Publishing earlier could advertise a source state that CRAN does not accept.
 - **Suggested direction:** Follow the conventional post-acceptance GitHub release path, using the submitted commit recorded by `devtools::submit_cran()` and its temporary `CRAN-SUBMISSION` file where appropriate. Rebuild and verify any corrected submission, then tag and publish the accepted source commit; transition to `1.0.0.9000` afterward.
 - **Classification:** Stage 6 planning
-- **Status:** Open — confirm in 6.2 before fixing the release procedure; execute only in 6.8.
+- **Status:** Resolved
+- **Decision:** Target `1.0.0` for the initial CRAN submission and targeted corrected submissions where CRAN permits. Publish the public `v1.0.0` GitHub release only after CRAN acceptance, tagging the accepted source commit and matching its artifact through conventional `devtools` and `usethis` procedures. After the release is finalized, change the `Version` field in `DESCRIPTION` to `1.0.0.9000` on the normal development line. Define exact commands and correction handling in 6.2; execute only in 6.8.

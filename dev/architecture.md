@@ -15,7 +15,7 @@ Each project owns its configuration, clinical source integration, risk-provider 
 
 RRP integrates clinical source data and risk predictions into longitudinal assessments of patient readmission risk, retains those assessments, derives analytical products, and presents them in an interactive application. The v1.0.0 analytical target and data concepts are specified below; no general system for project-defined risk targets is required.
 
-The v1.0.0 public product also includes clear package documentation, a reproducible worked tutorial, coherent platform branding, and a pkgdown-based website that presents RRP as the platform and `readmit` as its R package. Package and website preparation precede final release-candidate verification and CRAN submission. These presentation and publication concerns do not change the project-owned analytical and application boundaries below.
+The v1.0.0 public product also includes clear package documentation, a comprehensive website tutorial and short installed vignette, coherent platform branding, and a published pkgdown-based website that presents RRP as the platform and `readmit` as its R package. Package and website preparation precede final release-candidate verification and CRAN submission. These presentation and publication concerns do not change the project-owned analytical and application boundaries below.
 
 ## Public R API and project operations
 
