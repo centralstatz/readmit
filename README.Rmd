@@ -15,6 +15,8 @@ risk at chosen times and retaining what each assessment found. **`readmit`** is
 the R package used to create and operate an organization's RRP project.
 
 <!-- badges: start -->
+[![CRAN Status](https://www.r-pkg.org/badges/version/readmit)](https://cran.r-project.org/package=readmit)
+![CRAN\_Download\_Counter](http://cranlogs.r-pkg.org/badges/grand-total/readmit)
 [![Codecov test coverage](https://codecov.io/gh/centralstatz/readmit/graph/badge.svg)](https://app.codecov.io/gh/centralstatz/readmit)
 [![R-CMD-check](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
