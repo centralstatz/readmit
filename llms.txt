@@ -1,20 +1,56 @@
-# readmit
+# Readmission Risk Pool
 
-`readmit` creates editable, user-owned Readmission Risk Pool (RRP)
-projects. Each project includes configuration, source-mapping and
-risk-provider scripts, branding, and its own Shiny application.
-Persistent history can be initialized explicitly,
-[`rrp_run()`](https://readmit.centralstatz.com/reference/rrp_run.md)
-retains completed assessments, and status and history inspection are
-available.
-[`rrp_refresh_products()`](https://readmit.centralstatz.com/reference/rrp_refresh_products.md)
-writes analytical CSVs from retained history. The project app displays
-an interactive Current Risk Pool, a selected episode’s recorded risk
-trajectory, and a snapshot-level Overview.
+Hospital readmission risk can change after discharge as time passes and
+new information becomes available. A prediction made only at discharge
+cannot show how the remaining risk evolves during follow-up.
 
-## Create and open a project
+**Readmission Risk Pool (RRP)** is an analytical platform for
+reassessing that risk at chosen times and retaining what each assessment
+found. **`readmit`** is the R package used to create and operate an
+organization’s RRP project.
 
-After installing `readmit`, create a project at a new destination:
+## How RRP works
+
+For an episode still within follow-up and without a known readmission or
+death, each assessment concerns the remaining probability of a **first
+hospital readmission strictly after the assessment time and through 30
+elapsed days after the original discharge**. The endpoint stays fixed;
+another assessment does not start a new 30-day window. The estimate
+should use information available at that time. For eligibility,
+`readmit` distinguishes when a readmission or death occurred from when
+it became known, so later knowledge does not rewrite an earlier
+assessment.
+
+Repeated assessments retain accepted estimates, provider failures, and
+ineligible episodes in project history. This history shows what was
+assessed at each time rather than only the latest result.
+
+## What the platform provides
+
+An RRP project is an ordinary, organization-owned directory with
+configuration, source-mapping and risk-provider scripts, and its own
+Shiny application. `readmit` defines canonical inputs for discharge
+episodes and terminal events, applies shared eligibility rules, retains
+completed assessments, and derives three analytical products: current
+remaining risk, recorded risk trajectories, and an operational summary.
+The project application explores those products.
+
+## Get started
+
+The RRP implementation is currently the development version `0.0.1.9000`
+in this repository. The [CRAN `readmit` 0.0.1
+package](https://cran.r-project.org/package=readmit) contains earlier,
+substantially different functionality under an MIT license; it does not
+install RRP. The intended RRP `1.0.0` release has not yet been submitted
+to CRAN. Install this development version from GitHub:
+
+``` r
+
+install.packages("remotes")
+remotes::install_github("centralstatz/readmit")
+```
+
+Choose a new project path whose parent directory already exists:
 
 ``` r
 
@@ -24,94 +60,47 @@ project <- rrp_project_init(
   path = "my-rrp-project",
   project_id = "my-project"
 )
-
 rrp_project_validate(project)
 ```
 
-The path is relative to your current working directory unless you supply
-an absolute path. Its parent directory must already exist, and the
-destination must not exist, even as an empty directory. The generated
-files belong to you: edit `rrp-project.dcf`, `rrp-authoring.dcf`,
-`_brand.yml`, `R/produce-canonical.R`, and `R/calculate-risk.R` for your
-project.
-[`rrp_project_validate()`](https://readmit.centralstatz.com/reference/rrp_project_validate.md)
-checks that the configuration and both authoring functions load; it does
-not run them. Both generated functions begin as deliberate stubs, so the
-untouched project passes this structural check. Implement the source
-mapper to return the canonical discharge episodes and terminal events
-described in the project README, and implement the risk provider for
-eligible episodes. Validate again after editing. Validation checks that
-the scripts load; it does not establish that their data or predictions
-will work during a run.
+The initializer creates editable project guidance, configuration,
+branding, two authoring scripts, and a Shiny app. The scripts start as
+deliberate stubs. Validation checks that the structure and functions
+load; it does not run them or establish that assessments are ready.
 
-Then initialize persistent history and run at an explicit UTC analytical
-time:
+## Using an RRP project
 
-``` r
+Implement `R/produce-canonical.R` to map your source data to the
+required discharge episodes and terminal events, and
+`R/calculate-risk.R` to provide risk estimates for eligible episodes.
+`rrp_state_init(project)` creates persistent history and
+`rrp_project_status(project)` reports project state; both can be used
+before those scripts are implemented. Once they work,
+`rrp_run(project, as_of_time)` records an assessment at a specified UTC
+time. Use `rrp_inspect_history(project)` to examine retained results
+after state initialization, and `rrp_refresh_products(project)` to
+derive products after at least one completed run. Refresh does not run
+another assessment.
 
-rrp_state_init(project)
-assessment <- rrp_run(
-  project, as.POSIXct("2026-01-10 12:00:00", tz = "UTC")
-)
-rrp_project_status(project)
-rrp_inspect_history(project, run_id = assessment$run_id)
-rrp_refresh_products(project)
-```
+The application can open before products exist and will show empty
+views. Install its runtime packages (`shiny`, `bslib`, `reactable`,
+`plotly`, and `yaml`), then launch it with
+`shiny::runApp(file.path(project, "app"))`. After a product refresh, the
+app reads the generated products.
 
-This creates empty `state/history.duckdb` tables in the project and
-refuses to overwrite existing state. State initialization does not run
-either authoring function. Each
-[`rrp_run()`](https://readmit.centralstatz.com/reference/rrp_run.md)
-call obtains canonical facts, assesses eligible episodes through the
-provider, and atomically appends the completed run and its episode
-outcomes. It returns the run ID and accepted, failed, and ineligible
-counts.
-[`rrp_project_status()`](https://readmit.centralstatz.com/reference/rrp_project_status.md)
-also works before state initialization;
-[`rrp_inspect_history()`](https://readmit.centralstatz.com/reference/rrp_inspect_history.md)
-requires state. Both read retained information without sourcing your
-scripts. A provider failure is retained for its episode while other
-eligible episodes continue. Completed runs append history; later event
-knowledge does not rewrite earlier results. After at least one completed
-run,
-[`rrp_refresh_products()`](https://readmit.centralstatz.com/reference/rrp_refresh_products.md)
-reads history and writes `state/products/current-remaining-risk.csv`,
-`remaining-risk-trajectory.csv`, and `operational-scope-summary.csv`. It
-selects the run with the greatest analytical time, which may differ from
-the most recently executed run. Supply the complete relevant discharge
-population for operational assessments: a later partial run replaces the
-earlier population in current products. The package determines clinical
-eligibility. Eligible provider-failure episodes stay in the current-risk
-file with a missing probability; earlier estimates are not substituted.
-The trajectory contains recorded accepted estimates for current eligible
-episodes. Read the generated files with ordinary CSV tools, such as
-`read.csv(file.path(project, "state/products/current-remaining-risk.csv"))`.
-Refresh does not rerun your scripts, change history, or edit the app.
-The three-file replacement is staged but is not fully atomic if a
-filesystem error occurs during final replacement.
+## Responsibilities and documentation
 
-The application uses `shiny`, `bslib`, `reactable`, `plotly`, and `yaml`
-in the environment where it runs. Install them there, then launch the
-app directly from the same working directory used in the example:
+Your organization supplies source mapping and a risk provider, evaluates
+whether its data and model are suitable for the intended use, and
+decides how results inform clinical or operational decisions. `readmit`
+supplies the analytical structure around those inputs; it does not
+include a clinically validated prediction model or establish that using
+RRP improves outcomes.
 
-``` r
-
-install.packages(c("shiny", "bslib", "reactable", "plotly", "yaml"))
-shiny::runApp("my-rrp-project/app")
-```
-
-The app opens with Current Risk Pool and Overview navigation. Before
-products exist, it shows a clear empty state. After refresh, Current
-Risk Pool displays accepted and failed eligible episodes with search,
-sorting, numeric-range filtering, and row selection. Failed predictions
-remain visible under numeric filtering and show **Unavailable** rather
-than zero risk. Selecting an episode shows its current estimate
-separately from accepted historical assessments in an interactive point
-chart and exact-observation table; compact sparklines appear in the
-pool. Overview summarizes operational counts and the minimum, median,
-and maximum of accepted current estimates, independent of pool filters.
-The app’s **Reload Data** control rereads existing CSVs; it does not
-generate products.
+For function reference, use
+[`help(package = "readmit")`](https://readmit.centralstatz.com/reference)
+after installation. Each generated project’s `README.md` explains the
+canonical contract, risk provider, and application in more detail.
 
 # Package index
 

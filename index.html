@@ -57,41 +57,53 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="readmit-">readmit <a class="anchor" aria-label="anchor" href="#readmit-"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="readmission-risk-pool-">Readmission Risk Pool <a class="anchor" aria-label="anchor" href="#readmission-risk-pool-"></a>
 </h1>
 </div>
+<p>Hospital readmission risk can change after discharge as time passes and new information becomes available. A prediction made only at discharge cannot show how the remaining risk evolves during follow-up.</p>
+<p><strong>Readmission Risk Pool (RRP)</strong> is an analytical platform for reassessing that risk at chosen times and retaining what each assessment found. <strong><code>readmit</code></strong> is the R package used to create and operate an organization’s RRP project.</p>
 <!-- badges: start -->
 
-<p><code>readmit</code> creates editable, user-owned Readmission Risk Pool (RRP) projects. Each project includes configuration, source-mapping and risk-provider scripts, branding, and its own Shiny application. Persistent history can be initialized explicitly, <code><a href="reference/rrp_run.html">rrp_run()</a></code> retains completed assessments, and status and history inspection are available. <code><a href="reference/rrp_refresh_products.html">rrp_refresh_products()</a></code> writes analytical CSVs from retained history. The project app displays an interactive Current Risk Pool, a selected episode’s recorded risk trajectory, and a snapshot-level Overview.</p>
 <div class="section level2">
-<h2 id="create-and-open-a-project">Create and open a project<a class="anchor" aria-label="anchor" href="#create-and-open-a-project"></a>
+<h2 id="how-rrp-works">How RRP works<a class="anchor" aria-label="anchor" href="#how-rrp-works"></a>
 </h2>
-<p>After installing <code>readmit</code>, create a project at a new destination:</p>
+<p>For an episode still within follow-up and without a known readmission or death, each assessment concerns the remaining probability of a <strong>first hospital readmission strictly after the assessment time and through 30 elapsed days after the original discharge</strong>. The endpoint stays fixed; another assessment does not start a new 30-day window. The estimate should use information available at that time. For eligibility, <code>readmit</code> distinguishes when a readmission or death occurred from when it became known, so later knowledge does not rewrite an earlier assessment.</p>
+<p>Repeated assessments retain accepted estimates, provider failures, and ineligible episodes in project history. This history shows what was assessed at each time rather than only the latest result.</p>
+</div>
+<div class="section level2">
+<h2 id="what-the-platform-provides">What the platform provides<a class="anchor" aria-label="anchor" href="#what-the-platform-provides"></a>
+</h2>
+<p>An RRP project is an ordinary, organization-owned directory with configuration, source-mapping and risk-provider scripts, and its own Shiny application. <code>readmit</code> defines canonical inputs for discharge episodes and terminal events, applies shared eligibility rules, retains completed assessments, and derives three analytical products: current remaining risk, recorded risk trajectories, and an operational summary. The project application explores those products.</p>
+</div>
+<div class="section level2">
+<h2 id="get-started">Get started<a class="anchor" aria-label="anchor" href="#get-started"></a>
+</h2>
+<p>The RRP implementation is currently the development version <code>0.0.1.9000</code> in this repository. The <a href="https://cran.r-project.org/package=readmit" class="external-link">CRAN <code>readmit</code> 0.0.1 package</a> contains earlier, substantially different functionality under an MIT license; it does not install RRP. The intended RRP <code>1.0.0</code> release has not yet been submitted to CRAN. Install this development version from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"centralstatz/readmit"</span><span class="op">)</span></span></code></pre></div>
+<p>Choose a new project path whose parent directory already exists:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://readmit.centralstatz.com/">readmit</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">project</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/rrp_project_init.html">rrp_project_init</a></span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="st">"my-rrp-project"</span>,</span>
 <span>  project_id <span class="op">=</span> <span class="st">"my-project"</span></span>
 <span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu"><a href="reference/rrp_project_validate.html">rrp_project_validate</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span></code></pre></div>
-<p>The path is relative to your current working directory unless you supply an absolute path. Its parent directory must already exist, and the destination must not exist, even as an empty directory. The generated files belong to you: edit <code>rrp-project.dcf</code>, <code>rrp-authoring.dcf</code>, <code>_brand.yml</code>, <code>R/produce-canonical.R</code>, and <code>R/calculate-risk.R</code> for your project. <code><a href="reference/rrp_project_validate.html">rrp_project_validate()</a></code> checks that the configuration and both authoring functions load; it does not run them. Both generated functions begin as deliberate stubs, so the untouched project passes this structural check. Implement the source mapper to return the canonical discharge episodes and terminal events described in the project README, and implement the risk provider for eligible episodes. Validate again after editing. Validation checks that the scripts load; it does not establish that their data or predictions will work during a run.</p>
-<p>Then initialize persistent history and run at an explicit UTC analytical time:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/rrp_state_init.html">rrp_state_init</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
-<span><span class="va">assessment</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/rrp_run.html">rrp_run</a></span><span class="op">(</span></span>
-<span>  <span class="va">project</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="st">"2026-01-10 12:00:00"</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/rrp_project_status.html">rrp_project_status</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/rrp_inspect_history.html">rrp_inspect_history</a></span><span class="op">(</span><span class="va">project</span>, run_id <span class="op">=</span> <span class="va">assessment</span><span class="op">$</span><span class="va">run_id</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/rrp_refresh_products.html">rrp_refresh_products</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span></code></pre></div>
-<p>This creates empty <code>state/history.duckdb</code> tables in the project and refuses to overwrite existing state. State initialization does not run either authoring function. Each <code><a href="reference/rrp_run.html">rrp_run()</a></code> call obtains canonical facts, assesses eligible episodes through the provider, and atomically appends the completed run and its episode outcomes. It returns the run ID and accepted, failed, and ineligible counts. <code><a href="reference/rrp_project_status.html">rrp_project_status()</a></code> also works before state initialization; <code><a href="reference/rrp_inspect_history.html">rrp_inspect_history()</a></code> requires state. Both read retained information without sourcing your scripts. A provider failure is retained for its episode while other eligible episodes continue. Completed runs append history; later event knowledge does not rewrite earlier results. After at least one completed run, <code><a href="reference/rrp_refresh_products.html">rrp_refresh_products()</a></code> reads history and writes <code>state/products/current-remaining-risk.csv</code>, <code>remaining-risk-trajectory.csv</code>, and <code>operational-scope-summary.csv</code>. It selects the run with the greatest analytical time, which may differ from the most recently executed run. Supply the complete relevant discharge population for operational assessments: a later partial run replaces the earlier population in current products. The package determines clinical eligibility. Eligible provider-failure episodes stay in the current-risk file with a missing probability; earlier estimates are not substituted. The trajectory contains recorded accepted estimates for current eligible episodes. Read the generated files with ordinary CSV tools, such as <code>read.csv(file.path(project, "state/products/current-remaining-risk.csv"))</code>. Refresh does not rerun your scripts, change history, or edit the app. The three-file replacement is staged but is not fully atomic if a filesystem error occurs during final replacement.</p>
-<p>The application uses <code>shiny</code>, <code>bslib</code>, <code>reactable</code>, <code>plotly</code>, and <code>yaml</code> in the environment where it runs. Install them there, then launch the app directly from the same working directory used in the example:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shiny"</span>, <span class="st">"bslib"</span>, <span class="st">"reactable"</span>, <span class="st">"plotly"</span>, <span class="st">"yaml"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="st">"my-rrp-project/app"</span><span class="op">)</span></span></code></pre></div>
-<p>The app opens with Current Risk Pool and Overview navigation. Before products exist, it shows a clear empty state. After refresh, Current Risk Pool displays accepted and failed eligible episodes with search, sorting, numeric-range filtering, and row selection. Failed predictions remain visible under numeric filtering and show <strong>Unavailable</strong> rather than zero risk. Selecting an episode shows its current estimate separately from accepted historical assessments in an interactive point chart and exact-observation table; compact sparklines appear in the pool. Overview summarizes operational counts and the minimum, median, and maximum of accepted current estimates, independent of pool filters. The app’s <strong>Reload Data</strong> control rereads existing CSVs; it does not generate products.</p>
+<p>The initializer creates editable project guidance, configuration, branding, two authoring scripts, and a Shiny app. The scripts start as deliberate stubs. Validation checks that the structure and functions load; it does not run them or establish that assessments are ready.</p>
+</div>
+<div class="section level2">
+<h2 id="using-an-rrp-project">Using an RRP project<a class="anchor" aria-label="anchor" href="#using-an-rrp-project"></a>
+</h2>
+<p>Implement <code>R/produce-canonical.R</code> to map your source data to the required discharge episodes and terminal events, and <code>R/calculate-risk.R</code> to provide risk estimates for eligible episodes. <code>rrp_state_init(project)</code> creates persistent history and <code>rrp_project_status(project)</code> reports project state; both can be used before those scripts are implemented. Once they work, <code>rrp_run(project, as_of_time)</code> records an assessment at a specified UTC time. Use <code>rrp_inspect_history(project)</code> to examine retained results after state initialization, and <code>rrp_refresh_products(project)</code> to derive products after at least one completed run. Refresh does not run another assessment.</p>
+<p>The application can open before products exist and will show empty views. Install its runtime packages (<code>shiny</code>, <code>bslib</code>, <code>reactable</code>, <code>plotly</code>, and <code>yaml</code>), then launch it with <code>shiny::runApp(file.path(project, "app"))</code>. After a product refresh, the app reads the generated products.</p>
+</div>
+<div class="section level2">
+<h2 id="responsibilities-and-documentation">Responsibilities and documentation<a class="anchor" aria-label="anchor" href="#responsibilities-and-documentation"></a>
+</h2>
+<p>Your organization supplies source mapping and a risk provider, evaluates whether its data and model are suitable for the intended use, and decides how results inform clinical or operational decisions. <code>readmit</code> supplies the analytical structure around those inputs; it does not include a clinically validated prediction model or establish that using RRP improves outcomes.</p>
+<p>For function reference, use <code><a href="https://readmit.centralstatz.com/reference">help(package = "readmit")</a></code> after installation. Each generated project’s <code>README.md</code> explains the canonical contract, risk provider, and application in more detail.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
