@@ -2,7 +2,15 @@ Package: readmit
 Title: Readmission Risk Pool Platform
 Version: 0.0.1.9000
 Authors@R: c(person("Alex", "Zajichek", email = "alex@centralstatz.com", role = c("aut", "cre")), person("CentralStatz Statistical & Data Sciences LLC", role = "cph"))
-Description: The Readmission Risk Pool Platform (RRP) facilitates hospital readmissions prediction and management.
+Description: Provides the R implementation of the Readmission Risk Pool (RRP)
+    analytical platform for reassessing the remaining probability of a first
+    hospital readmission through 30 days after discharge. Distributed as the
+    'readmit' package, it creates user-owned projects, applies shared eligibility
+    rules at explicit assessment times, retains completed assessments as
+    history, and generates CSV analytical products for a project-owned
+    interactive application. Project authors supply clinical source-mapping
+    and risk-provider functions; no clinically validated prediction model is
+    included.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

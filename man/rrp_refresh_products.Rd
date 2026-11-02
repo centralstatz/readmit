@@ -11,8 +11,12 @@ rrp_refresh_products(path)
 and at least one completed assessment run.}
 }
 \value{
-Invisibly, a list with \code{selected_run_id}, UTC \code{as_of_time}, and named
-character \code{files} containing the three generated CSV paths.
+Invisibly, a list with \code{selected_run_id}, UTC \code{as_of_time}, and a
+named character vector \code{files} of generated CSV paths. Its keys are
+\code{current_risk} (\code{current-remaining-risk.csv}), \code{trajectory}
+(\code{remaining-risk-trajectory.csv}), and \code{scope}
+(\code{operational-scope-summary.csv}); the paths identify files, not their
+in-memory contents.
 }
 \description{
 Derive the current clinically eligible risk pool, observed accepted-risk
@@ -30,5 +34,38 @@ or an earlier estimate. Refresh reads history only: it does not run the
 source mapper or provider, add a run, change retained history, or edit the
 project-owned app. All files are staged and checked before replacement.
 Replacement of the three files is not fully atomic if a filesystem error
-occurs during the final replacement sequence.
+occurs during the final replacement sequence. Call \code{\link[=rrp_run]{rrp_run()}} to retain
+an assessment first; \code{\link[=rrp_inspect_history]{rrp_inspect_history()}} reads its stored rows.
+}
+\examples{
+project <- tempfile("rrp-products-")
+rrp_project_init(project, "example-rrp")
+time <- as.POSIXct("2026-01-10 12:00:00", tz = "UTC")
+episode <- data.frame(
+  episode_id = "episode-1", patient_id = "patient-1",
+  index_encounter_id = "encounter-1",
+  admission_time = time - 2 * 86400, discharge_time = time - 86400
+)
+events <- data.frame(
+  terminal_event_id = character(), episode_id = character(),
+  event_type = character(), occurred_at = time[FALSE],
+  available_at = time[FALSE]
+)
+saveRDS(list(discharge_episode = episode, terminal_event = events),
+        file.path(project, "canonical.rds"))
+# Replace both generated stubs; this constant risk is illustrative only.
+writeLines(
+  "rrp_produce_canonical <- function(project_root, as_of_time) readRDS(file.path(project_root, 'canonical.rds'))",
+  file.path(project, "R", "produce-canonical.R")
+)
+writeLines(
+  "rrp_calculate_risk <- function(project_root, request) list(probability = 0.2)",
+  file.path(project, "R", "calculate-risk.R")
+)
+rrp_state_init(project)
+rrp_run(project, time)
+products <- rrp_refresh_products(project)
+names(products$files)
+file.exists(products$files)
+unlink(project, recursive = TRUE)
 }

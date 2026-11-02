@@ -29,11 +29,36 @@ Call \code{\link[=rrp_state_init]{rrp_state_init()}} before the first run. The p
 implement the configured \code{rrp_produce_canonical()} and
 \code{rrp_calculate_risk()} functions. A provider failure affects its episode,
 while a source or persistence failure stops the run without a partial
-completed record. Analytical products are generated separately.
+completed record. Inspect retained rows with \code{\link[=rrp_inspect_history]{rrp_inspect_history()}} and
+generate analytical products separately with \code{\link[=rrp_refresh_products]{rrp_refresh_products()}}.
 }
 \examples{
-\dontrun{
-assessment_time <- as.POSIXct("2026-01-10 12:00:00", tz = "UTC")
-rrp_run("my-rrp-project", assessment_time)
-}
+project <- tempfile("rrp-run-")
+rrp_project_init(project, "example-rrp")
+time <- as.POSIXct("2026-01-10 12:00:00", tz = "UTC")
+episode <- data.frame(
+  episode_id = "episode-1", patient_id = "patient-1",
+  index_encounter_id = "encounter-1",
+  admission_time = time - 2 * 86400, discharge_time = time - 86400
+)
+events <- data.frame(
+  terminal_event_id = character(), episode_id = character(),
+  event_type = character(), occurred_at = time[FALSE],
+  available_at = time[FALSE]
+)
+saveRDS(list(discharge_episode = episode, terminal_event = events),
+        file.path(project, "canonical.rds"))
+# Replace both generated stubs; this constant risk is illustrative only.
+writeLines(
+  "rrp_produce_canonical <- function(project_root, as_of_time) readRDS(file.path(project_root, 'canonical.rds'))",
+  file.path(project, "R", "produce-canonical.R")
+)
+writeLines(
+  "rrp_calculate_risk <- function(project_root, request) list(probability = 0.2)",
+  file.path(project, "R", "calculate-risk.R")
+)
+rrp_state_init(project)
+assessment <- rrp_run(project, time)
+assessment$accepted
+unlink(project, recursive = TRUE)
 }

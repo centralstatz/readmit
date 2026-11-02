@@ -14,10 +14,17 @@ rrp_inspect_history(path, run_id = NULL, episode_id = NULL)
 \item{episode_id}{Optional single nonblank episode ID to select.}
 }
 \value{
-An ordinary data frame containing stored assessment identity,
-times, disposition, probability, failure detail, selected terminal-event
-context, and associated run metadata. Empty results retain the same
-columns and types, including UTC \code{POSIXct} timestamps.
+An ordinary data frame with assessment identity \code{run_id},
+\code{episode_id}, \code{patient_id}, and \code{index_encounter_id}; UTC times
+\code{admission_time}, \code{discharge_time}, and \code{followup_window_end}; outcome
+\code{disposition} and \code{probability}; provider \code{failure_kind} and
+\code{failure_reason}; selected event \code{terminal_event_id},
+\code{terminal_event_type}, \code{terminal_occurred_at}, and
+\code{terminal_available_at}; and run context \code{project_id}, UTC \code{as_of_time},
+UTC \code{created_at}, \code{source_mapping_script}, and \code{risk_provider_script}.
+A probability is present for accepted outcomes; failure and event fields
+are missing when inapplicable. Empty or unmatched filtered results retain
+the same columns and types, including UTC \code{POSIXct} timestamps.
 }
 \description{
 Read retained assessment rows and their run context without sourcing or
@@ -28,7 +35,8 @@ exact identifier matching and may be combined.
 Initialize state with \code{\link[=rrp_state_init]{rrp_state_init()}} before inspecting history.
 Rows are ordered by run creation time, run ID, and episode ID. Reads use a
 read-only connection and never create state or modify history. A completed
-run with zero episodes contributes no assessment row.
+run with zero episodes contributes no assessment row. \code{\link[=rrp_run]{rrp_run()}} adds
+completed assessments; \code{\link[=rrp_refresh_products]{rrp_refresh_products()}} derives CSVs from history.
 }
 \examples{
 project <- tempfile("rrp-inspect-")
