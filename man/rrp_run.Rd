@@ -50,7 +50,8 @@ saveRDS(list(discharge_episode = episode, terminal_event = events),
         file.path(project, "canonical.rds"))
 # Replace both generated stubs; this constant risk is illustrative only.
 writeLines(
-  "rrp_produce_canonical <- function(project_root, as_of_time) readRDS(file.path(project_root, 'canonical.rds'))",
+  c("rrp_produce_canonical <- function(project_root, as_of_time) {",
+    "  readRDS(file.path(project_root, 'canonical.rds'))", "}"),
   file.path(project, "R", "produce-canonical.R")
 )
 writeLines(
