@@ -7,12 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -38,4 +38,5 @@ jobs:
           files: ./cobertura.xml
           plugins: noop
           disable_search: true
+          use_oidc: true
           fail_ci_if_error: true
