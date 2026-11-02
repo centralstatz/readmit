@@ -1,7 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Readmission Risk Pool <img src="man/figures/logo.png" align="right" height="138" alt="" />
+<img src="man/figures/rrp-banner.png" width="100%" alt="Readmission Risk Pool wordmark and connected risk trajectory" />
+
+# Readmission Risk Pool <img src="man/figures/logo.png" align="right" height="106" alt="readmit R package hex logo" />
 
 Hospital readmission risk can change after discharge as time passes and
 new information becomes available. A prediction made only at discharge
