@@ -17,8 +17,10 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Suggests:
     bslib,
+    knitr,
     plotly,
     reactable,
+    rmarkdown,
     shiny,
     testthat (>= 3.0.0),
     yaml
@@ -32,5 +34,5 @@ Imports:
     duckdb
 Config/Needs/website:
     dplyr,
-    rmarkdown,
     tidyr
+VignetteBuilder: knitr
