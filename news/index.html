@@ -35,7 +35,15 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="readmit-development-version">readmit (development version)<a class="anchor" aria-label="anchor" href="#readmit-development-version"></a></h2>
-<ul><li>Repurposing <code>readmit</code> as an R interface to the Readmission Risk Pool platform.</li>
+<ul><li>
+<code>readmit</code> retains its hospital-readmissions focus and evolves from the exploratory utilities in 0.0.1 into the Readmission Risk Pool (RRP), a project-based framework for repeated readmission risk assessment. This revision intentionally changes the public API and moves from MIT to Apache License 2.0.</li>
+<li>
+<code><a href="../reference/rrp_project_init.html">rrp_project_init()</a></code> creates a user-owned project with editable configuration, source-mapping and risk-provider scripts, branding, and a Shiny application. Project authors supply their own clinical data mapping and risk logic; <code><a href="../reference/rrp_project_validate.html">rrp_project_validate()</a></code> checks the authoring structure, and <code><a href="../reference/rrp_state_init.html">rrp_state_init()</a></code> establishes persistent history.</li>
+<li>
+<code><a href="../reference/rrp_run.html">rrp_run()</a></code> assesses the remaining risk of a first readmission through 30 elapsed days after discharge at a chosen analytical time. It applies shared eligibility rules to project-supplied canonical data and retains accepted estimates, provider failures, and ineligible outcomes. Use <code><a href="../reference/rrp_project_status.html">rrp_project_status()</a></code> and <code><a href="../reference/rrp_inspect_history.html">rrp_inspect_history()</a></code> to examine the results.</li>
+<li>
+<code><a href="../reference/rrp_refresh_products.html">rrp_refresh_products()</a></code> derives current remaining risk, recorded risk trajectories, and an operational scope summary as CSV files from retained history. The project-owned Shiny app opens with empty views before products exist and displays them after refresh.</li>
+<li>A short installed getting-started vignette and a reproducible website implementation guide demonstrate the project workflow with illustrative data and risk logic. No clinically validated prediction model is included.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1" id="readmit-001">readmit 0.0.1<a class="anchor" aria-label="anchor" href="#readmit-001"></a></h2><p class="text-muted">CRAN release: 2025-12-19</p>
