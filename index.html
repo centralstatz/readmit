@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Readmission Risk Pool Platform • readmit</title>
+<title>Readmission Risk Pool Platform • Readmission Risk Pool</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -13,12 +13,10 @@
 <link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/Lexend-0.4.10/font.css" rel="stylesheet">
-<link href="deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
-<link href="deps/Tomorrow-0.4.10/font.css" rel="stylesheet">
-<link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Readmission Risk Pool Platform">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<meta property="og:title" content="Readmission Risk Pool Platform">
 <meta name="description" content="Provides the R implementation of the Readmission Risk Pool (RRP) analytical platform for reassessing the remaining probability of a first hospital readmission through 30 days after discharge. Distributed as the readmit package, it creates user-owned projects, applies shared eligibility rules at explicit assessment times, retains completed assessments as history, and generates CSV analytical products for a project-owned interactive application. Project authors supply clinical source-mapping and risk-provider functions; no clinically validated prediction model is included.">
 <meta property="og:description" content="Provides the R implementation of the Readmission Risk Pool (RRP) analytical platform for reassessing the remaining probability of a first hospital readmission through 30 days after discharge. Distributed as the readmit package, it creates user-owned projects, applies shared eligibility rules at explicit assessment times, retains completed assessments as history, and generates CSV analytical products for a project-owned interactive application. Project authors supply clinical source-mapping and risk-provider functions; no clinically validated prediction model is included.">
 <meta property="og:image" content="https://readmit.centralstatz.com/logo.png">
@@ -27,9 +25,9 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-dark" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="index.html">readmit</a>
+    <a class="navbar-brand me-2" href="index.html">Readmission Risk Pool</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9000</small>
 
@@ -40,6 +38,8 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/getting-started.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="articles/implementing-rrp.html">Implementation guide</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -48,7 +48,7 @@
     <li><a class="dropdown-item" href="articles/implementing-rrp.html">Implementing RRP: A Simulated Hospital Walkthrough</a></li>
   </ul>
 </li>
-<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -62,102 +62,143 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><p><img src="reference/figures/rrp-banner.png" width="100%" alt="Readmission Risk Pool wordmark and connected risk trajectory"></p>
-<div class="section level1">
-<div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="readmission-risk-pool-">Readmission Risk Pool <a class="anchor" aria-label="anchor" href="#readmission-risk-pool-"></a>
+  <main id="main" class="col-md-9"><div class="rrp-home">
+<section class="rrp-hero" aria-labelledby="rrp-home-title"><div class="rrp-hero-copy">
+<p class="rrp-kicker">
+READMISSION RISK POOL · ANALYTICAL PLATFORM
+</p>
+<img class="rrp-hero-logo" src="reference/figures/rrp-platform-dark.svg" alt="Readmission Risk Pool platform logo"><div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="rrp-home-title">
+Understand how remaining readmission risk changes after discharge.
 </h1>
 </div>
-<p>Hospital readmission risk can change after discharge as time passes and new information becomes available. A prediction made only at discharge cannot show how the remaining risk evolves during follow-up.</p>
-<p><strong>Readmission Risk Pool (RRP)</strong> is an analytical platform for reassessing that risk at chosen times and retaining what each assessment found. <strong><code>readmit</code></strong> is the R package used to create and operate an organization’s RRP project.</p>
-<!-- badges: start -->
-
-<div class="section level2">
-<h2 id="how-rrp-works">How RRP works<a class="anchor" aria-label="anchor" href="#how-rrp-works"></a>
+<p class="rrp-lead">
+Readmission Risk Pool (RRP) connects an organization’s data and risk provider to repeated, point-in-time assessments. The <code>readmit</code> R package supplies the shared analytical workflow, retained history, and a project-owned application.
+</p>
+<div class="rrp-actions">
+<p><a class="rrp-button rrp-button-primary" href="articles/getting-started.html">Get started <span aria-hidden="true">→</span></a> <a class="rrp-button rrp-button-secondary" href="articles/implementing-rrp.html">Explore the implementation guide</a></p>
+</div>
+</div>
+<div class="rrp-hero-aside" aria-label="RRP workflow: map sources, assess risk, retain history, explore products">
+<p class="rrp-aside-label">
+A REPEATABLE WORKFLOW
+</p>
+<div class="rrp-workflow-step">
+<span>01</span><strong>Map</strong><small>organization-owned sources</small>
+</div>
+<div class="rrp-workflow-step">
+<span>02</span><strong>Assess</strong><small>risk at chosen times</small>
+</div>
+<div class="rrp-workflow-step">
+<span>03</span><strong>Retain</strong><small>outcomes across runs</small>
+</div>
+<div class="rrp-workflow-step">
+<span>04</span><strong>Explore</strong><small>products in the app</small>
+</div>
+</div>
+</section><section class="rrp-section rrp-motivation" aria-labelledby="rrp-why"><div class="rrp-section-heading">
+<p class="rrp-kicker">
+THE ANALYTICAL QUESTION
+</p>
+<h2 id="rrp-why">
+One prediction at discharge cannot describe a changing risk pool.
 </h2>
-<p>For an episode still within follow-up and without a known readmission or death, each assessment concerns the remaining probability of a <strong>first hospital readmission strictly after the assessment time and through 30 elapsed days after the original discharge</strong>. The endpoint stays fixed; another assessment does not start a new 30-day window. The estimate should use information available at that time. For eligibility, <code>readmit</code> distinguishes when a readmission or death occurred from when it became known, so later knowledge does not rewrite an earlier assessment.</p>
-<p>Repeated assessments retain accepted estimates, provider failures, and ineligible episodes in project history. This history shows what was assessed at each time rather than only the latest result.</p>
 </div>
-<div class="section level2">
-<h2 id="what-the-platform-provides">What the platform provides<a class="anchor" aria-label="anchor" href="#what-the-platform-provides"></a>
+<div class="rrp-motivation-grid">
+<p>
+As follow-up time passes and new information becomes available, the set of eligible discharge episodes can change. A later assessment asks about the <strong>remaining probability of a first hospital readmission strictly after that time and through 30 elapsed days after the original discharge</strong>. Each assessment keeps the original endpoint; it does not restart the 30-day window.
+</p>
+<p>
+RRP applies shared eligibility rules to the episodes an organization supplies, records accepted estimates and other dispositions at each chosen time, and derives current-risk, trajectory, and operational-summary products. Its trajectories are recorded assessments, not continuous predictions between runs.
+</p>
+</div>
+</section><section class="rrp-section" aria-labelledby="rrp-capabilities"><div class="rrp-section-heading">
+<p class="rrp-kicker">
+WHAT THE PLATFORM ENABLES
+</p>
+<h2 id="rrp-capabilities">
+From local inputs to an inspectable risk pool.
 </h2>
-<p>An RRP project is an ordinary, organization-owned directory with configuration, source-mapping and risk-provider scripts, and its own Shiny application. <code>readmit</code> defines canonical inputs for discharge episodes and terminal events, applies shared eligibility rules, retains completed assessments, and derives three analytical products: current remaining risk, recorded risk trajectories, and an operational summary. The project application explores those products.</p>
+<p>
+The organization controls clinical sources, mapping, the risk provider, and how results are evaluated and used. <code>readmit</code> provides the shared structure around those choices.
+</p>
 </div>
-<div class="section level2">
-<h2 id="get-started">Get started<a class="anchor" aria-label="anchor" href="#get-started"></a>
+<div class="rrp-capability-grid">
+<article class="rrp-capability"><span class="rrp-card-index">01 / CONNECT</span>
+<h3>
+Own the implementation
+</h3>
+<p>
+Start with an ordinary project directory containing editable source-mapping and risk-provider scripts, configuration, branding, and its own Shiny app.
+</p>
+</article><article class="rrp-capability"><span class="rrp-card-index">02 / ASSESS</span>
+<h3>
+Reassess at chosen times
+</h3>
+<p>
+Apply discharge-anchored eligibility and point-in-time event availability before requesting risk for eligible episodes.
+</p>
+</article><article class="rrp-capability"><span class="rrp-card-index">03 / RETAIN</span>
+<h3>
+Keep the full history
+</h3>
+<p>
+Retain completed runs, including accepted estimates, provider failures, and ineligible episodes, so earlier results remain inspectable.
+</p>
+</article><article class="rrp-capability"><span class="rrp-card-index">04 / EXPLORE</span>
+<h3>
+See the pool and its trajectories
+</h3>
+<p>
+Refresh CSV products from history and explore current remaining risk, recorded episode trajectories, and operational scope in the project app.
+</p>
+</article>
+</div>
+</section><section class="rrp-section rrp-app-section" aria-labelledby="rrp-app-preview"><div class="rrp-section-heading">
+<p class="rrp-kicker">
+THE PROJECT-OWNED APPLICATION
+</p>
+<h2 id="rrp-app-preview">
+A working view of the current pool and recorded risk.
 </h2>
-<p>The RRP implementation is currently the development version <code>0.0.1.9000</code> in this repository. The <a href="https://cran.r-project.org/package=readmit" class="external-link">CRAN <code>readmit</code> 0.0.1 package</a> contains earlier, substantially different functionality under an MIT license; it does not install RRP. The intended RRP <code>1.0.0</code> release has not yet been submitted to CRAN. Install this development version from GitHub:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"centralstatz/readmit"</span><span class="op">)</span></span></code></pre></div>
-<p>Choose a new project path whose parent directory already exists:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://readmit.centralstatz.com/">readmit</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">project</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/rrp_project_init.html">rrp_project_init</a></span><span class="op">(</span></span>
-<span>  path <span class="op">=</span> <span class="st">"my-rrp-project"</span>,</span>
-<span>  project_id <span class="op">=</span> <span class="st">"my-project"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/rrp_project_validate.html">rrp_project_validate</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span></code></pre></div>
-<p>The initializer creates editable project guidance, configuration, branding, two authoring scripts, and a Shiny app. The scripts start as deliberate stubs. Validation checks that the structure and functions load; it does not run them or establish that assessments are ready.</p>
+<p>
+The existing application lists eligible discharge episodes and their current estimates. Selecting an episode reveals its accepted assessments across runs.
+</p>
 </div>
-<div class="section level2">
-<h2 id="using-an-rrp-project">Using an RRP project<a class="anchor" aria-label="anchor" href="#using-an-rrp-project"></a>
+<figure class="rrp-app-figure"><a href="rrp-app-preview.jpg" aria-label="Open the full-size simulated RRP application screenshot"><img src="rrp-app-preview.jpg" alt="Simulated RRP project application showing eligible discharge episodes with current-risk bars, one selected episode, and its recorded risk trajectory" loading="lazy"></a>
+<figcaption>
+Actual RRP Shiny application with simulated data. The risk values and episode IDs are illustrative; no patient records are shown. Open the image for a full-size view.
+</figcaption></figure></section><section class="rrp-section rrp-start-section" aria-labelledby="rrp-start"><div class="rrp-section-heading">
+<p class="rrp-kicker">
+START WITH READMIT
+</p>
+<h2 id="rrp-start">
+Build an RRP project around your data and model.
 </h2>
-<p>Implement <code>R/produce-canonical.R</code> to map your source data to the required discharge episodes and terminal events, and <code>R/calculate-risk.R</code> to provide risk estimates for eligible episodes. <code>rrp_state_init(project)</code> creates persistent history and <code>rrp_project_status(project)</code> reports project state; both can be used before those scripts are implemented. Once they work, <code>rrp_run(project, as_of_time)</code> records an assessment at a specified UTC time. Use <code>rrp_inspect_history(project)</code> to examine retained results after state initialization, and <code>rrp_refresh_products(project)</code> to derive products after at least one completed run. Refresh does not run another assessment.</p>
-<p>The application can open before products exist and will show empty views. Install its runtime packages (<code>shiny</code>, <code>bslib</code>, <code>reactable</code>, <code>plotly</code>, and <code>yaml</code>), then launch it with <code>shiny::runApp(file.path(project, "app"))</code>. After a product refresh, the app reads the generated products.</p>
+<p>
+Install the current development package from GitHub, then use the short walkthrough or the complete simulated-hospital guide.
+</p>
 </div>
-<div class="section level2">
-<h2 id="responsibilities-and-documentation">Responsibilities and documentation<a class="anchor" aria-label="anchor" href="#responsibilities-and-documentation"></a>
-</h2>
-<p>Your organization supplies source mapping and a risk provider, evaluates whether its data and model are suitable for the intended use, and decides how results inform clinical or operational decisions. <code>readmit</code> supplies the analytical structure around those inputs; it does not include a clinically validated prediction model or establish that using RRP improves outcomes.</p>
-<p>For function reference, use <code><a href="https://readmit.centralstatz.com/reference">help(package = "readmit")</a></code> after installation. Each generated project’s <code>README.md</code> explains the canonical contract, risk provider, and application in more detail.</p>
+<div class="rrp-start-grid">
+<div class="rrp-install-card">
+<span class="rrp-card-index">DEVELOPMENT INSTALL</span>
+<pre><code><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"centralstatz/readmit"</span><span class="op">)</span></span></code></pre>
+<p>
+Project authors supply source mapping and a risk provider. RRP does not include a clinically validated model.
+</p>
+</div>
+<div class="rrp-doc-links">
+<p><a href="articles/getting-started.html"><strong>Getting started</strong><span>A short, installed vignette for the project workflow.</span></a> <a href="articles/implementing-rrp.html"><strong>Implementation guide</strong><span>A full simulated-hospital walkthrough with source mapping and a demonstration model.</span></a> <a href="reference/index.html"><strong>Function reference</strong><span>Package operations, arguments, and examples.</span></a> <a href="https://github.com/centralstatz/readmit" class="external-link"><strong>GitHub repository</strong><span>Source code, issues, and the current development version.</span></a></p>
 </div>
 </div>
-
-  </main><aside class="col-md-3"><div class="links">
-<h2 data-toc-skip>Links</h2>
-<ul class="list-unstyled">
-<li><a href="https://cloud.r-project.org/package=readmit" class="external-link">View on CRAN</a></li>
-<li><a href="https://github.com/centralstatz/readmit/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/centralstatz/readmit/issues" class="external-link">Report a bug</a></li>
-</ul>
+</section><aside class="rrp-release-note" aria-label="Development status"><span class="rrp-status-dot" aria-hidden="true"></span>
+<div>
+<strong>Current status: RRP development version 0.0.1.9000.</strong> The older <a href="https://cran.r-project.org/package=readmit" class="external-link">CRAN <code>readmit</code> 0.0.1</a> has substantially different functionality and does not install this RRP implementation. The intended RRP 1.0.0 release has not yet been submitted to CRAN.
 </div>
-
-<div class="license">
-<h2 data-toc-skip>License</h2>
-<ul class="list-unstyled">
-<li><a href="LICENSE.html">Full license</a></li>
-<li><small>Apache License (&gt;= 2)</small></li>
-</ul>
+</aside>
 </div>
-
-
-<div class="citation">
-<h2 data-toc-skip>Citation</h2>
-<ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing readmit</a></li>
-</ul>
-</div>
-
-<div class="developers">
-<h2 data-toc-skip>Developers</h2>
-<ul class="list-unstyled">
-<li>Alex Zajichek <br><small class="roles"> Author, maintainer </small>   </li>
-<li><a href="authors.html">More about authors...</a></li>
-</ul>
-</div>
-
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=readmit" class="external-link"><img src="https://www.r-pkg.org/badges/version/readmit" alt="CRAN Status"></a></li>
-<li><a href="https://app.codecov.io/gh/centralstatz/readmit" class="external-link"><img src="https://codecov.io/gh/centralstatz/readmit/graph/badge.svg" alt="Codecov test coverage"></a></li>
-<li><a href="https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/centralstatz/readmit/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-</ul>
-</div>
-
-  </aside>
+  </main><aside class="col-md-3"></aside>
 </div>
 
 

@@ -1,106 +1,127 @@
-# Readmission Risk Pool
+# Understand how remaining readmission risk changes after discharge.
 
-![Readmission Risk Pool wordmark and connected risk
-trajectory](reference/figures/rrp-banner.png)
+READMISSION RISK POOL · ANALYTICAL PLATFORM
 
-Hospital readmission risk can change after discharge as time passes and
-new information becomes available. A prediction made only at discharge
-cannot show how the remaining risk evolves during follow-up.
+![Readmission Risk Pool platform
+logo](reference/figures/rrp-platform-dark.svg)
 
-**Readmission Risk Pool (RRP)** is an analytical platform for
-reassessing that risk at chosen times and retaining what each assessment
-found. **`readmit`** is the R package used to create and operate an
-organization’s RRP project.
+Readmission Risk Pool (RRP) connects an organization’s data and risk
+provider to repeated, point-in-time assessments. The `readmit` R package
+supplies the shared analytical workflow, retained history, and a
+project-owned application.
 
-## How RRP works
+[Get started
+→](https://readmit.centralstatz.com/articles/getting-started.md)
+[Explore the implementation
+guide](https://readmit.centralstatz.com/articles/implementing-rrp.md)
 
-For an episode still within follow-up and without a known readmission or
-death, each assessment concerns the remaining probability of a **first
-hospital readmission strictly after the assessment time and through 30
-elapsed days after the original discharge**. The endpoint stays fixed;
-another assessment does not start a new 30-day window. The estimate
-should use information available at that time. For eligibility,
-`readmit` distinguishes when a readmission or death occurred from when
-it became known, so later knowledge does not rewrite an earlier
-assessment.
+A REPEATABLE WORKFLOW
 
-Repeated assessments retain accepted estimates, provider failures, and
-ineligible episodes in project history. This history shows what was
-assessed at each time rather than only the latest result.
+01**Map**organization-owned sources
 
-## What the platform provides
+02**Assess**risk at chosen times
 
-An RRP project is an ordinary, organization-owned directory with
-configuration, source-mapping and risk-provider scripts, and its own
-Shiny application. `readmit` defines canonical inputs for discharge
-episodes and terminal events, applies shared eligibility rules, retains
-completed assessments, and derives three analytical products: current
-remaining risk, recorded risk trajectories, and an operational summary.
-The project application explores those products.
+03**Retain**outcomes across runs
 
-## Get started
+04**Explore**products in the app
 
-The RRP implementation is currently the development version `0.0.1.9000`
-in this repository. The [CRAN `readmit` 0.0.1
-package](https://cran.r-project.org/package=readmit) contains earlier,
-substantially different functionality under an MIT license; it does not
-install RRP. The intended RRP `1.0.0` release has not yet been submitted
-to CRAN. Install this development version from GitHub:
+THE ANALYTICAL QUESTION
 
-``` r
+## One prediction at discharge cannot describe a changing risk pool.
 
-install.packages("remotes")
-remotes::install_github("centralstatz/readmit")
-```
+As follow-up time passes and new information becomes available, the set
+of eligible discharge episodes can change. A later assessment asks about
+the **remaining probability of a first hospital readmission strictly
+after that time and through 30 elapsed days after the original
+discharge**. Each assessment keeps the original endpoint; it does not
+restart the 30-day window.
 
-Choose a new project path whose parent directory already exists:
+RRP applies shared eligibility rules to the episodes an organization
+supplies, records accepted estimates and other dispositions at each
+chosen time, and derives current-risk, trajectory, and
+operational-summary products. Its trajectories are recorded assessments,
+not continuous predictions between runs.
 
-``` r
+WHAT THE PLATFORM ENABLES
 
-library(readmit)
+## From local inputs to an inspectable risk pool.
 
-project <- rrp_project_init(
-  path = "my-rrp-project",
-  project_id = "my-project"
-)
-rrp_project_validate(project)
-```
+The organization controls clinical sources, mapping, the risk provider,
+and how results are evaluated and used. `readmit` provides the shared
+structure around those choices.
 
-The initializer creates editable project guidance, configuration,
-branding, two authoring scripts, and a Shiny app. The scripts start as
-deliberate stubs. Validation checks that the structure and functions
-load; it does not run them or establish that assessments are ready.
+01 / CONNECT
 
-## Using an RRP project
+### Own the implementation
 
-Implement `R/produce-canonical.R` to map your source data to the
-required discharge episodes and terminal events, and
-`R/calculate-risk.R` to provide risk estimates for eligible episodes.
-`rrp_state_init(project)` creates persistent history and
-`rrp_project_status(project)` reports project state; both can be used
-before those scripts are implemented. Once they work,
-`rrp_run(project, as_of_time)` records an assessment at a specified UTC
-time. Use `rrp_inspect_history(project)` to examine retained results
-after state initialization, and `rrp_refresh_products(project)` to
-derive products after at least one completed run. Refresh does not run
-another assessment.
+Start with an ordinary project directory containing editable
+source-mapping and risk-provider scripts, configuration, branding, and
+its own Shiny app.
 
-The application can open before products exist and will show empty
-views. Install its runtime packages (`shiny`, `bslib`, `reactable`,
-`plotly`, and `yaml`), then launch it with
-`shiny::runApp(file.path(project, "app"))`. After a product refresh, the
-app reads the generated products.
+02 / ASSESS
 
-## Responsibilities and documentation
+### Reassess at chosen times
 
-Your organization supplies source mapping and a risk provider, evaluates
-whether its data and model are suitable for the intended use, and
-decides how results inform clinical or operational decisions. `readmit`
-supplies the analytical structure around those inputs; it does not
-include a clinically validated prediction model or establish that using
-RRP improves outcomes.
+Apply discharge-anchored eligibility and point-in-time event
+availability before requesting risk for eligible episodes.
 
-For function reference, use
-[`help(package = "readmit")`](https://readmit.centralstatz.com/reference)
-after installation. Each generated project’s `README.md` explains the
-canonical contract, risk provider, and application in more detail.
+03 / RETAIN
+
+### Keep the full history
+
+Retain completed runs, including accepted estimates, provider failures,
+and ineligible episodes, so earlier results remain inspectable.
+
+04 / EXPLORE
+
+### See the pool and its trajectories
+
+Refresh CSV products from history and explore current remaining risk,
+recorded episode trajectories, and operational scope in the project app.
+
+THE PROJECT-OWNED APPLICATION
+
+## A working view of the current pool and recorded risk.
+
+The existing application lists eligible discharge episodes and their
+current estimates. Selecting an episode reveals its accepted assessments
+across runs.
+
+[![Simulated RRP project application showing eligible discharge episodes
+with current-risk bars, one selected episode, and its recorded risk
+trajectory](rrp-app-preview.jpg)](https://readmit.centralstatz.com/rrp-app-preview.jpg)
+
+Actual RRP Shiny application with simulated data. The risk values and
+episode IDs are illustrative; no patient records are shown. Open the
+image for a full-size view.
+
+START WITH READMIT
+
+## Build an RRP project around your data and model.
+
+Install the current development package from GitHub, then use the short
+walkthrough or the complete simulated-hospital guide.
+
+DEVELOPMENT INSTALL
+
+    install.packages("remotes")
+    remotes::install_github("centralstatz/readmit")
+
+Project authors supply source mapping and a risk provider. RRP does not
+include a clinically validated model.
+
+[**Getting started**A short, installed vignette for the project
+workflow.](https://readmit.centralstatz.com/articles/getting-started.md)
+[**Implementation guide**A full simulated-hospital walkthrough with
+source mapping and a demonstration
+model.](https://readmit.centralstatz.com/articles/implementing-rrp.md)
+[**Function reference**Package operations, arguments, and
+examples.](https://readmit.centralstatz.com/reference/index.md)
+[**GitHub repository**Source code, issues, and the current development
+version.](https://github.com/centralstatz/readmit)
+
+**Current status: RRP development version 0.0.1.9000.** The older [CRAN
+`readmit` 0.0.1](https://cran.r-project.org/package=readmit) has
+substantially different functionality and does not install this RRP
+implementation. The intended RRP 1.0.0 release has not yet been
+submitted to CRAN.
