@@ -49,11 +49,11 @@ and an operational summary. The project application explores those products.
 
 ## Get started
 
-The RRP implementation is currently the development version `0.0.1.9000` in
-this repository. The [CRAN `readmit` 0.0.1 package](https://cran.r-project.org/package=readmit)
+This repository contains the RRP `1.0.0` release source. The
+[CRAN `readmit` 0.0.1 package](https://cran.r-project.org/package=readmit)
 contains earlier, substantially different functionality under an MIT license;
-it does not install RRP. The intended RRP `1.0.0` release has not yet been
-submitted to CRAN. Install this development version from GitHub:
+it does not install RRP. Until the RRP release is available on CRAN, install
+this repository version from GitHub:
 
 ```r
 install.packages("remotes")

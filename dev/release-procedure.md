@@ -22,10 +22,11 @@ choose an appropriate increment for later releases.
   Apache License 2.0 declaration, dependencies, and URLs. Preserve the
   historical `readmit` `0.0.1` NEWS entry.
 - Finish RRP release notes under `# readmit (development version)`. Prepare
-  `cran-comments.md` with the actual check results and relevant platforms,
-  existing CRAN checks and applicable reverse dependencies, and a concise
-  explanation of the changed purpose, breaking API, and MIT-to-Apache-2.0
-  license transition. Remove all scaffolding placeholders before submission.
+  `cran-comments.md` with concise submission context, relevant CRAN and
+  reverse-dependency information, and the changed purpose, breaking API, and
+  MIT-to-Apache-2.0 license transition. Populate final test environments and
+  check results from exact release-version checks in Stage 6.8, before
+  submission; remove the pending text then.
 - Run relevant local package checks and external checks (for example,
   `devtools::check_win_devel()` when appropriate), inspect the actual results,
   and resolve release-blocking issues. Review the existing CRAN check page and

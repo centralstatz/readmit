@@ -6,12 +6,14 @@ This release introduces a revised public API and changes the license from MIT to
 
 ## Test environments
 
-To be completed with the final release-version check results.
+Local macOS 26.5.2 (Apple Silicon), R 4.4.1.
 
 ## R CMD check results
 
-To be completed with the final release-version check results.
+`R CMD check --as-cran` on the `readmit_1.0.0.tar.gz` source package: 0 errors,
+0 warnings, 1 NOTE. The NOTE says the local system could not verify the current
+time while checking for future file timestamps. The PDF manual check passed.
 
 ## Reverse dependencies
 
-No reverse dependencies were identified in the CRAN package index as of 2026-11-03. This will be reconfirmed before submission.
+No reverse dependencies were identified in the CRAN package index on 2026-11-03.
