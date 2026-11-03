@@ -1,6 +1,6 @@
 # Changelog
 
-## readmit (development version)
+## readmit 1.0.0
 
 - `readmit` retains its hospital-readmissions focus and evolves from the
   exploratory utilities in 0.0.1 into the Readmission Risk Pool (RRP), a
