@@ -33,7 +33,7 @@ project <- tempfile("rrp-state-")
 rrp_project_init(project, "example-rrp")
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpjZonwW/duckdb
+#> ℹ /tmp/RtmpgH9k2A/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
