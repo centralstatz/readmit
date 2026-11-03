@@ -113,6 +113,10 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .rrp-release-note strong { color: #f2f7ff; }
 .rrp-status-dot { flex: 0 0 9px; width: 9px; height: 9px; margin-top: .55rem; border-radius: 50%; background: var(--rrp-violet); }
 
+main pre { overflow-x: auto; padding: 1rem; font-size: .95rem; line-height: 1.5; }
+main pre code { font-size: inherit; }
+main :not(pre) > code { font-size: .95em; }
+
 .template-article, .template-reference, .template-news, .template-articles, .template-reference-index { line-height: 1.65; }
 .template-article main, .template-reference main, .template-news main { color: var(--rrp-text); }
 .template-article .page-header, .template-reference .page-header, .template-news .page-header { border-color: var(--rrp-line); }
@@ -124,6 +128,14 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .template-article pre.sourceCode .st, .template-reference pre.sourceCode .st { color: #a6e2c2; }
 .template-article pre.sourceCode .fu a, .template-reference pre.sourceCode .fu a { color: #91c9ff; }
 .template-article pre.sourceCode .co, .template-reference pre.sourceCode .co { color: #aebed4; }
+.template-article pre.sourceCode .fl, .template-reference pre.sourceCode .fl { color: #c7b7ff; }
+.template-article pre.sourceCode .cn, .template-reference pre.sourceCode .cn { color: #f2c98d; }
+.template-article pre.sourceCode .fu, .template-reference pre.sourceCode .fu { color: #91c9ff; }
+.template-article pre.sourceCode .kw, .template-reference pre.sourceCode .kw { color: #b2d7ff; }
+.rrp-code-fold { margin: 1.5rem 0; }
+.rrp-code-fold summary { width: fit-content; cursor: pointer; color: var(--rrp-blue); font-weight: 650; }
+.rrp-code-fold summary:focus-visible { outline: 2px solid var(--rrp-blue); outline-offset: 4px; }
+.rrp-code-fold pre { margin-top: .75rem; }
 .template-article table, .template-reference table { color: var(--rrp-text); }
 .template-article th, .template-reference th, .template-article td, .template-reference td { border-color: var(--rrp-line); }
 .template-article .nav-pills .nav-link.active, .template-reference .nav-pills .nav-link.active { color: #08152b; }
@@ -143,6 +155,8 @@ footer, .footer { border-top-color: var(--rrp-line); color: var(--rrp-muted); }
   .rrp-hero-logo { width: min(310px, 100%); margin-bottom: 1.5rem; }
   .rrp-hero-aside { grid-template-columns: repeat(2, 1fr); }
   .rrp-motivation-grid, .rrp-start-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .rrp-start-grid { grid-template-columns: minmax(0, 1fr); }
+  .rrp-start-grid > * { min-width: 0; }
   .rrp-capability-grid { grid-template-columns: 1fr; }
   .rrp-section { margin-top: 4rem; }
 }

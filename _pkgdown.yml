@@ -6,7 +6,7 @@ navbar:
   bg: dark
   type: dark
   structure:
-    left: [get_started, implementation_guide, reference, articles, news]
+    left: [get_started, implementation_guide, reference, news]
     right: [search, github]
   components:
     get_started:
@@ -28,4 +28,4 @@ template:
     navbar-bg: "#101D34"
     base_font: "system-ui"
     heading_font: "system-ui"
-    code_font: "ui-monospace"
+    code_font: 'Menlo, Consolas, "Liberation Mono", monospace'

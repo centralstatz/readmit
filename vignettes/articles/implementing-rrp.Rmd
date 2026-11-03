@@ -40,6 +40,9 @@ and terminal-event feeds. The observation is recorded four days after discharge
 and becomes available a day later. Event records also have distinct occurrence
 and availability times.
 
+<details class="rrp-code-fold">
+<summary>Show simulated source-data preparation</summary>
+
 ```{r simulate}
 set.seed(6404)
 day <- 24 * 60 * 60
@@ -139,6 +142,13 @@ stopifnot(
   all(events$encounter_id %in% encounters$encounter_id),
   all(events$occurred_at <= events$available_at)
 )
+```
+
+</details>
+
+The current encounters and terminal events used below are:
+
+```{r simulate-results}
 current_encounters |>
   select(encounter_id, patient_id, discharge_time, acuity)
 current_events |>
@@ -181,6 +191,9 @@ by `as_of_time`; omitting earlier eligible patients from a later operational
 snapshot would change the current pool. The package derives the 30-day endpoint
 and applies eligibility rules.
 
+<details class="rrp-code-fold">
+<summary>Show source-mapping code</summary>
+
 ```{r mapper}
 mapper_code <- r"---(
 rrp_produce_canonical <- function(project_root, as_of_time) {
@@ -216,6 +229,8 @@ rrp_produce_canonical <- function(project_root, as_of_time) {
 writeLines(mapper_code, file.path(project, "R", "produce-canonical.R"))
 ```
 
+</details>
+
 The occurrence and availability filters ensure the January 9 readmission is
 absent from the January 10 source snapshot and present on January 12 with its
 original occurrence time. These are distinct facts, not a later rewrite of the
@@ -234,6 +249,9 @@ available at the landmark. This is a small educational logistic model of the
 remaining interval, not an unchanged discharge-time classifier. Its repeated
 rows per encounter and simplified source process are not a clinical validation
 or a claim of calibrated risk.
+
+<details class="rrp-code-fold">
+<summary>Show model-training code</summary>
 
 ```{r train}
 historical_event_times <- events |>
@@ -279,18 +297,24 @@ training <- tidyr::crossing(
            occurred_at_readmission <= occurred_at_death)
     )
   )
-training |>
-  count(landmark_day, outcome)
-
 model <- stats::glm(
   outcome ~ age_scaled + acuity + signal_as_of + days_remaining,
   family = stats::binomial(), data = training
 )
-round(stats::coef(model), 3)
 dir.create(file.path(project, "model"))
 model_path <- file.path(project, "model", "landmark-glm.rds")
 saveRDS(model, model_path)
 stopifnot(inherits(readRDS(model_path), "glm"))
+```
+
+</details>
+
+The resulting training outcomes by landmark and fitted coefficients are:
+
+```{r train-results}
+training |>
+  count(landmark_day, outcome)
+round(stats::coef(model), 3)
 ```
 
 The model uses remaining days and a post-discharge signal only once that signal
@@ -307,6 +331,9 @@ endpoint. The provider reads private source information and the saved model
 from its own project directory. E4 has no age, so it reports a failure rather
 than inventing a probability. An organization must assess its own predictor
 quality and timing; `readmit` does not validate them.
+
+<details class="rrp-code-fold">
+<summary>Show risk-provider implementation</summary>
 
 ```{r provider}
 provider_code <- r"---(
@@ -349,6 +376,8 @@ rrp_calculate_risk <- function(project_root, request) {
 writeLines(provider_code, file.path(project, "R", "calculate-risk.R"))
 rrp_project_validate(project)
 ```
+
+</details>
 
 Validation confirms that the project files and function signatures load. It
 does not call either function or certify the simulated clinical definitions,
