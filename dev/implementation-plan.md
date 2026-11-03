@@ -336,6 +336,19 @@ The [6.1 package-completeness assessment](assessments/2026-11-02_stage-6-1-packa
 
 **6.5 completion criterion.** Met. Approved public RRP, package hex, and banner assets form a coherent readable family; the package hex has conventional geometry and a transparent exterior; only useful supporting assets are retained; public references render, the package builds and checks, and the generated-project app and branding remain untouched. The implementation record captures the actual assets, verification, and maintainer acceptance. Stage 6.5 and 6.5.A are Complete; Stage 6 remains In progress.
 
+#### Increment 6.6 — Platform Website and pkgdown Experience: detailed planning in progress
+
+**Status:** In progress. Stage 6.5 is Complete. Only 6.6.A has been detailed and completed; the remaining implementation work will be planned with the maintainer after review of the [website architecture and pkgdown assessment](assessments/2026-11-02_stage-6-6-website-architecture-pkgdown-assessment.md). Stage 6 remains In progress. Retain the high-level 6.6 objective, deliverable, and publication boundary in the roadmap above.
+
+##### 6.6.A — Website Architecture and pkgdown Assessment
+
+- **Status:** Complete; the formal assessment is recorded at [Stage 6.6.A — Website Architecture and pkgdown Assessment](assessments/2026-11-02_stage-6-6-website-architecture-pkgdown-assessment.md). Its recommendations await maintainer review.
+- **Objective:** Investigate the existing pkgdown architecture and website configuration to establish a defensible implementation direction for a platform-oriented RRP website.
+- **Scope:** Assess homepage source behavior, information architecture and navigation, Bootstrap/bslib and limited stylesheet options, both existing tutorials, automatic function reference, app visuals, public branding and favicon, development/release messaging, and the GitHub Actions publication path. Distinguish inspected behavior, focused experiments, recommendations, and external verification still needed.
+- **Deliverable:** A substantive, actionable assessment under `dev/assessments/` with architecture options, a recommended approach, a documentation-preservation contract, change-risk classification, and genuine maintainer decisions.
+- **Verification:** Inspect the repository, installed pkgdown version and relevant supported documentation; run focused disposable experiments where useful; confirm the recommendation preserves the installed vignette, website-only article, function reference, and push-to-published-site workflow. Record network and live-site limits without treating them as pkgdown incompatibility. Review the documentation diff and run `git diff --check`.
+- **Dependency and boundary:** Follows completed 6.3–6.5 and precedes the collaboratively planned redesign. Do not implement a new homepage, theme, screenshot, favicon, navigation, tutorial change, build-workflow change, publication, or release operation in this assessment.
+
 ## Progressive stage planning
 
 Before each stage, inspect the code produced so far and plan only the immediate work needed for that stage. Reassess its scope, dependencies, and verification using actual behavior. If implementation reveals a better route or a material architectural change, update `dev/architecture.md` and this plan together. Future stages remain high-level until their turn; they are not a fixed task inventory.
