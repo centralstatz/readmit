@@ -34,6 +34,8 @@ post-discharge observations, and terminal-event feeds. The observation
 is recorded four days after discharge and becomes available a day later.
 Event records also have distinct occurrence and availability times.
 
+Show simulated source-data preparation
+
 ``` r
 
 set.seed(6404)
@@ -134,6 +136,12 @@ stopifnot(
   all(events$encounter_id %in% encounters$encounter_id),
   all(events$occurred_at <= events$available_at)
 )
+```
+
+The current encounters and terminal events used below are:
+
+``` r
+
 current_encounters |>
   select(encounter_id, patient_id, discharge_time, acuity)
 #> # A tibble: 8 × 4
@@ -200,6 +208,8 @@ earlier eligible patients from a later operational snapshot would change
 the current pool. The package derives the 30-day endpoint and applies
 eligibility rules.
 
+Show source-mapping code
+
 ``` r
 
 mapper_code <- r"---(
@@ -256,6 +266,8 @@ discharge-time classifier. Its repeated rows per encounter and
 simplified source process are not a clinical validation or a claim of
 calibrated risk.
 
+Show model-training code
+
 ``` r
 
 historical_event_times <- events |>
@@ -301,6 +313,20 @@ training <- tidyr::crossing(
            occurred_at_readmission <= occurred_at_death)
     )
   )
+model <- stats::glm(
+  outcome ~ age_scaled + acuity + signal_as_of + days_remaining,
+  family = stats::binomial(), data = training
+)
+dir.create(file.path(project, "model"))
+model_path <- file.path(project, "model", "landmark-glm.rds")
+saveRDS(model, model_path)
+stopifnot(inherits(readRDS(model_path), "glm"))
+```
+
+The resulting training outcomes by landmark and fitted coefficients are:
+
+``` r
+
 training |>
   count(landmark_day, outcome)
 #> # A tibble: 6 × 3
@@ -312,18 +338,9 @@ training |>
 #> 4            7       1    61
 #> 5           14       0   337
 #> 6           14       1    34
-
-model <- stats::glm(
-  outcome ~ age_scaled + acuity + signal_as_of + days_remaining,
-  family = stats::binomial(), data = training
-)
 round(stats::coef(model), 3)
 #>    (Intercept)     age_scaled         acuity   signal_as_of days_remaining 
 #>         -4.755          0.175          0.508          0.496          0.095
-dir.create(file.path(project, "model"))
-model_path <- file.path(project, "model", "landmark-glm.rds")
-saveRDS(model, model_path)
-stopifnot(inherits(readRDS(model_path), "glm"))
 ```
 
 The model uses remaining days and a post-discharge signal only once that
@@ -341,6 +358,8 @@ the saved model from its own project directory. E4 has no age, so it
 reports a failure rather than inventing a probability. An organization
 must assess its own predictor quality and timing; `readmit` does not
 validate them.
+
+Show risk-provider implementation
 
 ``` r
 
@@ -404,7 +423,7 @@ estimates for other episodes.
 
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -414,7 +433,7 @@ rrp_state_init(project)
 assessment_times <- origin + c(5.5, 9.5, 11.5, 15.5) * day
 runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -422,7 +441,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -430,7 +449,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -438,7 +457,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -446,7 +465,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -454,7 +473,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -462,7 +481,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -470,7 +489,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -495,7 +514,7 @@ run_summary
 # A later-executed historical backfill does not replace the newest snapshot.
 backfill <- rrp_run(project, assessment_times[[2L]])
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -503,7 +522,7 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -512,7 +531,7 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 #> ℹ See ?duckdb_storage for details and alternatives.
 status <- rrp_project_status(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -527,7 +546,7 @@ status[c("state_initialized", "run_count")]
 #> [1] 5
 history <- rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -637,7 +656,7 @@ relevant discharge cohort.
 
 products <- rrp_refresh_products(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmp1eIlg4/duckdb
+#> ℹ /tmp/RtmpfyyGSJ/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.

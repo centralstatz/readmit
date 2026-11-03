@@ -38,13 +38,6 @@
 <li class="nav-item"><a class="nav-link" href="../articles/getting-started.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../articles/implementing-rrp.html">Implementation guide</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started with readmit</a></li>
-    <li><a class="dropdown-item" href="../articles/implementing-rrp.html">Implementing RRP: A Simulated Hospital Walkthrough</a></li>
-  </ul>
-</li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -108,7 +101,9 @@ encounter/discharge records, post-discharge observations, and
 terminal-event feeds. The observation is recorded four days after
 discharge and becomes available a day later. Event records also have
 distinct occurrence and availability times.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<details class="rrp-code-fold"><summary>
+Show simulated source-data preparation
+</summary><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">6404</span><span class="op">)</span></span>
 <span><span class="va">day</span> <span class="op">&lt;-</span> <span class="fl">24</span> <span class="op">*</span> <span class="fl">60</span> <span class="op">*</span> <span class="fl">60</span></span>
 <span><span class="va">origin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="st">"2026-01-01 00:00:00"</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span></span>
@@ -206,8 +201,10 @@ distinct occurrence and availability times.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">encounters</span><span class="op">$</span><span class="va">patient_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">patients</span><span class="op">$</span><span class="va">patient_id</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">events</span><span class="op">$</span><span class="va">encounter_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">encounters</span><span class="op">$</span><span class="va">encounter_id</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">events</span><span class="op">$</span><span class="va">occurred_at</span> <span class="op">&lt;=</span> <span class="va">events</span><span class="op">$</span><span class="va">available_at</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">current_encounters</span> <span class="op">|&gt;</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</details><p>The current encounters and terminal events used below are:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">current_encounters</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">encounter_id</span>, <span class="va">patient_id</span>, <span class="va">discharge_time</span>, <span class="va">acuity</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 4</span></span></span>
 <span><span class="co">#&gt;   encounter_id patient_id discharge_time      acuity</span></span>
@@ -243,7 +240,7 @@ does <strong>not</strong> supply a working hospital model or source
 connection. We save our simulated extracts inside this project only
 because Harbor General is fictional; a real organization would connect
 its own sources and keep their access details under its control.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">work_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"harbor-general-"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">work_dir</span><span class="op">)</span></span>
 <span><span class="va">project</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_project_init.html">rrp_project_init</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">work_dir</span>, <span class="st">"harbor-rrp"</span><span class="op">)</span>, <span class="st">"harbor-general"</span><span class="op">)</span></span>
@@ -268,7 +265,9 @@ discharged by <code>as_of_time</code>; omitting earlier eligible
 patients from a later operational snapshot would change the current
 pool. The package derives the 30-day endpoint and applies eligibility
 rules.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<details class="rrp-code-fold"><summary>
+Show source-mapping code
+</summary><div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mapper_code</span> <span class="op">&lt;-</span> <span class="st">r"---(</span></span>
 <span><span class="st">rrp_produce_canonical &lt;- function(project_root, as_of_time) {</span></span>
 <span><span class="st">  source_dir &lt;- file.path(project_root, "source")</span></span>
@@ -301,7 +300,7 @@ rules.</p>
 <span><span class="st">}</span></span>
 <span><span class="st">)---"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="va">mapper_code</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"R"</span>, <span class="st">"produce-canonical.R"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>The occurrence and availability filters ensure the January 9
+</details><p>The occurrence and availability filters ensure the January 9
 readmission is absent from the January 10 source snapshot and present on
 January 12 with its original occurrence time. These are distinct facts,
 not a later rewrite of the January 10 result. The canonical tables
@@ -321,7 +320,9 @@ landmark. This is a small educational logistic model of the remaining
 interval, not an unchanged discharge-time classifier. Its repeated rows
 per encounter and simplified source process are not a clinical
 validation or a claim of calibrated risk.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<details class="rrp-code-fold"><summary>
+Show model-training code
+</summary><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">historical_event_times</span> <span class="op">&lt;-</span> <span class="va">events</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">semi_join</span><span class="op">(</span><span class="va">historical_encounters</span>, by <span class="op">=</span> <span class="st">"encounter_id"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">encounter_id</span>, <span class="va">event_type</span>, <span class="va">occurred_at</span>, <span class="va">available_at</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -365,7 +366,18 @@ validation or a claim of calibrated risk.</p>
 <span>           <span class="va">occurred_at_readmission</span> <span class="op">&lt;=</span> <span class="va">occurred_at_death</span><span class="op">)</span></span>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="va">training</span> <span class="op">|&gt;</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span>
+<span>  <span class="va">outcome</span> <span class="op">~</span> <span class="va">age_scaled</span> <span class="op">+</span> <span class="va">acuity</span> <span class="op">+</span> <span class="va">signal_as_of</span> <span class="op">+</span> <span class="va">days_remaining</span>,</span>
+<span>  family <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">training</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"model"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">model_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"model"</span>, <span class="st">"landmark-glm.rds"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">model_path</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">model_path</span><span class="op">)</span>, <span class="st">"glm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</details><p>The resulting training outcomes by landmark and fitted coefficients
+are:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">training</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">count</span><span class="op">(</span><span class="va">landmark_day</span>, <span class="va">outcome</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 3</span></span></span>
 <span><span class="co">#&gt;   landmark_day outcome     n</span></span>
@@ -376,18 +388,9 @@ validation or a claim of calibrated risk.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>            7       1    61</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>           14       0   337</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>           14       1    34</span></span>
-<span></span>
-<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span>
-<span>  <span class="va">outcome</span> <span class="op">~</span> <span class="va">age_scaled</span> <span class="op">+</span> <span class="va">acuity</span> <span class="op">+</span> <span class="va">signal_as_of</span> <span class="op">+</span> <span class="va">days_remaining</span>,</span>
-<span>  family <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">training</span></span>
-<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    (Intercept)     age_scaled         acuity   signal_as_of days_remaining </span></span>
-<span><span class="co">#&gt;         -4.755          0.175          0.508          0.496          0.095</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"model"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">model_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"model"</span>, <span class="st">"landmark-glm.rds"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">model_path</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="va">model_path</span><span class="op">)</span>, <span class="st">"glm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt;         -4.755          0.175          0.508          0.496          0.095</span></span></code></pre></div>
 <p>The model uses remaining days and a post-discharge signal only once
 that signal is available. Death before a future readmission makes the
 training outcome zero. Harbor General’s current encounters were
@@ -405,7 +408,9 @@ information and the saved model from its own project directory. E4 has
 no age, so it reports a failure rather than inventing a probability. An
 organization must assess its own predictor quality and timing;
 <code>readmit</code> does not validate them.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<details class="rrp-code-fold"><summary>
+Show risk-provider implementation
+</summary><div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">provider_code</span> <span class="op">&lt;-</span> <span class="st">r"---(</span></span>
 <span><span class="st">rrp_calculate_risk &lt;- function(project_root, request) {</span></span>
 <span><span class="st">  source_dir &lt;- file.path(project_root, "source")</span></span>
@@ -445,7 +450,7 @@ organization must assess its own predictor quality and timing;
 <span><span class="st">)---"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="va">provider_code</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"R"</span>, <span class="st">"calculate-risk.R"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/rrp_project_validate.html">rrp_project_validate</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span></code></pre></div>
-<p>Validation confirms that the project files and function signatures
+</details><p>Validation confirms that the project files and function signatures
 load. It does not call either function or certify the simulated clinical
 definitions, model, or predictions. The following real runs exercise
 those interfaces.</p>
@@ -460,10 +465,10 @@ readmission. E2 later becomes ineligible after its known death. E4
 remains eligible but has an unavailable model estimate. The model’s
 remaining-time and newly available observation inputs can change
 estimates for other episodes.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/rrp_state_init.html">rrp_state_init</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -473,7 +478,7 @@ estimates for other episodes.</p>
 <span><span class="va">assessment_times</span> <span class="op">&lt;-</span> <span class="va">origin</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5.5</span>, <span class="fl">9.5</span>, <span class="fl">11.5</span>, <span class="fl">15.5</span><span class="op">)</span> <span class="op">*</span> <span class="va">day</span></span>
 <span><span class="va">runs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">assessment_times</span>, <span class="kw">function</span><span class="op">(</span><span class="va">time</span><span class="op">)</span> <span class="fu"><a href="../reference/rrp_run.html">rrp_run</a></span><span class="op">(</span><span class="va">project</span>, <span class="va">time</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -481,7 +486,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -489,7 +494,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -497,7 +502,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -505,7 +510,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -513,7 +518,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -521,7 +526,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -529,7 +534,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -554,7 +559,7 @@ estimates for other episodes.</p>
 <span><span class="co"># A later-executed historical backfill does not replace the newest snapshot.</span></span>
 <span><span class="va">backfill</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_run.html">rrp_run</a></span><span class="op">(</span><span class="va">project</span>, <span class="va">assessment_times</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -562,7 +567,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -571,7 +576,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="va">status</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_project_status.html">rrp_project_status</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -586,7 +591,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; [1] 5</span></span>
 <span><span class="va">history</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_inspect_history.html">rrp_inspect_history</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -647,7 +652,7 @@ most recently <em>recorded</em> run, which is now the backfill.</p>
 <p>We can independently compare E3’s latest accepted probability with a
 direct prediction from the saved model. E3’s observation is available by
 January 16.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e3_time</span> <span class="op">&lt;-</span> <span class="va">assessment_times</span><span class="op">[[</span><span class="fl">4L</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="va">e3</span> <span class="op">&lt;-</span> <span class="va">current_encounters</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">encounter_id</span> <span class="op">==</span> <span class="st">"E3"</span><span class="op">)</span></span>
 <span><span class="va">e3_age</span> <span class="op">&lt;-</span> <span class="va">current_patients</span><span class="op">$</span><span class="va">age</span><span class="op">[</span><span class="va">current_patients</span><span class="op">$</span><span class="va">patient_id</span> <span class="op">==</span> <span class="st">"C3"</span><span class="op">]</span></span>
@@ -685,10 +690,10 @@ an older backfill last. Supplying a partial population at a later
 analytical time would make that partial run the current snapshot; the
 platform does not merge missing episodes from older runs. An operational
 mapper should supply the complete relevant discharge cohort.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">products</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_refresh_products.html">rrp_refresh_products</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmp1eIlg4/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpfyyGSJ/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -751,7 +756,7 @@ assessment or refresh products.</p>
 the environment that will run the app. Launch it manually with the
 following command; the article does not launch an interactive session
 while rendering.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/runApp.html" class="external-link">runApp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"app"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Harbor General can replace its project logo without changing the
 package. We generate a simple PNG in the exact path named by the
@@ -759,7 +764,7 @@ project’s <code>_brand.yml</code>. Then we append one small color rule
 to the project-owned stylesheet; the shared package template is
 untouched. These are examples of ownership, not a new customization
 framework.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">logo_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"assets"</span>, <span class="st">"project-logo.png"</span><span class="op">)</span></span>
 <span><span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/png.html" class="external-link">png</a></span><span class="op">(</span><span class="va">logo_path</span>, width <span class="op">=</span> <span class="fl">520</span>, height <span class="op">=</span> <span class="fl">150</span>, bg <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span></span>
 <span><span class="fu">graphics</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/graphics/frame.html" class="external-link">plot.new</a></span><span class="op">(</span><span class="op">)</span></span>
