@@ -1,25 +1,32 @@
 ## Submission context
 
-`readmit` is already on CRAN as version 0.0.1. That release supported earlier
-hospital-readmissions reporting tools. This update repurposes the package for
-the Readmission Risk Pool (RRP) platform and intentionally changes its public
-API. The package license has changed from MIT to Apache License 2.0. The
-current author, maintainer, and copyright holder are identified in
-`DESCRIPTION`.
+This updates the existing CRAN `readmit` package, released as 0.0.1. The package
+retains its hospital-readmissions focus while evolving from exploratory
+readmission-data and reporting utilities into the Readmission Risk Pool (RRP),
+a project-based framework for repeated risk assessment. The public API is
+intentionally changed. The license changes from MIT to Apache License 2.0;
+current author, maintainer, and copyright attribution are in `DESCRIPTION`.
 
 ## R CMD check results
 
-[Complete before submission: actual error, warning, and note counts; relevant
-R versions and platforms; and explanations of any remaining notes.]
+During Stage 6.6, a local source build and `R CMD check --no-manual` completed
+with Status: OK, including examples, tests, and vignette rebuilding. The
+maintainer also reports successful `devtools::test()` and `devtools::check()`
+after Stage 6.6; their logs were not independently reviewed for these comments.
+Final development-candidate and exact release-version CRAN-oriented checks have
+not yet been performed. This section will be reconciled with their actual
+results before submission.
 
 ## CRAN checks and reverse dependencies
 
-[Complete before submission: review of existing CRAN check results and
-applicable reverse dependencies, including any affected maintainers and
-communication if needed.]
+On 2026-11-03, the [CRAN package page](https://cran.r-project.org/package=readmit)
+listed version 0.0.1. The [CRAN check page](https://cran.r-project.org/web/checks/check_results_readmit.html),
+updated 2026-11-03 21:00 CET, showed five OK and eight ERROR results for that
+version. The detailed errors involve its earlier `pdc_read()` examples and
+tests failing to retrieve CMS data (HTTP 403). That function is absent from
+the revised RRP API; the new source requires its own checks.
 
-## Resubmission
-
-[Remove this section for the first submission. If CRAN requests corrections,
-briefly describe the feedback, changes, and updated checks for each
-resubmission.]
+A 2026-11-03 lookup of the [CRAN `PACKAGES.gz` index](https://cran.r-project.org/src/contrib/PACKAGES.gz) using
+`tools::package_dependencies()` found no packages that depend on, import,
+link to, suggest, or enhance `readmit`. Recheck this context with the final
+candidate and report any changed result before submission.
