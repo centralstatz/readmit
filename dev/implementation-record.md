@@ -576,7 +576,7 @@ Restored the exact CRAN status and download-count badge definitions from the pre
 
 #### Increment 6.8 — Initial RRP Publication and Development Transition
 
-- **Status:** In progress — 2026-11-03. 6.8.A is Complete / Accepted; 6.8.B is Complete / Accepted; 6.8.C is In progress / Awaiting CRAN response; 6.8.D is Planned / Not started. Stage 6 remains In progress.
+- **Status:** In progress — 2026-11-04. 6.8.A–C are Complete / Accepted; 6.8.D is Planned / Ready to begin. Stage 6 remains In progress.
 
 **Planning decision.** The [detailed plan](implementation-plan.md) now divides the accepted CRAN-first [release procedure](release-procedure.md) into four reviewable operational increments: A prepares, commits, and verifies the exact release-version source and completes `cran-comments.md` from actual results; B submits the approved source and confirms the maintainer email; C tracks CRAN review and any targeted, separately approved resubmission through acceptance; D publishes the accepted version on GitHub, makes the predefined website status update, and establishes the next development version. Approval to submit is required after A and before each resubmission. The accepted development-version check is supporting evidence, not a substitute for the 6.8.A release-version check. This planning update changed only this record and the plan; no version change, submission, commit, push, tag, GitHub release, website publication, or development-version transition occurred.
 
@@ -610,6 +610,6 @@ Restored the exact CRAN status and download-count badge definitions from the pre
 
 ##### 6.8.C — CRAN Review and Resolution
 
-- **Status:** In progress / Awaiting CRAN response — 2026-11-03. 6.8.D remains Planned / Not started.
+- **Status:** Complete / Accepted — 2026-11-04. The maintainer accepted the CRAN publication outcome; 6.8.D is Planned / Ready to begin.
 
-**Current position.** CRAN correspondence or published acceptance has not yet been provided. The next action depends on that evidence; no correction, resubmission, GitHub publication, or version change has begun.
+**CRAN outcome and handoff.** The maintainer confirmed acceptance, and the live [CRAN package listing](https://CRAN.R-project.org/package=readmit) independently reports `readmit` 1.0.0, published 2026-11-04. This matches the local `CRAN-SUBMISSION` record (`2026-11-03 23:09:34 UTC`) for submitted source `2d3720ef6912184d0897b42538addfc976dc06ee`; that SHA remains the source reference for the eventual GitHub release, rather than the later administrative `main` HEAD. During review, the maintainer reported successful Debian R-devel and Windows pretests, each with 0 errors, 0 warnings, and 1 NOTE about the project-specific `RRP` acronym in `DESCRIPTION`. The old 0.0.1 CRAN check errors concern the superseded release, not these 1.0.0 pretests. No corrective resubmission was required. The initial CRAN publication objective is met; 6.8.D is ready to begin after this record is reviewed and committed. No GitHub release, website status update, development-version transition, or `CRAN-SUBMISSION` cleanup has begun. The matching version and submission record do not establish byte-level archive identity.
