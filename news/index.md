@@ -2,6 +2,8 @@
 
 ## readmit 1.0.0
 
+CRAN release: 2026-11-03
+
 - `readmit` retains its hospital-readmissions focus and evolves from the
   exploratory utilities in 0.0.1 into the Readmission Risk Pool (RRP), a
   project-based framework for repeated readmission risk assessment. This
