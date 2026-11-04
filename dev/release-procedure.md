@@ -1,18 +1,20 @@
 # readmit — CRAN and GitHub Release Procedure
 
 This is the maintainer's working procedure for updating the existing CRAN
-`readmit` package. CRAN currently has the earlier `0.0.1` package; the first
-Readmission Risk Pool (RRP) release targets `1.0.0`. CRAN-requested corrections
-may make the accepted version a later patch. Publish the matching GitHub release
-**only after CRAN acceptance**, then derive the next development version from
-the version CRAN accepted. Use ordinary `usethis`, `devtools`, R, and Git tools.
+`readmit` package. When the first Readmission Risk Pool (RRP) release began,
+CRAN carried the earlier `0.0.1` package; `1.0.0` was published on 2026-11-04.
+CRAN-requested corrections could have made the accepted version a later patch.
+Publish the matching GitHub release **only after CRAN acceptance**, then derive
+the next development version from the version CRAN accepted. Use ordinary
+`usethis`, `devtools`, R, and Git tools.
 Recheck their current prompts and behavior when executing a release.
 
-The commands below are **future release commands**, not instructions to run
-during Stage 6.2. Run shell blocks from the repository root unless a step says
-otherwise. Run R blocks with this package as the active project. The initial
-`"major"` choice is specific to the current `0.0.1.9000` → `1.0.0` transition;
-choose an appropriate increment for later releases.
+The commands below document the first RRP release sequence; they were not
+instructions to run during Stage 6.2. Run shell blocks from the repository
+root unless a step says otherwise. Run R blocks with this package as the active
+project. The initial `"major"` choice is specific to the first
+`0.0.1.9000` → `1.0.0` transition; choose an appropriate increment for later
+releases.
 
 ## 1. Finish the development-version candidate (Stage 6.7)
 
