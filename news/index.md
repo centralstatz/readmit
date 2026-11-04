@@ -1,5 +1,7 @@
 # Changelog
 
+## readmit (development version)
+
 ## readmit 1.0.0
 
 CRAN release: 2026-11-03
