@@ -52,16 +52,18 @@ The project application explores those products.
 
 ## Get started
 
-This repository contains the RRP `1.0.0` release source. The [CRAN
-`readmit` 0.0.1 package](https://cran.r-project.org/package=readmit)
-contains earlier, substantially different functionality under an MIT
-license; it does not install RRP. Until the RRP release is available on
-CRAN, install this repository version from GitHub:
+`readmit` 1.0.0 is available on
+[CRAN](https://CRAN.R-project.org/package=readmit). Install the RRP
+package with:
 
 ``` r
-install.packages("remotes")
-remotes::install_github("centralstatz/readmit")
+install.packages("readmit")
 ```
+
+The corresponding [GitHub v1.0.0
+release](https://github.com/centralstatz/readmit/releases/tag/v1.0.0)
+provides the release source and notes. Version 1.0.0 substantially
+changes the earlier 0.0.1 functionality and uses Apache License 2.0.
 
 Choose a new project path whose parent directory already exists:
 
