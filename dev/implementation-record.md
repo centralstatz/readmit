@@ -26,7 +26,7 @@ Extended `tests/testthat/test-canonical-source.R` to cover a future discharge in
 
 ## Stage 2 — Simplify terminal events and analytical history
 
-**Status:** Not started. No implementation recorded.
+**Status:** Detailed plan established; implementation not started. See [Stage 2 in the implementation plan](implementation-plan.md#stage-2--simplify-terminal-events-and-analytical-history).
 
 ## Stage 3 — Update project guidance and public documentation
 
