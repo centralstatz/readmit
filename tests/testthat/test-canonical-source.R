@@ -79,6 +79,33 @@ test_that("typed empty canonical tables are accepted", {
                    canonical)
 })
 
+test_that("canonical production rejects future discharges across the mapped table", {
+  project <- canonical_test_project()
+  on.exit(unlink(project, recursive = TRUE), add = TRUE)
+  as_of_time <- canonical_test_time("2026-01-10 00:00:00")
+  canonical <- canonical_test_data()
+  canonical$discharge_episode$discharge_time[2] <-
+    canonical_test_time("2026-01-11 00:00:00")
+  saveRDS(canonical, file.path(project, "canonical.rds"))
+
+  error <- tryCatch(
+    readmit:::rrp_produce_project_canonical(project, as_of_time),
+    error = identity
+  )
+  expect_s3_class(error, "error")
+  expect_match(conditionMessage(error), "discharge_episode\\$discharge_time")
+  expect_match(conditionMessage(error), "as_of_time \\(2026-01-10")
+  expect_match(conditionMessage(error), "episode_id 'episode-2'")
+  expect_match(conditionMessage(error), "2026-01-11")
+
+  canonical$discharge_episode$discharge_time[2] <- as_of_time
+  saveRDS(canonical, file.path(project, "canonical.rds"))
+  expect_identical(
+    readmit:::rrp_produce_project_canonical(project, as_of_time),
+    canonical
+  )
+})
+
 test_that("canonical structural errors identify unusable facts", {
   project <- canonical_test_project()
   on.exit(unlink(project, recursive = TRUE), add = TRUE)

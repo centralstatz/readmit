@@ -41,6 +41,19 @@ rrp_produce_project_canonical <- function(project_root, as_of_time,
     }
   )
   rrp_check_canonical_source(canonical)
+  episodes <- canonical$discharge_episode
+  future <- which(episodes$discharge_time > as_of_time)
+  if (length(future)) {
+    index <- future[[1L]]
+    stop(sprintf(
+      paste0("discharge_episode$discharge_time must be <= as_of_time (%s); ",
+             "episode_id '%s' has discharge_time %s."),
+      format(as_of_time, "%Y-%m-%d %H:%M:%OS6 UTC", tz = "UTC"),
+      episodes$episode_id[[index]],
+      format(episodes$discharge_time[[index]],
+             "%Y-%m-%d %H:%M:%OS6 UTC", tz = "UTC")
+    ), call. = FALSE)
+  }
   canonical
 }
 

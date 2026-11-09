@@ -15,6 +15,7 @@ Use Structure Before Sophistication: make focused changes to the existing workfl
 
 ### Stage 1 — Enforce the discharge-time input contract
 
+- **Status:** Complete — 2026-11-09. See the [implementation record](implementation-record.md#stage-1--enforce-the-discharge-time-input-contract).
 - **Objective:** Reject canonical discharge episodes whose discharge time is later than the requested assessment time.
 - **Scope:** Add a clear check at the existing canonical production boundary and focused regression coverage for rejection, equality, and early failure before provider or history work. Leave eligibility status handling and DuckDB constraints otherwise unchanged.
 - **Completion criteria:** A valid discharge at `as_of_time` proceeds normally; a later discharge produces an actionable input error without invoking the provider or adding history; valid historical assessments still run.
@@ -22,6 +23,7 @@ Use Structure Before Sophistication: make focused changes to the existing workfl
 
 #### Increment 1.1 — Validate discharge time before assessment
 
+- **Status:** Complete — 2026-11-09; implementation and focused verification are recorded in the implementation record.
 - **Objective:** Enforce `discharge_episode$discharge_time <= as_of_time` for every episode returned by the project mapper. Reject an invalid canonical result rather than filtering episodes or recording another disposition.
 - **Implementation scope:** In `R/canonical-source.R`, check discharge times in `rrp_produce_project_canonical()` after `rrp_check_canonical_source()` has established the required columns and finite UTC timestamps. Report `discharge_episode$discharge_time`, `as_of_time`, and at least one offending `episode_id` in a clear input error. Keep the check before `rrp_run()` calls eligibility, the risk provider, or `rrp_write_history()`. Leave the current terminal-event `available_at` contract, eligibility statuses (including internal `not_yet_discharged`), DuckDB schema and constraints, and transaction handling unchanged.
 - **Regression coverage:** Extend the existing canonical-source and integrated-run tests with a future discharge, a discharge exactly at `as_of_time`, and a valid historical assessment whose mapper returns only episodes discharged by that time. For the rejected first run, establish that no provider request or completed run/assessment is created. Adapt the existing later-run failure test to assert the informative upstream error, no provider call for the rejected attempt, and unchanged prior runs and assessment rows; a subsequent valid run should still succeed. Use current five-field terminal-event fixtures so this increment remains independent of Stage 2.
