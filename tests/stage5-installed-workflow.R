@@ -63,9 +63,8 @@ stage5_workflow <- function() {
     terminal_event_id = c("event-readmission", "event-death"),
     episode_id = c("episode-5", "episode-6"),
     event_type = c("readmission", "death"),
-    occurred_at = rep(stage5_time("2026-01-05 08:00:00.5"), 2L),
-    available_at = c(stage5_time("2026-01-12 09:00:00.25"),
-                     stage5_time("2026-01-06 09:00:00.25"))
+    occurred_at = c(stage5_time("2026-01-12 09:00:00.25"),
+                    stage5_time("2026-01-05 08:00:00.5"))
   )
   saveRDS(list(discharge_episode = episodes, terminal_event = events),
           file.path(root, "canonical.rds"))
@@ -286,8 +285,7 @@ stage5_workflow <- function() {
     "  terminal_event = data.frame(",
     "    terminal_event_id = character(), episode_id = character(),",
     "    event_type = character(),",
-    "    occurred_at = as.POSIXct(character(), tz = 'UTC'),",
-    "    available_at = as.POSIXct(character(), tz = 'UTC'))",
+    "    occurred_at = as.POSIXct(character(), tz = 'UTC'))",
     ")"
   ), file.path(zero_project, "R", "produce-canonical.R"))
   writeLines(

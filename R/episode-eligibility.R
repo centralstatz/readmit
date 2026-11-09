@@ -1,7 +1,7 @@
 # Evaluate Stage 2 canonical facts at one UTC as_of_time. Return one row per
 # episode in source order, with a fixed endpoint 30 elapsed days after discharge.
 # Risk, when eligible, concerns (as_of_time, followup_window_end]. An event is
-# known only if both occurrence and availability are at or before as_of_time.
+# known only if occurrence is at or before as_of_time.
 # The earliest known event determines ineligibility; readmission wins a death
 # tie, then event ID settles any remaining tie. Retain only that event's context
 # so a later assessment can explain its decision without copying all events.
@@ -25,19 +25,13 @@ rrp_evaluate_eligibility <- function(canonical, as_of_time) {
   result$terminal_occurred_at <- as.POSIXct(
     rep(NA_real_, nrow(episodes)), origin = "1970-01-01", tz = "UTC"
   )
-  result$terminal_available_at <- as.POSIXct(
-    rep(NA_real_, nrow(episodes)), origin = "1970-01-01", tz = "UTC"
-  )
 
   result$disposition[as_of_time < episodes$discharge_time] <-
     "not_yet_discharged"
   result$disposition[as_of_time >= result$followup_window_end] <-
     "window_closed"
 
-  known <- events[
-    events$occurred_at <= as_of_time & events$available_at <= as_of_time,
-    , drop = FALSE
-  ]
+  known <- events[events$occurred_at <= as_of_time, , drop = FALSE]
   if (nrow(known)) {
     known <- known[order(known$episode_id, known$occurred_at,
                          known$event_type != "readmission",
@@ -56,8 +50,6 @@ rrp_evaluate_eligibility <- function(canonical, as_of_time) {
       result$terminal_event_type[affected] <- events_for_episodes$event_type
       result$terminal_occurred_at[affected] <-
         events_for_episodes$occurred_at
-      result$terminal_available_at[affected] <-
-        events_for_episodes$available_at
     }
   }
   result

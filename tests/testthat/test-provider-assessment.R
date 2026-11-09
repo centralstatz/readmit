@@ -13,8 +13,7 @@ provider_test_eligibility <- function() {
     terminal_event_id = c("event-readmission", "event-death"),
     episode_id = c("episode-4", "episode-5"),
     event_type = c("readmission", "death"),
-    occurred_at = provider_test_time(rep("2026-01-05", 2)),
-    available_at = provider_test_time(rep("2026-01-06", 2))
+    occurred_at = provider_test_time(rep("2026-01-05", 2))
   )
   as_of_time <- provider_test_time("2026-01-10")
   list(
@@ -107,8 +106,7 @@ test_that("reported failures and thrown errors stay with their episodes", {
                    fixture$episodes$terminal_event_id)
   expect_identical(result$terminal_occurred_at,
                    fixture$episodes$terminal_occurred_at)
-  expect_identical(result$terminal_available_at,
-                   fixture$episodes$terminal_available_at)
+  expect_false("terminal_available_at" %in% names(result))
 })
 
 test_that("unusable returns become failures and later episodes continue", {

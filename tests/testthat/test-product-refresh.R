@@ -37,7 +37,7 @@ refresh_test_write <- function(project, run_id, as_of_time, created_at,
     disposition = unname(outcomes), probability = risk,
     failure_kind = failure_kind, failure_reason = failure_reason,
     terminal_event_id = event_id, terminal_event_type = event_type,
-    terminal_occurred_at = event_time, terminal_available_at = event_time
+    terminal_occurred_at = event_time
   )
   readmit:::rrp_write_history(project, list(
     run_id = run_id, project_id = "refresh-test",

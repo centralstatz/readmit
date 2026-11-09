@@ -16,8 +16,7 @@ inspection_test_project <- function() {
     terminal_event_id = c("event-readmission", "event-death"),
     episode_id = c("episode-5", "episode-6"),
     event_type = c("readmission", "death"),
-    occurred_at = rep(inspection_test_time("2026-01-05 08:00:00.5"), 2),
-    available_at = rep(inspection_test_time("2026-01-06 09:00:00.25"), 2)
+    occurred_at = rep(inspection_test_time("2026-01-05 08:00:00.5"), 2)
   )
   saveRDS(list(discharge_episode = episodes, terminal_event = events),
           file.path(project, "canonical.rds"))
@@ -76,7 +75,7 @@ test_that("status works before state and empty inspection stays typed", {
     "admission_time", "discharge_time", "followup_window_end",
     "disposition", "probability", "failure_kind", "failure_reason",
     "terminal_event_id", "terminal_event_type", "terminal_occurred_at",
-    "terminal_available_at", "project_id", "as_of_time", "created_at",
+    "project_id", "as_of_time", "created_at",
     "source_mapping_script", "risk_provider_script"
   ))
   expect_identical(names(filtered), names(empty))
@@ -87,7 +86,7 @@ test_that("status works before state and empty inspection stays typed", {
   expect_type(empty$failure_kind, "character")
   for (field in c("as_of_time", "created_at", "admission_time",
                   "discharge_time", "followup_window_end",
-                  "terminal_occurred_at", "terminal_available_at")) {
+                  "terminal_occurred_at")) {
     expect_s3_class(empty[[field]], "POSIXct")
     expect_identical(attr(empty[[field]], "tzone"), "UTC")
   }
@@ -113,6 +112,7 @@ test_that("status and inspection expose completed history without analytical exe
   expect_gt(as.numeric(later), as.numeric(earlier))
 
   all_rows <- rrp_inspect_history(project)
+  expect_false("terminal_available_at" %in% names(all_rows))
   expect_identical(nrow(all_rows), 14L)
   expect_identical(all_rows$run_id[1:7], rep(first$run_id, 7))
   expect_identical(all_rows$run_id[8:14], rep(second$run_id, 7))
@@ -143,9 +143,6 @@ test_that("status and inspection expose completed history without analytical exe
   expect_identical(as.numeric(first_rows$terminal_occurred_at[5:6]),
                    rep(as.numeric(inspection_test_time(
                      "2026-01-05 08:00:00.5")), 2))
-  expect_identical(as.numeric(first_rows$terminal_available_at[5:6]),
-                   rep(as.numeric(inspection_test_time(
-                     "2026-01-06 09:00:00.25")), 2))
   expect_true(all(is.na(first_rows$terminal_event_id[c(1:4, 7)])))
 
   expect_identical(nrow(rrp_inspect_history(project,

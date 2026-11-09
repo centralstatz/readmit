@@ -108,8 +108,7 @@ rrp_check_canonical_source <- function(canonical) {
   )
   rrp_check_canonical_table(
     events, "terminal_event",
-    c("terminal_event_id", "episode_id", "event_type", "occurred_at",
-      "available_at")
+    c("terminal_event_id", "episode_id", "event_type", "occurred_at")
   )
   for (field in c("episode_id", "patient_id", "index_encounter_id")) {
     rrp_check_canonical_id(episodes[[field]], paste0("discharge_episode$", field))
@@ -135,8 +134,6 @@ rrp_check_canonical_source <- function(canonical) {
   for (field in c("admission_time", "discharge_time")) {
     rrp_check_utc_time(episodes[[field]], paste0("discharge_episode$", field))
   }
-  for (field in c("occurred_at", "available_at")) {
-    rrp_check_utc_time(events[[field]], paste0("terminal_event$", field))
-  }
+  rrp_check_utc_time(events$occurred_at, "terminal_event$occurred_at")
   invisible(TRUE)
 }

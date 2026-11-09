@@ -27,8 +27,7 @@ test_that("installed project supports the complete Stage 2 authoring workflow", 
     "      terminal_event_id = c('event-1', 'event-2', 'event-3'),",
     "      episode_id = c('episode-1', 'episode-2', 'episode-3'),",
     "      event_type = c('readmission', 'death', 'readmission'),",
-    "      occurred_at = utc(c('2026-01-05', '2026-01-06', '2026-01-07')),",
-    "      available_at = utc(c('2026-01-05', '2026-01-06', '2026-01-12'))",
+    "      occurred_at = utc(c('2026-01-05', '2026-01-06', '2026-01-07'))",
     "    )",
     "  )",
     "}"
@@ -58,7 +57,9 @@ test_that("installed project supports the complete Stage 2 authoring workflow", 
                    c("event-1", "event-2", "event-3"))
   expect_identical(canonical$terminal_event$event_type,
                    c("readmission", "death", "readmission"))
-  expect_gt(canonical$terminal_event$available_at[3L], as_of_time)
+  expect_identical(names(canonical$terminal_event),
+                   c("terminal_event_id", "episode_id", "event_type",
+                     "occurred_at"))
   expect_lt(canonical$terminal_event$occurred_at[3L], as_of_time)
   expect_false("followup_window_end" %in%
                  names(canonical$discharge_episode))

@@ -56,7 +56,6 @@ rrp_state_init <- function(path) {
       "probability DOUBLE, failure_kind VARCHAR, failure_reason VARCHAR,",
       "terminal_event_id VARCHAR, terminal_event_type VARCHAR,",
       "terminal_occurred_at TIMESTAMPTZ,",
-      "terminal_available_at TIMESTAMPTZ,",
       "PRIMARY KEY (run_id, episode_id),",
       "FOREIGN KEY (run_id) REFERENCES runs(run_id))"
     ))
@@ -121,7 +120,7 @@ rrp_write_history <- function(project_root, run, assessments) {
                "admission_time", "discharge_time", "followup_window_end",
                "disposition", "probability", "failure_kind", "failure_reason",
                "terminal_event_id", "terminal_event_type",
-               "terminal_occurred_at", "terminal_available_at")
+               "terminal_occurred_at")
   if (!is.data.frame(assessments) ||
       !all(columns %in% names(assessments))) {
     stop("Assessments must contain the Stage 3.2 result columns.",
@@ -132,8 +131,7 @@ rrp_write_history <- function(project_root, run, assessments) {
                     "disposition", "failure_kind", "failure_reason",
                     "terminal_event_id", "terminal_event_type")
   time_columns <- c("admission_time", "discharge_time",
-                    "followup_window_end", "terminal_occurred_at",
-                    "terminal_available_at")
+                    "followup_window_end", "terminal_occurred_at")
   if (!all(vapply(assessments[text_columns], is.character, logical(1))) ||
       !is.numeric(assessments$probability) ||
       !all(vapply(assessments[time_columns], function(value) {

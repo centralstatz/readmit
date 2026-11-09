@@ -43,8 +43,7 @@ product_test_write <- function(project, run_id, as_of_time, created_at,
     failure_reason = failure_reason,
     terminal_event_id = terminal_id,
     terminal_event_type = terminal_type,
-    terminal_occurred_at = terminal_time,
-    terminal_available_at = terminal_time
+    terminal_occurred_at = terminal_time
   )
   readmit:::rrp_write_history(project, list(
     run_id = run_id, project_id = "product-test",

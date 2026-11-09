@@ -12,12 +12,11 @@ run_test_canonical <- function() {
   episodes$discharge_time[7] <- run_test_time("2025-12-01 01:00:00.125")
   episodes$admission_time[7] <- run_test_time("2025-11-30 01:00:00.125")
   events <- data.frame(
-    terminal_event_id = c("event-readmission", "event-death", "event-delayed"),
+    terminal_event_id = c("event-readmission", "event-death", "event-later"),
     episode_id = c("episode-5", "episode-6", "episode-8"),
     event_type = c("readmission", "death", "readmission"),
-    occurred_at = rep(run_test_time("2026-01-05 08:00:00.5"), 3),
-    available_at = c(rep(run_test_time("2026-01-06 09:00:00.25"), 2),
-                     run_test_time("2026-01-12 09:00:00.25"))
+    occurred_at = c(rep(run_test_time("2026-01-05 08:00:00.5"), 2),
+                    run_test_time("2026-01-12 09:00:00.25"))
   )
   list(discharge_episode = episodes, terminal_event = events)
 }
@@ -52,7 +51,7 @@ run_test_project <- function() {
   project
 }
 
-test_that("integrated runs retain outcomes and time-specific event knowledge", {
+test_that("integrated runs retain outcomes and time-specific event occurrence", {
   project <- run_test_project()
   on.exit(unlink(project, recursive = TRUE), add = TRUE)
   file.rename(file.path(project, "R", "produce-canonical.R"),
@@ -85,6 +84,7 @@ test_that("integrated runs retain outcomes and time-specific event knowledge", {
   expect_identical(as.numeric(runs$as_of_time), as.numeric(earlier))
   expect_identical(attr(runs$created_at, "tzone"), "UTC")
   stored <- readmit:::rrp_read_assessments(project, first$run_id)
+  expect_false("terminal_available_at" %in% names(stored))
   expect_identical(nrow(stored), 8L)
   expect_identical(stored$episode_id, paste0("episode-", 1:8))
   expect_identical(stored$disposition, c(
@@ -125,19 +125,17 @@ test_that("integrated runs retain outcomes and time-specific event knowledge", {
                    list(8L, 2L, 3L, 3L))
   expect_identical(nrow(readmit:::rrp_read_runs(project)), 3L)
   expect_identical(nrow(readmit:::rrp_read_assessments(project)), 24L)
-  first_delayed <- readmit:::rrp_read_assessments(
+  first_event <- readmit:::rrp_read_assessments(
     project, first$run_id, "episode-8"
   )
-  second_delayed <- readmit:::rrp_read_assessments(
+  second_event <- readmit:::rrp_read_assessments(
     project, second$run_id, "episode-8"
   )
-  expect_identical(first_delayed$disposition, "accepted")
-  expect_true(is.na(first_delayed$terminal_event_id))
-  expect_identical(second_delayed$disposition, "known_readmission")
-  expect_identical(second_delayed$terminal_event_id, "event-delayed")
-  expect_identical(as.numeric(second_delayed$terminal_occurred_at),
-                   as.numeric(run_test_time("2026-01-05 08:00:00.5")))
-  expect_identical(as.numeric(second_delayed$terminal_available_at),
+  expect_identical(first_event$disposition, "accepted")
+  expect_true(is.na(first_event$terminal_event_id))
+  expect_identical(second_event$disposition, "known_readmission")
+  expect_identical(second_event$terminal_event_id, "event-later")
+  expect_identical(as.numeric(second_event$terminal_occurred_at),
                    as.numeric(run_test_time("2026-01-12 09:00:00.25")))
   expect_identical(vapply(readRDS(file.path(project, "source-times.rds")),
                           as.numeric, numeric(1)),

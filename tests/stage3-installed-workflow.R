@@ -31,12 +31,11 @@ stage3_workflow <- function() {
   episodes$admission_time[7] <- stage3_time("2025-11-30 01:00:00.125")
   episodes$discharge_time[7] <- stage3_time("2025-12-01 01:00:00.125")
   events <- data.frame(
-    terminal_event_id = c("event-delayed", "event-death"),
+    terminal_event_id = c("event-later", "event-death"),
     episode_id = c("episode-5", "episode-6"),
     event_type = c("readmission", "death"),
-    occurred_at = rep(stage3_time("2026-01-05 08:00:00.5"), 2),
-    available_at = c(stage3_time("2026-01-12 09:00:00.25"),
-                     stage3_time("2026-01-06 09:00:00.25"))
+    occurred_at = c(stage3_time("2026-01-12 09:00:00.25"),
+                    stage3_time("2026-01-05 08:00:00.5"))
   )
   canonical <- list(discharge_episode = episodes, terminal_event = events)
   saveRDS(canonical, file.path(project, "canonical.rds"))
@@ -152,6 +151,7 @@ stage3_workflow <- function() {
 
   status <- rrp_project_status(project)
   history <- rrp_inspect_history(project)
+  stopifnot(!"terminal_available_at" %in% names(history))
   early <- rrp_inspect_history(project, run_id = run_1$run_id)
   late <- rrp_inspect_history(project, run_id = run_2$run_id)
   repeat_late <- rrp_inspect_history(project, run_id = run_3$run_id)
@@ -183,7 +183,7 @@ stage3_workflow <- function() {
             grepl("Model input unavailable", early$failure_reason[4],
                   fixed = TRUE),
             is.na(early$terminal_event_id[5]),
-            identical(late$terminal_event_id[5], "event-delayed"),
+            identical(late$terminal_event_id[5], "event-later"),
             identical(late$terminal_event_type[5], "readmission"),
             identical(late$terminal_event_id[6], "event-death"),
             identical(late$terminal_event_type[6], "death"),
@@ -201,10 +201,7 @@ stage3_workflow <- function() {
                       as.numeric(discharge + 30 * 24 * 60 * 60)),
             identical(as.numeric(late$terminal_occurred_at[5]),
                       as.numeric(events$occurred_at[1])),
-            identical(as.numeric(late$terminal_available_at[5]),
-                      as.numeric(events$available_at[1])),
-            is.na(early$terminal_occurred_at[5]),
-            is.na(early$terminal_available_at[5]))
+            is.na(early$terminal_occurred_at[5]))
 
   # Source failures are run-fatal; provider failures above remained in runs.
   writeLines("rrp_produce_canonical <- function(project_root, as_of_time) stop('Source unavailable')",
@@ -241,11 +238,10 @@ stage3_workflow <- function() {
     "          identical(early$disposition[5], 'accepted'),",
     "          identical(early$probability[5], 0.25),",
     "          identical(repeat_late$disposition[5], 'known_readmission'),",
-    "          identical(repeat_late$terminal_event_id[5], 'event-delayed'),",
+    "          identical(repeat_late$terminal_event_id[5], 'event-later'),",
     "          identical(as.numeric(repeat_late$terminal_occurred_at[5]),",
     "                    as.numeric(expected$event$occurred_at[1])),",
-    "          identical(as.numeric(repeat_late$terminal_available_at[5]),",
-    "                    as.numeric(expected$event$available_at[1])),",
+    "          !'terminal_available_at' %in% names(repeat_late),",
     "          identical(attr(early$as_of_time, 'tzone'), 'UTC'),",
     "          identical(as.numeric(early$as_of_time[1]),",
     "                    as.numeric(expected$run_1$as_of_time)))",
@@ -371,8 +367,7 @@ stage3_workflow <- function() {
     "  terminal_event = data.frame(",
     "    terminal_event_id = character(), episode_id = character(),",
     "    event_type = character(),",
-    "    occurred_at = as.POSIXct(character(), tz = 'UTC'),",
-    "    available_at = as.POSIXct(character(), tz = 'UTC'))",
+    "    occurred_at = as.POSIXct(character(), tz = 'UTC'))",
     ")"
   ), file.path(zero_project, "R", "produce-canonical.R"))
   writeLines(

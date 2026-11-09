@@ -13,19 +13,17 @@ eligibility_canonical <- function() {
       terminal_event_id = character(),
       episode_id = character(),
       event_type = character(),
-      occurred_at = eligibility_time(character()),
-      available_at = eligibility_time(character())
+      occurred_at = eligibility_time(character())
     )
   )
 }
 
-eligibility_events <- function(id, episode, type, occurred, available) {
+eligibility_events <- function(id, episode, type, occurred) {
   data.frame(
     terminal_event_id = id,
     episode_id = episode,
     event_type = type,
-    occurred_at = eligibility_time(occurred),
-    available_at = eligibility_time(available)
+    occurred_at = eligibility_time(occurred)
   )
 }
 
@@ -49,9 +47,9 @@ test_that("follow-up uses 30 elapsed days and a strict assessment endpoint", {
   expect_identical(evaluate(discharge - 1)$disposition,
                    "not_yet_discharged")
   expect_true(all(is.na(at_discharge[c(
-    "terminal_event_id", "terminal_event_type", "terminal_occurred_at",
-    "terminal_available_at"
+    "terminal_event_id", "terminal_event_type", "terminal_occurred_at"
   )])))
+  expect_false("terminal_available_at" %in% names(at_discharge))
   expect_s3_class(at_discharge$terminal_occurred_at, "POSIXct")
   expect_identical(attr(at_discharge$terminal_occurred_at, "tzone"), "UTC")
 })
@@ -69,39 +67,49 @@ test_that("analytical time follows the existing finite UTC instant rule", {
                "finite UTC POSIXct")
 })
 
-test_that("only events occurred and available by the requested time are known", {
+test_that("event occurrence alone determines eligibility at assessment time", {
   canonical <- eligibility_canonical()
   episodes <- canonical$discharge_episode
   episodes$episode_id <- "episode-2"
   episodes$patient_id <- "patient-1"
   episodes$index_encounter_id <- "encounter-2"
-  canonical$discharge_episode <- rbind(canonical$discharge_episode, episodes)
+  third <- episodes
+  third$episode_id <- "episode-3"
+  third$index_encounter_id <- "encounter-3"
+  canonical$discharge_episode <- rbind(canonical$discharge_episode, episodes,
+                                      third)
   canonical$terminal_event <- eligibility_events(
-    c("readmission-late", "death-late", "future-event"),
-    c("episode-1", "episode-2", "episode-2"),
+    c("readmission-before", "death-at", "future-event"),
+    c("episode-1", "episode-2", "episode-3"),
     c("readmission", "death", "readmission"),
-    c("2026-01-04", "2026-01-04", "2026-01-11"),
-    c("2026-01-08", "2026-01-08", "2026-01-03")
+    c("2026-01-04", "2026-01-05", "2026-01-11")
+  )
+  canonical$terminal_event$available_at <- eligibility_time(
+    c("2026-01-20", "2026-01-20", "2026-01-03")
   )
 
+  day_3 <- readmit:::rrp_evaluate_eligibility(
+    canonical, eligibility_time("2026-01-03")
+  )
   day_5 <- readmit:::rrp_evaluate_eligibility(
     canonical, eligibility_time("2026-01-05")
   )
-  day_9 <- readmit:::rrp_evaluate_eligibility(
-    canonical, eligibility_time("2026-01-09")
+  day_12 <- readmit:::rrp_evaluate_eligibility(
+    canonical, eligibility_time("2026-01-12")
   )
 
-  expect_identical(day_5$disposition, c("eligible", "eligible"))
-  expect_true(all(is.na(day_5$terminal_event_id)))
-  expect_identical(day_9$disposition,
-                   c("known_readmission", "known_death"))
-  expect_identical(day_9$terminal_event_id,
-                   c("readmission-late", "death-late"))
-  expect_identical(day_9$terminal_occurred_at,
-                   eligibility_time(c("2026-01-04", "2026-01-04")))
-  expect_identical(day_9$terminal_available_at,
-                   eligibility_time(c("2026-01-08", "2026-01-08")))
-  expect_identical(day_5$episode_id, day_9$episode_id)
+  expect_identical(day_3$disposition, rep("eligible", 3))
+  expect_true(all(is.na(day_3$terminal_event_id)))
+  expect_identical(day_5$disposition,
+                   c("known_readmission", "known_death", "eligible"))
+  expect_identical(day_5$terminal_event_id,
+                   c("readmission-before", "death-at", NA_character_))
+  expect_identical(day_5$terminal_occurred_at[1:2],
+                   eligibility_time(c("2026-01-04", "2026-01-05")))
+  expect_identical(day_12$disposition,
+                   c("known_readmission", "known_death", "known_readmission"))
+  expect_identical(day_12$terminal_event_id[3], "future-event")
+  expect_false("terminal_available_at" %in% names(day_5))
 })
 
 test_that("earliest known event, readmission tie, and event ID resolve ties", {
@@ -110,8 +118,7 @@ test_that("earliest known event, readmission tie, and event ID resolve ties", {
     c("readmission-z", "death-a", "readmission-a", "later-death"),
     rep("episode-1", 4),
     c("readmission", "death", "readmission", "death"),
-    c("2026-01-06", "2026-01-06", "2026-01-06", "2026-01-08"),
-    rep("2026-01-09", 4)
+    c("2026-01-06", "2026-01-06", "2026-01-06", "2026-01-08")
   )
 
   selected <- readmit:::rrp_evaluate_eligibility(
@@ -132,7 +139,7 @@ test_that("earliest known event, readmission tie, and event ID resolve ties", {
 test_that("closed window takes precedence and leaves event context missing", {
   canonical <- eligibility_canonical()
   canonical$terminal_event <- eligibility_events(
-    "event-1", "episode-1", "readmission", "2026-01-05", "2026-01-05"
+    "event-1", "episode-1", "readmission", "2026-01-05"
   )
   endpoint <- canonical$discharge_episode$discharge_time + 30 * 86400
 
@@ -141,7 +148,7 @@ test_that("closed window takes precedence and leaves event context missing", {
   expect_identical(result$disposition, "window_closed")
   expect_true(is.na(result$terminal_event_id))
   expect_true(is.na(result$terminal_occurred_at))
-  expect_identical(attr(result$terminal_available_at, "tzone"), "UTC")
+  expect_false("terminal_available_at" %in% names(result))
 })
 
 test_that("episode order, associations, and typed empty output are stable", {
@@ -156,8 +163,7 @@ test_that("episode order, associations, and typed empty output are stable", {
   canonical$discharge_episode <- rbind(third, canonical$discharge_episode, second)
   canonical$terminal_event <- eligibility_events(
     c("event-2", "event-1"), c("episode-2", "episode-1"),
-    c("death", "readmission"), c("2026-01-05", "2026-01-04"),
-    c("2026-01-05", "2026-01-04")
+    c("death", "readmission"), c("2026-01-05", "2026-01-04")
   )
 
   result <- readmit:::rrp_evaluate_eligibility(
@@ -190,4 +196,5 @@ test_that("episode order, associations, and typed empty output are stable", {
   expect_s3_class(empty$followup_window_end, "POSIXct")
   expect_s3_class(empty$terminal_occurred_at, "POSIXct")
   expect_identical(attr(empty$terminal_occurred_at, "tzone"), "UTC")
+  expect_false("terminal_available_at" %in% names(empty))
 })

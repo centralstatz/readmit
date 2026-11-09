@@ -30,8 +30,7 @@ history_test_assessments <- function() {
     terminal_event_id = c("event-readmission", "event-death"),
     episode_id = c("episode-5", "episode-6"),
     event_type = c("readmission", "death"),
-    occurred_at = rep(history_test_time("2026-01-05 08:00:00.5"), 2),
-    available_at = rep(history_test_time("2026-01-06 09:00:00.25"), 2)
+    occurred_at = rep(history_test_time("2026-01-05 08:00:00.5"), 2)
   )
   eligibility <- readmit:::rrp_evaluate_eligibility(
     list(discharge_episode = episodes, terminal_event = events),
@@ -60,6 +59,11 @@ test_that("state initialization requires a valid fresh project and stays separat
 
   connection <- readmit:::rrp_history_connect(project, read_only = TRUE)
   expect_setequal(DBI::dbListTables(connection), c("runs", "assessments"))
+  expect_false("terminal_available_at" %in%
+                 DBI::dbListFields(connection, "assessments"))
+  expect_true(all(c("terminal_event_id", "terminal_event_type",
+                    "terminal_occurred_at") %in%
+                  DBI::dbListFields(connection, "assessments")))
   DBI::dbDisconnect(connection, shutdown = TRUE)
   expect_error(rrp_state_init(project), "state already exists")
   expect_true(file.exists(file.path(project, "state", "history.duckdb")))
@@ -88,6 +92,7 @@ test_that("new history reads as typed empty data and missing state is not create
 
   runs <- readmit:::rrp_read_runs(project)
   assessments <- readmit:::rrp_read_assessments(project)
+  expect_false("terminal_available_at" %in% names(assessments))
   expect_identical(nrow(runs), 0L)
   expect_identical(nrow(assessments), 0L)
   expect_identical(names(runs), c("run_id", "project_id", "as_of_time",
@@ -117,6 +122,7 @@ test_that("completed runs append and retain outcomes, UTC times, and nulls", {
 
   runs <- readmit:::rrp_read_runs(project)
   stored <- readmit:::rrp_read_assessments(project, first)
+  expect_false("terminal_available_at" %in% names(stored))
   expect_identical(nrow(runs), 3L)
   expect_identical(nrow(stored), 7L)
   expect_identical(nrow(readmit:::rrp_read_assessments(project)), 8L)
@@ -135,8 +141,7 @@ test_that("completed runs append and retain outcomes, UTC times, and nulls", {
   expect_identical(stored$disposition,
                    input$disposition[match(stored$episode_id, input$episode_id)])
   for (field in c("admission_time", "discharge_time",
-                  "followup_window_end", "terminal_occurred_at",
-                  "terminal_available_at")) {
+                  "followup_window_end", "terminal_occurred_at")) {
     expect_s3_class(stored[[field]], "POSIXct")
     expect_identical(attr(stored[[field]], "tzone"), "UTC")
     expect_identical(as.numeric(stored[[field]]),
