@@ -124,8 +124,7 @@ rrp_product_csv_data <- function(data) {
 #' )
 #' events <- data.frame(
 #'   terminal_event_id = character(), episode_id = character(),
-#'   event_type = character(), occurred_at = time[FALSE],
-#'   available_at = time[FALSE]
+#'   event_type = character(), occurred_at = time[FALSE]
 #' )
 #' saveRDS(list(discharge_episode = episode, terminal_event = events),
 #'         file.path(project, "canonical.rds"))

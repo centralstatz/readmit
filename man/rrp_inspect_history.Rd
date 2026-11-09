@@ -19,9 +19,9 @@ An ordinary data frame with assessment identity \code{run_id},
 \code{admission_time}, \code{discharge_time}, and \code{followup_window_end}; outcome
 \code{disposition} and \code{probability}; provider \code{failure_kind} and
 \code{failure_reason}; selected event \code{terminal_event_id},
-\code{terminal_event_type}, \code{terminal_occurred_at}, and
-\code{terminal_available_at}; and run context \code{project_id}, UTC \code{as_of_time},
-UTC \code{created_at}, \code{source_mapping_script}, and \code{risk_provider_script}.
+\code{terminal_event_type}, and \code{terminal_occurred_at}; and run context
+\code{project_id}, UTC \code{as_of_time}, UTC \code{created_at},
+\code{source_mapping_script}, and \code{risk_provider_script}.
 A probability is present for accepted outcomes; failure and event fields
 are missing when inapplicable. Empty or unmatched filtered results retain
 the same columns and types, including UTC \code{POSIXct} timestamps.

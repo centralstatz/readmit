@@ -38,7 +38,15 @@ Updated the existing canonical, eligibility, run, provider, history, inspection,
 
 ## Stage 3 — Update project guidance and public documentation
 
-**Status:** Detailed plan established — 2026-11-09; implementation not started. The three sequential increments for generated-project and reference guidance, executable tutorials, and public entry points are specified in [Stage 3 of the implementation plan](implementation-plan.md#stage-3--update-project-guidance-and-public-documentation). No Stage 3 implementation or verification is recorded.
+**Status:** In progress — 2026-11-09. Increment 3.1 is complete; Increments 3.2 and 3.3 remain [planned](implementation-plan.md#stage-3--update-project-guidance-and-public-documentation).
+
+### Increment 3.1 — Align generated projects and package reference documentation
+
+**Status:** Complete — 2026-11-09. Updated `inst/project-template/README.md` and the comments in `inst/project-template/R/produce-canonical.R` to state the four-field terminal-event contract, the mapper's `discharge_time <= as_of_time` responsibility and equality boundary, occurrence-only event eligibility, and the absence of a special platform meaning for additional `available_at`. The README now distinguishes private predictor timing from terminal-event eligibility. The provider stub already assigned predictor selection and timing to the project owner and needed no change.
+
+Updated roxygen documentation in `R/canonical-source.R`, `R/project-inspection.R`, and `R/rrp-run.R`, plus typed-empty four-field examples in `R/rrp-run.R` and `R/product-refresh.R`. Regenerated the matching `man/rrp_produce_project_canonical.Rd`, `man/rrp_inspect_history.Rd`, `man/rrp_run.Rd`, and `man/rrp_refresh_products.Rd` from roxygen. The maintainer subsequently ran `devtools::document()`: the working tree now records roxygen 8.1.1 in `DESCRIPTION` and includes its generated author-list change in `man/readmit-package.Rd`. The package version remains `1.0.0.9000`; no analytical function or initializer behavior changed.
+
+**Verification:** A fresh temporary `rrp_project_init()` project had the same file set as the package template; its copied README, mapper comments, and provider comments carried the intended contract and ownership boundaries, and `rrp_project_validate()` passed. `devtools::run_examples()` successfully ran all nine package example files, including history inspection and the run and refresh examples with typed-empty four-field events; the empty inspection output contained selected event identity, type, and occurrence fields without `terminal_available_at`. Reviewed the four generated help diffs against roxygen. No Increment 3.1 criterion or maintainer decision remains open. Tutorial, README, website, and NEWS updates remain in Increments 3.2 and 3.3; integrated package checks remain in Stage 4.
 
 ## Stage 4 — Verify the integrated development candidate
 

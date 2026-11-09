@@ -24,7 +24,7 @@ requires character \code{episode_id}, \code{patient_id}, and \code{index_encount
 plus UTC \code{POSIXct} \code{admission_time} and \code{discharge_time}.
 \code{terminal_event} requires character \code{terminal_event_id}, \code{episode_id}, and
 \code{event_type} (\code{"readmission"} or \code{"death"}), plus UTC \code{POSIXct}
-\code{occurred_at} and \code{available_at}. Either table may have zero rows if it
+\code{occurred_at}. Either table may have zero rows if it
 retains its required typed columns. Identifiers must be nonmissing and
 nonblank, and timestamps must be finite. Episode and terminal-event IDs
 must be unique, and every terminal event must reference a supplied episode.
@@ -32,10 +32,13 @@ Additional columns are left unchanged but are not used by \code{readmit}.
 }
 \details{
 \code{as_of_time} is one finite UTC \code{POSIXct} instant. The project author supplies
-episodes discharged by that time and truthful event occurrence and
-availability times. An event may have occurred by \code{as_of_time} but become
-available later; canonical validation does not filter it. The project owns
-clinical source selection, mapping, and private predictors. \code{readmit} owns
+only episodes with \code{discharge_time <= as_of_time}; equality is valid. A later
+discharge is rejected during canonical production, before eligibility,
+provider invocation, or history persistence. Supplied terminal events affect
+eligibility when \code{occurred_at <= as_of_time}; later events do not. Additional
+columns, including \code{available_at}, have no special platform interpretation.
+The project owns clinical source selection, mapping, and private predictors;
+it may apply its own timing rules to those predictors. \code{readmit} owns
 the fixed 30-elapsed-day endpoint, which is derived from \code{discharge_time}
 during later analytical execution and is not a canonical input column.
 }

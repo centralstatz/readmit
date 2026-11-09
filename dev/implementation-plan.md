@@ -51,7 +51,7 @@ This is one increment because canonical validation, eligibility rows, history wr
 
 ### Stage 3 — Update project guidance and public documentation
 
-- **Status:** Detailed plan established — 2026-11-09; implementation not started.
+- **Status:** In progress — 2026-11-09; Increment 3.1 complete, Increments 3.2 and 3.3 not started.
 - **Objective:** Present the revised v1.1.0 contract consistently to project authors and package users.
 - **Scope:** Update the generated project guidance, package help and examples, READMEs, installed vignette, executable synthetic walkthrough, website source, and development NEWS. Revise examples and narrative whose results change under occurrence-only eligibility. Keep project-owned predictor timing separate from platform terminal-event semantics.
 - **Completion criteria:** User-facing materials and generated project resources describe the four required event fields, occurrence-based eligibility, and the discharge-time input rule; worked examples execute with their stated results; the website presentation remains coherent without a new information-availability framework.
@@ -59,7 +59,7 @@ This is one increment because canonical validation, eligibility rows, history wr
 
 #### Increment 3.1 — Align generated projects and package reference documentation
 
-- **Status:** Planned / Not started.
+- **Status:** Complete — 2026-11-09; implementation and focused verification are recorded in the implementation record.
 - **Objective:** Make a newly initialized project's authoring guidance and the package's function-level help describe the implemented canonical, eligibility, and history contracts.
 - **Implementation scope:** Edit the source files copied by `rrp_project_init()` in `inst/project-template/`: the project `README.md` and `R/produce-canonical.R` comments. State the four required terminal-event fields, permit additional uninterpreted columns, explain that the mapper supplies only episodes with `discharge_time <= as_of_time` (equality allowed), and describe `occurred_at <= as_of_time` as the platform's event timing rule. Keep predictor timing in `R/calculate-risk.R` and the project README explicitly project-owned; change its comments only if needed for clarity. Update directly affected roxygen in `R/canonical-source.R`, `R/project-inspection.R`, `R/rrp-run.R`, and `R/product-refresh.R`: remove required event availability and `terminal_available_at` claims, document the early discharge-time error and revised inspection fields, and use four-field event examples. Regenerate the corresponding tracked `man/*.Rd` files from roxygen rather than editing them as independent sources. Leave initializer mechanics and analytical code unchanged.
 - **Regression and documentation verification coverage:** Initialize a fresh project and inspect the copied README and mapper stub for the same four-field contract and discharge-population instruction. Confirm the provider guidance still allows private, time-aware predictors. Review regenerated help for the event fields, occurrence-only eligibility, discharge validation, and history shape; run affected examples, including typed-empty event examples. Check that roxygen and `.Rd` content agree and that no generated help still gives event `available_at` a required or interpreted role.

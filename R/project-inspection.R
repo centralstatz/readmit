@@ -81,9 +81,9 @@ rrp_project_status <- function(path) {
 #'   `admission_time`, `discharge_time`, and `followup_window_end`; outcome
 #'   `disposition` and `probability`; provider `failure_kind` and
 #'   `failure_reason`; selected event `terminal_event_id`,
-#'   `terminal_event_type`, `terminal_occurred_at`, and
-#'   `terminal_available_at`; and run context `project_id`, UTC `as_of_time`,
-#'   UTC `created_at`, `source_mapping_script`, and `risk_provider_script`.
+#'   `terminal_event_type`, and `terminal_occurred_at`; and run context
+#'   `project_id`, UTC `as_of_time`, UTC `created_at`,
+#'   `source_mapping_script`, and `risk_provider_script`.
 #'   A probability is present for accepted outcomes; failure and event fields
 #'   are missing when inapplicable. Empty or unmatched filtered results retain
 #'   the same columns and types, including UTC `POSIXct` timestamps.

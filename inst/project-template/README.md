@@ -31,15 +31,20 @@ their required typed columns:
 | Data frame | Required columns |
 | --- | --- |
 | `discharge_episode` | Character `episode_id`, `patient_id`, `index_encounter_id`; UTC `POSIXct` `admission_time`, `discharge_time`. |
-| `terminal_event` | Character `terminal_event_id`, `episode_id`, `event_type`; UTC `POSIXct` `occurred_at`, `available_at`. |
+| `terminal_event` | Character `terminal_event_id`, `episode_id`, `event_type`; UTC `POSIXct` `occurred_at`. |
 
 Identifiers and timestamps must be present; identifiers cannot be blank.
 `episode_id` and `terminal_event_id` must each be unique. Each terminal event
 must refer to a supplied episode, and `event_type` is `readmission` or `death`.
-Supply episodes discharged by `as_of_time`. Keep event occurrence (`occurred_at`)
-distinct from when the event became known (`available_at`); an event may become
-available after `as_of_time`. `readmit` derives the fixed 30-elapsed-day
-follow-up endpoint from `discharge_time`; do not supply that column.
+Your mapper must supply only episodes with `discharge_time <= as_of_time`; a
+discharge exactly at the assessment time is valid. `readmit` rejects a future
+discharge during canonical production, before eligibility, provider invocation,
+or history persistence. Supplied terminal events affect eligibility when
+`occurred_at <= as_of_time`; later events do not. Additional canonical columns
+are permitted but have no special platform interpretation. In particular,
+terminal-event `available_at` is neither required nor interpreted. `readmit`
+derives the fixed 30-elapsed-day follow-up endpoint from `discharge_time`; do
+not supply that column.
 For operational assessments, supply the complete relevant discharge cohort each
 time. `readmit` applies its eligibility rules to those episodes; your source
 query need not reproduce them. A later partial run can become the selected
@@ -59,7 +64,8 @@ The package calls it once per eligible episode. `request` contains that episode'
 positive `remaining_seconds`. Estimate the probability of its first readmission
 strictly after `as_of_time` through the inclusive 30-day endpoint. Use
 `project_root` to obtain private predictors and model code; these do not belong
-in the shared request.
+in the shared request. You may apply your own point-in-time availability rules
+to private predictors; they do not define terminal-event eligibility.
 
 Return exactly one of `list(probability = 0.24)` (one finite number from 0 to 1,
 inclusive) or `list(failure = "Required predictor unavailable")` (one nonblank
@@ -93,8 +99,8 @@ and the most recently recorded run. `rrp_inspect_history()` requires state and
 returns stored assessment rows, with optional exact run and episode filters.
 Neither inspection function sources your scripts. A provider failure is
 retained for that episode while other eligible episodes continue.
-Completed runs append history; later event knowledge does not rewrite earlier
-assessment rows.
+Completed runs append history; later runs do not rewrite earlier assessment
+rows.
 
 After at least one completed run, `rrp_refresh_products()` derives three CSVs
 under `state/products/` from retained history. It selects the run with the

@@ -14,9 +14,13 @@
 #'   the run ID belongs to a successfully committed run.
 #' @details Call [rrp_state_init()] before the first run. The project owner must
 #'   implement the configured `rrp_produce_canonical()` and
-#'   `rrp_calculate_risk()` functions. A provider failure affects its episode,
-#'   while a source or persistence failure stops the run without a partial
-#'   completed record. Inspect retained rows with [rrp_inspect_history()] and
+#'   `rrp_calculate_risk()` functions. The mapper must supply only episodes with
+#'   `discharge_time <= as_of_time`; a future discharge stops the run before
+#'   eligibility, provider calls, or history writing. Supplied terminal events
+#'   affect eligibility when `occurred_at <= as_of_time`. A provider failure
+#'   affects its episode, while a source or persistence failure stops the run
+#'   without a partial completed record. Inspect retained rows with
+#'   [rrp_inspect_history()] and
 #'   generate analytical products separately with [rrp_refresh_products()].
 #' @examples
 #' project <- tempfile("rrp-run-")
@@ -29,8 +33,7 @@
 #' )
 #' events <- data.frame(
 #'   terminal_event_id = character(), episode_id = character(),
-#'   event_type = character(), occurred_at = time[FALSE],
-#'   available_at = time[FALSE]
+#'   event_type = character(), occurred_at = time[FALSE]
 #' )
 #' saveRDS(list(discharge_episode = episode, terminal_event = events),
 #'         file.path(project, "canonical.rds"))

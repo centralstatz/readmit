@@ -20,6 +20,11 @@ Useful links:
 \author{
 \strong{Maintainer}: Alex Zajichek \email{alex@centralstatz.com}
 
+Authors:
+\itemize{
+  \item Alex Zajichek \email{alex@centralstatz.com}
+}
+
 Other contributors:
 \itemize{
   \item CentralStatz Statistical & Data Sciences LLC [copyright holder]
