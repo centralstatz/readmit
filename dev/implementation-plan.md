@@ -51,7 +51,7 @@ This is one increment because canonical validation, eligibility rows, history wr
 
 ### Stage 3 — Update project guidance and public documentation
 
-- **Status:** In progress — 2026-11-09; Increment 3.1 complete, Increments 3.2 and 3.3 not started.
+- **Status:** In progress — 2026-11-09; Increments 3.1 and 3.2 complete, Increment 3.3 not started.
 - **Objective:** Present the revised v1.1.0 contract consistently to project authors and package users.
 - **Scope:** Update the generated project guidance, package help and examples, READMEs, installed vignette, executable synthetic walkthrough, website source, and development NEWS. Revise examples and narrative whose results change under occurrence-only eligibility. Keep project-owned predictor timing separate from platform terminal-event semantics.
 - **Completion criteria:** User-facing materials and generated project resources describe the four required event fields, occurrence-based eligibility, and the discharge-time input rule; worked examples execute with their stated results; the website presentation remains coherent without a new information-availability framework.
@@ -68,7 +68,7 @@ This is one increment because canonical validation, eligibility rows, history wr
 
 #### Increment 3.2 — Update and execute instructional materials
 
-- **Status:** Planned / Not started; follows 3.1 so the tutorials use the same project and help contract.
+- **Status:** Complete — 2026-11-09; implementation and rendered-example verification are recorded in the implementation record.
 - **Objective:** Make both tutorials and their worked results accurate under occurrence-only terminal-event eligibility.
 - **Implementation scope:** Update `vignettes/getting-started.Rmd` to use four-field terminal events and explain the discharge-time source responsibility and occurrence-based outcomes at its fixed assessment time. Revise `vignettes/articles/implementing-rrp.Rmd` as one executable walkthrough: remove terminal-event availability from simulated event extracts, displayed event tables, mapper output and filtering, training-eligibility logic, history projections, and narrative; retain the mapper's discharge-time selection and use event occurrence consistently. Reevaluate the January assessment scenarios, eligible episodes and provider calls, fitted training rows/model, accepted estimates, history, trajectories, and product summaries after execution. Preserve `observations$available_at` where it illustrates the hospital's private predictor timing, and identify it as separate from platform event eligibility. Update assertions, displayed output, and explanations from observed results rather than carrying forward delayed-event outcomes.
 - **Regression and documentation verification coverage:** Render and execute both sources with fresh temporary projects; check that the getting-started assertions and product counts still match its data, and that the synthetic article's run summaries, example history, direct model check, selected current snapshot, CSV products, and explanatory claims match the new results. Confirm a readmission occurring by an assessment affects that assessment when supplied, a later occurrence does not, and the provider is called only for eligible episodes. Check the generated app narrative against its displayed products without changing app code.

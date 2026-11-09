@@ -20,10 +20,9 @@ hospital supplies its source mapping and risk model.
 
 For an eligible discharge episode, the target is the probability of a **first
 readmission strictly after the assessment time and through 30 elapsed days after
-the original discharge**. Each assessment has less follow-up remaining. A known
-readmission or death makes an episode ineligible. An event's occurrence time
-may differ from the time its record became available. The example below uses
-both times so earlier assessments do not acquire later knowledge.
+the original discharge**. Each assessment has less follow-up remaining. A
+readmission or death occurring by assessment time makes an episode ineligible;
+a later event does not yet affect eligibility.
 
 Everything here is simulated for teaching. The model is neither clinically
 validated nor evidence that acting on its estimates improves outcomes. Run the
@@ -37,8 +36,8 @@ We create a larger **historical** cohort for model training and eight separate
 **current** encounters for the operational walkthrough. The tables resemble
 patient demographics, encounter/discharge records, post-discharge observations,
 and terminal-event feeds. The observation is recorded four days after discharge
-and becomes available a day later. Event records also have distinct occurrence
-and availability times.
+and becomes available a day later. This is hospital-owned predictor timing,
+separate from the platform's terminal-event eligibility rule.
 
 <details class="rrp-code-fold">
 <summary>Show simulated source-data preparation</summary>
@@ -91,8 +90,7 @@ historical_readmissions <- historical_encounters |>
   transmute(
     event_id = paste0("HR-", encounter_id), encounter_id,
     event_type = "readmission",
-    occurred_at = discharge_time + event_day * day,
-    available_at = occurred_at + sample(0:2, n(), replace = TRUE) * day
+    occurred_at = discharge_time + event_day * day
   )
 historical_deaths <- historical_encounters |>
   mutate(event_day = death_day) |>
@@ -100,8 +98,7 @@ historical_deaths <- historical_encounters |>
   transmute(
     event_id = paste0("HD-", encounter_id), encounter_id,
     event_type = "death",
-    occurred_at = discharge_time + event_day * day,
-    available_at = occurred_at + sample(0:2, n(), replace = TRUE) * day
+    occurred_at = discharge_time + event_day * day
   )
 
 current_patients <- tibble(
@@ -126,8 +123,7 @@ current_events <- tibble(
   event_id = c("ER-E1", "ED-E2"),
   encounter_id = c("E1", "E2"),
   event_type = c("readmission", "death"),
-  occurred_at = origin + c(8.5, 13) * day,
-  available_at = origin + c(10.5, 13.5) * day
+  occurred_at = origin + c(8.5, 13) * day
 )
 
 patients <- bind_rows(historical_patients, current_patients)
@@ -139,8 +135,7 @@ stopifnot(
   !anyDuplicated(encounters$encounter_id),
   !anyDuplicated(events$event_id),
   all(encounters$patient_id %in% patients$patient_id),
-  all(events$encounter_id %in% encounters$encounter_id),
-  all(events$occurred_at <= events$available_at)
+  all(events$encounter_id %in% encounters$encounter_id)
 )
 ```
 
@@ -152,13 +147,13 @@ The current encounters and terminal events used below are:
 current_encounters |>
   select(encounter_id, patient_id, discharge_time, acuity)
 current_events |>
-  select(encounter_id, event_type, occurred_at, available_at)
+  select(encounter_id, event_type, occurred_at)
 ```
 
-The first current readmission occurs on January 9 but is not available until
-January 11. The second current terminal event is a death. Encounter E4 has no
-age; its otherwise eligible episode will illustrate a provider failure. E5's
-follow-up window has already closed by the first assessment. E3, E6, and E7
+The first current readmission occurs on January 9. The second current terminal
+event is a death. Encounter E4 has no age; its otherwise eligible episode will
+illustrate a provider failure. E5's follow-up window has already closed by the
+first assessment. E3, E6, and E7
 enter the supplied discharge population on different days.
 
 # Create a project and map the sources
@@ -214,11 +209,11 @@ rrp_produce_canonical <- function(project_root, as_of_time) {
     )
   terminal_event <- events |>
     dplyr::inner_join(dplyr::select(selected, encounter_id), by = "encounter_id") |>
-    dplyr::filter(occurred_at <= as_of_time, available_at <= as_of_time) |>
+    dplyr::filter(occurred_at <= as_of_time) |>
     dplyr::transmute(
       terminal_event_id = event_id,
       episode_id = paste0("episode-", encounter_id),
-      event_type, occurred_at, available_at
+      event_type, occurred_at
     )
   list(
     discharge_episode = as.data.frame(discharge_episode),
@@ -231,18 +226,17 @@ writeLines(mapper_code, file.path(project, "R", "produce-canonical.R"))
 
 </details>
 
-The occurrence and availability filters ensure the January 9 readmission is
-absent from the January 10 source snapshot and present on January 12 with its
-original occurrence time. These are distinct facts, not a later rewrite of the
-January 10 result. The canonical tables contain only shared episode and event
-facts; the age, acuity, and post-discharge observation stay private to the
-hospital's provider.
+The occurrence filter supplies the January 9 readmission in the January 10
+source snapshot, making E1 ineligible then. Events occurring after an
+assessment are supplied at later times. The canonical tables contain only
+shared episode and event facts; the age, acuity, and post-discharge observation
+stay private to the hospital's provider.
 
 # Fit a remaining-risk demonstration model
 
 We construct **landmark** training rows at days 2, 7, and 14 after each
-historical discharge. A row is included while no readmission or death is
-*known* by that time. Its outcome is a first readmission strictly after the
+historical discharge. A row is included while no readmission or death has
+occurred by that time. Its outcome is a first readmission strictly after the
 landmark and before a competing death, through that discharge's day-30 endpoint.
 The outcome is learned retrospectively, but predictors use only information
 available at the landmark. This is a small educational logistic model of the
@@ -256,10 +250,10 @@ or a claim of calibrated risk.
 ```{r train}
 historical_event_times <- events |>
   semi_join(historical_encounters, by = "encounter_id") |>
-  select(encounter_id, event_type, occurred_at, available_at) |>
+  select(encounter_id, event_type, occurred_at) |>
   pivot_wider(
     names_from = event_type,
-    values_from = c(occurred_at, available_at),
+    values_from = occurred_at,
     names_glue = "{.value}_{event_type}"
   )
 
@@ -281,12 +275,8 @@ training <- tidyr::crossing(
     signal_as_of = if_else(signal_available_at <= as_of_time, signal, 0L)
   ) |>
   filter(
-    is.na(occurred_at_readmission) |
-      occurred_at_readmission > as_of_time |
-      available_at_readmission > as_of_time,
-    is.na(occurred_at_death) |
-      occurred_at_death > as_of_time |
-      available_at_death > as_of_time
+    is.na(occurred_at_readmission) | occurred_at_readmission > as_of_time,
+    is.na(occurred_at_death) | occurred_at_death > as_of_time
   ) |>
   mutate(
     outcome = as.integer(
@@ -386,11 +376,10 @@ model, or predictions. The following real runs exercise those interfaces.
 # Assess repeatedly and inspect history
 
 At January 6, E3, E6, and E7 have not yet been discharged. At January 10, E1's
-readmission has occurred but is not yet available; E1 remains eligible based on
-what the process knows. By January 12 it is a known readmission. E2 later
-becomes ineligible after its known death. E4 remains eligible but has an
-unavailable model estimate. The model's remaining-time and newly available
-observation inputs can change estimates for other episodes.
+readmission has occurred, so E1 is ineligible; four episodes receive accepted
+estimates. E2 becomes ineligible after its death occurs. E4 remains eligible
+but has an unavailable model estimate. The model's remaining-time and newly
+available observation inputs can change estimates for other episodes.
 
 ```{r runs}
 rrp_state_init(project)
@@ -409,18 +398,24 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 status <- rrp_project_status(project)
 status[c("state_initialized", "run_count")]
 history <- rrp_inspect_history(project)
+jan10_e1 <- history |>
+  filter(run_id == runs[[2L]]$run_id, episode_id == "episode-E1")
+stopifnot(nrow(jan10_e1) == 1L,
+          jan10_e1$disposition == "known_readmission",
+          jan10_e1$terminal_occurred_at == current_events$occurred_at[[1L]],
+          !"terminal_available_at" %in% names(history))
 history |>
   filter(patient_id %in% c("C1", "C2", "C3", "C4")) |>
   select(patient_id, as_of_time, disposition, probability,
-         terminal_occurred_at, terminal_available_at) |>
+         terminal_occurred_at) |>
   arrange(patient_id, as_of_time) |>
   head(22)
 ```
 
-The retained January 10 E1 row remains an accepted assessment after the
-January 12 run records a known readmission. E4's provider failure is an episode
-outcome, not zero risk. The backfill creates another run at the January 10
-analytical time; history keeps both. Status reports the most recently *recorded*
+The retained January 10 E1 row records a known readmission, including its
+occurrence time. E4's provider failure is an episode outcome, not zero risk.
+The backfill creates another run at the January 10 analytical time; history
+keeps both. Status reports the most recently *recorded*
 run, which is now the backfill.
 
 We can independently compare E3's latest accepted probability with a direct
@@ -484,8 +479,8 @@ accepted assessments for episodes still in the current pool, including both
 January 10 runs; its observations are not a continuous risk curve. **Operational
 scope** counts accepted, failed, and ineligible outcomes in the selected
 January 16 run. E1 and E2 are absent from the current pool because their
-terminal events are known; E5's window is closed. The CSVs are derived outputs,
-while history retains each completed assessment.
+terminal events occurred by then; E5's window is closed. The CSVs are derived
+outputs, while history retains each completed assessment.
 
 # Explore and customize the project app
 
