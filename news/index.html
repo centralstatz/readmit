@@ -35,7 +35,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="readmit-development-version">readmit (development version)<a class="anchor" aria-label="anchor" href="#readmit-development-version"></a></h2>
-</div>
+<ul><li>Canonical production now rejects discharge episodes with <code>discharge_time &gt; as_of_time</code> before eligibility, risk-provider calls, or history writes. A discharge exactly at <code>as_of_time</code> remains valid.</li>
+<li>Canonical terminal events now require only <code>terminal_event_id</code>, <code>episode_id</code>, <code>event_type</code>, and <code>occurred_at</code>. Eligibility uses <code>occurred_at &lt;= as_of_time</code>; an event-availability timestamp is no longer required or interpreted.</li>
+<li>Newly initialized assessment history and <code><a href="../reference/rrp_inspect_history.html">rrp_inspect_history()</a></code> retain selected terminal-event identity, type, and occurrence time without <code>terminal_available_at</code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="readmit-100">readmit 1.0.0<a class="anchor" aria-label="anchor" href="#readmit-100"></a></h2><p class="text-muted">CRAN release: 2026-11-03</p>
 <ul><li>

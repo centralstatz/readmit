@@ -98,7 +98,7 @@ One prediction at discharge cannot describe a changing risk pool.
 </div>
 <div class="rrp-motivation-grid">
 <p>
-As follow-up time passes and new information becomes available, the set of eligible discharge episodes can change. A later assessment asks about the <strong>remaining probability of a first hospital readmission strictly after that time and through 30 elapsed days after the original discharge</strong>. Each assessment keeps the original endpoint; it does not restart the 30-day window.
+As follow-up time passes, readmissions, deaths, and closed follow-up windows change which discharge episodes remain eligible. A hospital’s model may also gain new predictor information. A later assessment asks about the <strong>remaining probability of a first hospital readmission strictly after that time and through 30 elapsed days after the original discharge</strong>. Each assessment keeps the original endpoint; it does not restart the 30-day window.
 </p>
 <p>
 RRP applies shared eligibility rules to the episodes an organization supplies, records accepted estimates and other dispositions at each chosen time, and derives current-risk, trajectory, and operational-summary products. Its trajectories are recorded assessments, not continuous predictions between runs.
@@ -128,7 +128,7 @@ Start with an ordinary project directory containing editable source-mapping and 
 Reassess at chosen times
 </h3>
 <p>
-Apply discharge-anchored eligibility and point-in-time event availability before requesting risk for eligible episodes.
+Assess episodes discharged by the chosen time and use when readmissions or deaths occurred to identify who remains eligible for a risk estimate.
 </p>
 </article><article class="rrp-capability"><span class="rrp-card-index">03 / RETAIN</span>
 <h3>

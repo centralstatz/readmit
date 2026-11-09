@@ -29,10 +29,11 @@ THE ANALYTICAL QUESTION
 
 ## One prediction at discharge cannot describe a changing risk pool.
 
-As follow-up time passes and new information becomes available, the set
-of eligible discharge episodes can change. A later assessment asks about
-the **remaining probability of a first hospital readmission strictly
-after that time and through 30 elapsed days after the original
+As follow-up time passes, readmissions, deaths, and closed follow-up
+windows change which discharge episodes remain eligible. A hospital’s
+model may also gain new predictor information. A later assessment asks
+about the **remaining probability of a first hospital readmission
+strictly after that time and through 30 elapsed days after the original
 discharge**. Each assessment keeps the original endpoint; it does not
 restart the 30-day window.
 
@@ -62,8 +63,8 @@ its own Shiny app.
 
 ### Reassess at chosen times
 
-Apply discharge-anchored eligibility and point-in-time event
-availability before requesting risk for eligible episodes.
+Assess episodes discharged by the chosen time and use when readmissions
+or deaths occurred to identify who remains eligible for a risk estimate.
 
 03 / RETAIN
 
