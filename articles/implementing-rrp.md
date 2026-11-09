@@ -2,20 +2,22 @@
 
 ## A hospital’s changing question
 
-Harbor General wants to see how remaining readmission risk changes after
-a patient leaves the hospital. A single discharge prediction cannot
-describe what was knowable several days later. Readmission Risk Pool
-(RRP) repeats an assessment at chosen times, retains each result, and
-derives views of current risk and recorded trajectories. The `readmit`
-package supplies that structure; the hospital supplies its source
-mapping and risk model.
+Harbor General wants to reassess patients after they leave the hospital.
+A prediction made at discharge cannot use observations collected later.
+It also does not, by itself, answer how much risk remains several days
+into follow-up. Readmission Risk Pool (RRP) lets the hospital assess
+that remaining risk at chosen times, keep each result, and examine the
+current pool and earlier estimates. The `readmit` package supplies this
+workflow; the hospital supplies its source mapping and risk model.
 
 For an eligible discharge episode, the target is the probability of a
 **first readmission strictly after the assessment time and through 30
-elapsed days after the original discharge**. Each assessment has less
-follow-up remaining. A readmission or death occurring by assessment time
-makes an episode ineligible; a later event does not yet affect
-eligibility.
+elapsed days after the original discharge**. The 30-day endpoint stays
+fixed even when the hospital assesses an episode again. An estimate may
+change as less time remains or as the hospital gains new information for
+its model; it need not move in a particular direction. A readmission or
+death occurring by the assessment time makes an episode ineligible for a
+new remaining-risk estimate.
 
 Everything here is simulated for teaching. The model is neither
 clinically validated nor evidence that acting on its estimates improves
@@ -26,13 +28,20 @@ connection, external dataset, or prepared model.
 
 ## Simulate Harbor General’s extracts
 
-We create a larger **historical** cohort for model training and eight
-separate **current** encounters for the operational walkthrough. The
-tables resemble patient demographics, encounter/discharge records,
-post-discharge observations, and terminal-event feeds. The observation
-is recorded four days after discharge and becomes available a day later.
-This is hospital-owned predictor timing, separate from the platform’s
-terminal-event eligibility rule.
+We create a larger **historical** group of patients to train an
+illustrative model, then use eight separate **current** encounters to
+show how that model would be used in repeated assessments. Different
+discharge dates let patients enter the assessed population at different
+times. Readmissions and deaths show when a patient can no longer receive
+a new remaining-risk estimate. One patient has missing information, so
+the model cannot estimate that patient’s risk.
+
+The tables resemble patient demographics, encounter and discharge
+records, post-discharge observations, and readmission and death records.
+An observation is recorded four days after discharge but becomes
+available to the hospital a day later. The hospital uses that
+availability time to choose private model inputs; the platform uses
+event occurrence time to decide eligibility.
 
 Show simulated source-data preparation
 
@@ -160,21 +169,26 @@ current_events |>
 #> 2 E2           death       2026-01-14 00:00:00
 ```
 
-The first current readmission occurs on January 9. The second current
-terminal event is a death. Encounter E4 has no age; its otherwise
-eligible episode will illustrate a provider failure. E5’s follow-up
-window has already closed by the first assessment. E3, E6, and E7 enter
-the supplied discharge population on different days.
+The first current readmission occurs on January 9; the other recorded
+event is a death. E4’s patient has no age. E4 can still be eligible
+under the platform’s rules, but the hospital’s model needs age and
+cannot produce a probability for that episode. The platform records the
+failed estimate rather than treating E4 as ineligible or assigning it
+zero risk. E5’s follow-up window has already closed by the first
+assessment. E3, E6, and E7 enter the supplied discharge population on
+different days.
 
 ## Create a project and map the sources
 
 [`rrp_project_init()`](https://readmit.centralstatz.com/reference/rrp_project_init.md)
-creates an ordinary, editable project. The two R scripts start as
+creates an ordinary, editable project. Its two R scripts start as
 deliberate stubs: initialization does **not** supply a working hospital
-model or source connection. We save our simulated extracts inside this
-project only because Harbor General is fictional; a real organization
-would connect its own sources and keep their access details under its
-control.
+model or source connection. Harbor General must write the source mapper
+that translates its data into the package’s discharge-episode and
+terminal-event tables, and the provider that calculates risk for
+eligible episodes. We save simulated extracts inside this project only
+because Harbor General is fictional; a real organization would connect
+its own sources and control their access.
 
 ``` r
 
@@ -196,12 +210,16 @@ The project contains configuration and branding, `R/produce-canonical.R`
 for source mapping, `R/calculate-risk.R` for the hospital’s provider,
 and `app/` for the project-owned Shiny interface. `state/` and generated
 products appear only when we initialize history and refresh products
-later. The mapper below reads the extracts, joins encounters to patient
-identities, and returns the two required canonical data frames. It
-supplies all current encounters discharged by `as_of_time`; omitting
-earlier eligible patients from a later operational snapshot would change
-the current pool. The package derives the 30-day endpoint and applies
-eligibility rules.
+later.
+
+The mapper below reads the extracts, connects encounters to patients,
+and returns the two required tables. For each assessment date, it
+supplies the complete relevant group of current encounters discharged by
+that time: `discharge_time <= as_of_time`. Supplying only part of that
+group at a later assessment would leave patients out of the current
+view. The package derives each episode’s original 30-day endpoint and
+applies its eligibility rules; the hospital does not need to reproduce
+those rules in the mapper.
 
 Show source-mapping code
 
@@ -241,24 +259,33 @@ rrp_produce_canonical <- function(project_root, as_of_time) {
 writeLines(mapper_code, file.path(project, "R", "produce-canonical.R"))
 ```
 
-The occurrence filter supplies the January 9 readmission in the January
-10 source snapshot, making E1 ineligible then. Events occurring after an
-assessment are supplied at later times. The canonical tables contain
-only shared episode and event facts; the age, acuity, and post-discharge
-observation stay private to the hospital’s provider.
+This example’s mapper also selects only events that have occurred by the
+assessment date. That builds a source snapshot: the January 9
+readmission is present on January 10, while a later event first appears
+in a later snapshot. The platform itself uses occurrence time to decide
+whether a supplied event makes an episode ineligible. Age, acuity, and
+the post-discharge observation stay private to the hospital’s model
+rather than entering the shared tables.
 
 ## Fit a remaining-risk demonstration model
 
-We construct **landmark** training rows at days 2, 7, and 14 after each
-historical discharge. A row is included while no readmission or death
-has occurred by that time. Its outcome is a first readmission strictly
-after the landmark and before a competing death, through that
-discharge’s day-30 endpoint. The outcome is learned retrospectively, but
-predictors use only information available at the landmark. This is a
-small educational logistic model of the remaining interval, not an
-unchanged discharge-time classifier. Its repeated rows per encounter and
-simplified source process are not a clinical validation or a claim of
-calibrated risk.
+We use the historical patients to teach a model to answer the same
+question asked during current assessments. For each historical
+discharge, we consider the patient at days 2, 7, and 14. Each of these
+assessment points is a **landmark**. A patient contributes a training
+row at a landmark only if a readmission or death has not already
+occurred. Once either event occurs, there is no remaining
+first-readmission risk to estimate at a later landmark.
+
+For each row, the outcome asks whether a first readmission occurred
+strictly after that landmark and by the original day-30 endpoint, before
+a competing death. We learn the outcome from later records, but give the
+model only predictors available at the landmark. In particular, the
+hospital withholds the post-discharge observation until its own
+availability time. This is a small educational logistic model of the
+remaining interval, not a validated clinical prediction system. Repeated
+rows per encounter and a simplified source process do not establish
+calibrated risk or clinical usefulness.
 
 Show model-training code
 
@@ -333,21 +360,25 @@ round(stats::coef(model), 3)
 #>         -4.741          0.177          0.510          0.512          0.095
 ```
 
-The model uses remaining days and a post-discharge signal only once that
-signal is available. Death before a future readmission makes the
-training outcome zero. Harbor General’s current encounters were **not**
-model-training cases; we do not use their outcomes to fit the model or
-present its predictions as a performance evaluation.
+The model uses the days remaining and includes the post-discharge signal
+only once it is available to the hospital. A death before a possible
+later readmission prevents that readmission from counting as the
+outcome. If both events occur at the same time, the example counts the
+readmission first, as the platform does. Harbor General’s current
+encounters were **not** training cases; their outcomes do not enter the
+fitted model or serve as a performance evaluation.
 
 ## Supply the hospital’s risk provider
 
-`readmit` asks the project provider for one eligible episode at a time.
-The request gives the episode identity, assessment time, and fixed
+After the platform determines which episodes are eligible, `readmit`
+asks the hospital’s risk provider for one estimate per eligible episode.
+Each request identifies the episode, assessment time, and fixed
 follow-up endpoint. The provider reads private source information and
-the saved model from its own project directory. E4 has no age, so it
-reports a failure rather than inventing a probability. An organization
-must assess its own predictor quality and timing; `readmit` does not
-validate them.
+the saved model from its own project directory. For E4, it reports that
+age is unavailable; it does not invent a probability. The platform keeps
+E4 in the eligible population and records the model’s failure. The
+hospital is responsible for its predictors, their timing, and the
+suitability of its model; `readmit` does not validate those choices.
 
 Show risk-provider implementation
 
@@ -401,18 +432,27 @@ those interfaces.
 
 ## Assess repeatedly and inspect history
 
-At January 6, E3, E6, and E7 have not yet been discharged. At January
-10, E1’s readmission has occurred, so E1 is ineligible; four episodes
-receive accepted estimates. E2 becomes ineligible after its death
-occurs. E4 remains eligible but has an unavailable model estimate. The
-model’s remaining-time and newly available observation inputs can change
-estimates for other episodes.
+The four assessments use January 6, 10, 12, and 16 as their assessment
+dates. On January 6, E3, E6, and E7 have not been discharged, so the
+mapper does not supply them yet. On January 10, E1’s January 9
+readmission has already occurred, so E1 no longer receives a risk
+estimate. E2 remains eligible until its death occurs later. More
+discharges enter the assessed group over time, while readmissions,
+deaths, and closed follow-up windows remove episodes from the eligible
+pool.
+
+At the January 10 assessment, four episodes receive accepted
+probabilities. E4 remains eligible, but its missing age prevents the
+model from producing an estimate; the run records one provider failure.
+For other eligible episodes, the estimated probability may change
+because the remaining period is shorter and new hospital-owned
+observations may become available.
 
 ``` r
 
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -422,7 +462,7 @@ rrp_state_init(project)
 assessment_times <- origin + c(5.5, 9.5, 11.5, 15.5) * day
 runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -430,7 +470,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -438,7 +478,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -446,7 +486,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -454,7 +494,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -462,7 +502,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -470,7 +510,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -478,7 +518,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -503,7 +543,7 @@ run_summary
 # A later-executed historical backfill does not replace the newest snapshot.
 backfill <- rrp_run(project, assessment_times[[2L]])
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -511,7 +551,7 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -520,7 +560,7 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 #> ℹ See ?duckdb_storage for details and alternatives.
 status <- rrp_project_status(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -535,7 +575,7 @@ status[c("state_initialized", "run_count")]
 #> [1] 5
 history <- rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -596,11 +636,18 @@ history |>
 #> 19                 <NA>
 ```
 
-The retained January 10 E1 row records a known readmission, including
-its occurrence time. E4’s provider failure is an episode outcome, not
-zero risk. The backfill creates another run at the January 10 analytical
-time; history keeps both. Status reports the most recently *recorded*
-run, which is now the backfill.
+Each run adds its episode results to history. E1’s January 6 estimate
+remains there; its January 10 row instead records the readmission and
+when it occurred. Earlier rows are not rewritten when a later assessment
+finds that an event has occurred. E4’s row records that the model could
+not produce an estimate, not a zero-risk result.
+
+After the January 16 assessment, we run the January 10 assessment again
+as a historical backfill. It receives a new run ID, and history keeps
+both January 10 runs. Project status identifies this backfill as the
+most recently *recorded* run. Its assessment date is still January 10,
+so it is not the latest assessment snapshot. The products below select
+the January 16 run.
 
 We can independently compare E3’s latest accepted probability with a
 direct prediction from the saved model. E3’s observation is available by
@@ -639,19 +686,22 @@ tibble(recorded = e3_recorded, direct_model_prediction = e3_expected)
 ## Generate and interpret the products
 
 [`rrp_refresh_products()`](https://readmit.centralstatz.com/reference/rrp_refresh_products.md)
-reads retained history; it does not call the mapper or provider again.
-The current snapshot is the completed run with the greatest analytical
-time, even though we executed an older backfill last. Supplying a
-partial population at a later analytical time would make that partial
-run the current snapshot; the platform does not merge missing episodes
-from older runs. An operational mapper should supply the complete
-relevant discharge cohort.
+creates three CSV views from retained history. It does not call the
+hospital’s source mapper or model again. “Current” means the completed
+run with the latest assessment date, which is January 16 here. The
+January 10 backfill ran last but does not replace that snapshot.
+
+If a later-dated run assessed only part of the relevant discharge
+population, that partial run would still become the current snapshot.
+The platform does not fill in its missing episodes from older runs. An
+operational mapper should therefore supply the complete relevant
+population each time.
 
 ``` r
 
 products <- rrp_refresh_products(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpRIGit6/duckdb
+#> ℹ /tmp/RtmpiZR3IA/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -689,25 +739,39 @@ scope |>
 #> 1                       1                 1                   1
 ```
 
-**Current remaining risk** includes the latest eligible episodes; E4
-remains there with a missing probability. **Remaining-risk trajectory**
-lists actual accepted assessments for episodes still in the current
-pool, including both January 10 runs; its observations are not a
-continuous risk curve. **Operational scope** counts accepted, failed,
-and ineligible outcomes in the selected January 16 run. E1 and E2 are
-absent from the current pool because their terminal events occurred by
-then; E5’s window is closed. The CSVs are derived outputs, while history
-retains each completed assessment.
+**Current remaining risk** shows episodes still eligible in the January
+16 snapshot. E4 remains in this pool even though its probability is
+missing. E1 and E2 are absent because their readmission and death have
+occurred; E5’s 30-day window has closed.
+
+**Remaining-risk trajectory** contains accepted estimates recorded
+across runs for episodes in the current pool. E3’s rows include both
+January 10 runs. Each point is an estimate actually recorded at an
+assessment, not a continuous curve or proof that the patient’s
+underlying risk changed between assessments.
+
+**Operational scope** counts all eight episodes in the January 16
+assessment: four accepted estimates, one provider failure, and three
+ineligible outcomes. The CSVs are views derived from history; history
+retains the completed runs.
 
 ## Explore and customize the project app
 
-The project app already existed before our first assessment and would
-have opened with empty views. After refresh it reads the three product
-CSVs. Its **Current Risk Pool** shows accepted and provider-failed
-eligible episodes; selecting a row reveals its current estimate and
-recorded accepted trajectory. **Overview** shows operational counts and
-summaries of available current estimates. The app’s Reload Data control
-rereads CSVs, but does not run an assessment or refresh products.
+The project app already existed before the first assessment and could
+have opened with empty views. After product refresh, it reads the three
+CSVs. **Current Risk Pool** shows eligible episodes with accepted
+estimates and E4’s unavailable estimate; selecting a row shows its
+current estimate and recorded accepted estimates across runs.
+**Overview** summarizes the selected assessment and the available
+current probabilities.
+
+These are separate actions:
+[`rrp_run()`](https://readmit.centralstatz.com/reference/rrp_run.md)
+performs a new assessment and adds history;
+[`rrp_refresh_products()`](https://readmit.centralstatz.com/reference/rrp_refresh_products.md)
+updates the CSV views from history; and **Reload Data** in the app
+rereads those CSVs. Reloading the app does not run the model or refresh
+the products.
 
 Install `shiny`, `bslib`, `reactable`, `plotly`, and `yaml` in the
 environment that will run the app. Launch it manually with the following

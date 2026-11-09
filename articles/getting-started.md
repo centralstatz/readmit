@@ -1,16 +1,20 @@
 # Getting Started with readmit
 
-Readmission Risk Pool (RRP) estimates the probability of a **first
-readmission strictly after an assessment time through 30 elapsed days
-after discharge**. The endpoint stays anchored to the original
-discharge. `readmit` supplies the project, eligibility, history, and
-product operations; the project owner supplies the source mapping and
-risk provider.
+After discharge, a hospital may want to reassess how much readmission
+risk remains as follow-up time passes. Readmission Risk Pool (RRP)
+estimates the probability of a **first readmission strictly after an
+assessment time through 30 elapsed days after discharge**. A new
+assessment uses the time still left in that original 30-day period; it
+does not start another one. `readmit` supplies the project, eligibility,
+history, and product operations. The project owner supplies the clinical
+source mapping and a model that estimates risk.
 
-This small example uses one fixed analytical time and an illustrative
-formula. It does not provide a clinically validated model. For source
-mapping, a trained assessment-time model, repeated assessments, and
-application customization, see [Implementing RRP: A Simulated Hospital
+This small example follows four discharge episodes through one
+assessment and shows what the package records. Its probability formula
+is only an illustration, not a fitted or clinically validated model. For
+source mapping, a trained assessment-time model, repeated assessments,
+and application customization, see [Implementing RRP: A Simulated
+Hospital
 Walkthrough](https://readmit.centralstatz.com/articles/implementing-rrp.html).
 
 ## Create a project and supply canonical facts
@@ -47,21 +51,26 @@ saveRDS(list(discharge_episode = episodes, terminal_event = events),
         file.path(project, "canonical.rds"))
 ```
 
-All four episodes were discharged by this assessment time. Episode 1 is
-still eligible, episode 2 has a known readmission, episode 3 has passed
-its original 30-day endpoint, and episode 4 has a known death. Terminal
-events affect eligibility when `occurred_at <= as_of_time`. An
-operational source mapper must supply only episodes with
-`discharge_time <= as_of_time` (including equality) and select the
-complete relevant discharge population for *each* assessment time; this
-saved list is only a one-snapshot example. A future discharge is
-rejected before eligibility, provider calls, or history writing.
+At the January 10 assessment, all four episodes have been discharged,
+but only episode 1 remains eligible for a new risk estimate. Episode 2
+has already been readmitted, episode 3 is past its original 30-day
+endpoint, and episode 4 has experienced a death. The package considers a
+supplied readmission or death when its occurrence time satisfies
+`occurred_at <= as_of_time`.
 
-The project-authored mapper reads those typed facts. The provider’s
-illustrative probability is 0.30 scaled by the share of the original
-30-day interval still remaining. It uses the package’s
+For a real assessment, the hospital’s source mapper must supply the
+complete relevant discharge population at *each* assessment time. Every
+supplied episode must satisfy `discharge_time <= as_of_time`; a
+discharge exactly at that time is valid. The saved list above is for one
+assessment only. The package rejects a future discharge before checking
+eligibility, calling the model, or writing history.
+
+The project-authored mapper reads those typed facts. The example risk
+provider starts with an arbitrary 0.30 and scales it by the share of the
+original 30-day period still remaining. It uses the package’s
 `remaining_seconds` request field, so it does not restart the follow-up
-window. This formula has no clinical meaning.
+window. This arithmetic has no clinical meaning; a real project requires
+its own suitable model.
 
 ``` r
 
@@ -78,7 +87,7 @@ writeLines(c(
 rrp_project_validate(project)
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpTTkmpD/duckdb
+#> ℹ /tmp/RtmpM6ChdD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -97,7 +106,7 @@ test the supplied data, formula, or clinical suitability.
 
 assessment <- rrp_run(project, as_of_time)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpTTkmpD/duckdb
+#> ℹ /tmp/RtmpM6ChdD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -105,7 +114,7 @@ assessment <- rrp_run(project, as_of_time)
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpTTkmpD/duckdb
+#> ℹ /tmp/RtmpM6ChdD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -127,7 +136,7 @@ assessment[c("episodes_processed", "accepted", "provider_failures", "ineligible"
 
 status <- rrp_project_status(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpTTkmpD/duckdb
+#> ℹ /tmp/RtmpM6ChdD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -142,7 +151,7 @@ status[c("state_initialized", "run_count")]
 #> [1] 1
 history <- rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpTTkmpD/duckdb
+#> ℹ /tmp/RtmpM6ChdD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -160,21 +169,23 @@ stopifnot(assessment$accepted == 1L, assessment$ineligible == 3L,
                            0.28)))
 ```
 
-The package called the provider only for eligible episode 1 and retained
-its 0.28 illustrative estimate. The other three rows explain why those
-episodes were ineligible. History remains available for later
-inspection.
+Only episode 1 was eligible, so the package asked the project risk
+provider for an estimate for that episode alone. Its illustrative result
+was 0.28. The other three history rows record why no new estimate was
+requested for those episodes. History retains the assessment and can be
+inspected later.
 
 ## Refresh the three products
 
-Products are derived from retained history; refreshing them does not
-repeat the assessment or edit the project-owned application.
+History is the retained record of the assessment. Product refresh reads
+that record and creates CSV files for review and for the project
+application; it does not reassess anyone or edit the application.
 
 ``` r
 
 products <- rrp_refresh_products(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpTTkmpD/duckdb
+#> ℹ /tmp/RtmpM6ChdD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -201,11 +212,12 @@ stopifnot(nrow(current_risk) == 1L, nrow(trajectory) == 1L,
           scope$episodes_assessed == 4L)
 ```
 
-The current-risk CSV contains eligible episode 1; the trajectory CSV
-contains its recorded accepted estimate; and the scope CSV counts all
-four outcomes. The project-contained Shiny app reads these products.
-After installing its runtime packages as listed in the project’s
-`README.md`, launch it manually:
+The current-risk CSV contains eligible episode 1. The trajectory CSV
+contains its recorded accepted estimate, and the scope CSV counts all
+four assessment outcomes. These files can be refreshed from history
+without changing the original assessment. The project-contained Shiny
+app reads these products. After installing its runtime packages as
+listed in the project’s `README.md`, launch it manually:
 
 ``` r
 
