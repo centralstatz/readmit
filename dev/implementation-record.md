@@ -14,7 +14,7 @@ The plan defines what remains to be done. This record documents what has actuall
 
 ## Stage 1 — Enforce the discharge-time input contract
 
-**Status:** Not started. No implementation recorded.
+**Status:** Detailed plan established; implementation not started. See [Stage 1 in the implementation plan](implementation-plan.md#stage-1--enforce-the-discharge-time-input-contract).
 
 ## Stage 2 — Simplify terminal events and analytical history
 
