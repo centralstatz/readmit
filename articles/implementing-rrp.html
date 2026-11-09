@@ -78,10 +78,9 @@ supplies its source mapping and risk model.</p>
 <p>For an eligible discharge episode, the target is the probability of a
 <strong>first readmission strictly after the assessment time and through
 30 elapsed days after the original discharge</strong>. Each assessment
-has less follow-up remaining. A known readmission or death makes an
-episode ineligible. An event’s occurrence time may differ from the time
-its record became available. The example below uses both times so
-earlier assessments do not acquire later knowledge.</p>
+has less follow-up remaining. A readmission or death occurring by
+assessment time makes an episode ineligible; a later event does not yet
+affect eligibility.</p>
 <p>Everything here is simulated for teaching. The model is neither
 clinically validated nor evidence that acting on its estimates improves
 outcomes. Run the article with <code>readmit</code>, <code>dplyr</code>,
@@ -98,8 +97,9 @@ training and eight separate <strong>current</strong> encounters for the
 operational walkthrough. The tables resemble patient demographics,
 encounter/discharge records, post-discharge observations, and
 terminal-event feeds. The observation is recorded four days after
-discharge and becomes available a day later. Event records also have
-distinct occurrence and availability times.</p>
+discharge and becomes available a day later. This is hospital-owned
+predictor timing, separate from the platform’s terminal-event
+eligibility rule.</p>
 <details class="rrp-code-fold"><summary>
 Show simulated source-data preparation
 </summary><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -150,8 +150,7 @@ Show simulated source-data preparation
 <span>  <span class="fu">transmute</span><span class="op">(</span></span>
 <span>    event_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"HR-"</span>, <span class="va">encounter_id</span><span class="op">)</span>, <span class="va">encounter_id</span>,</span>
 <span>    event_type <span class="op">=</span> <span class="st">"readmission"</span>,</span>
-<span>    occurred_at <span class="op">=</span> <span class="va">discharge_time</span> <span class="op">+</span> <span class="va">event_day</span> <span class="op">*</span> <span class="va">day</span>,</span>
-<span>    available_at <span class="op">=</span> <span class="va">occurred_at</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">2</span>, <span class="fu">n</span><span class="op">(</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">*</span> <span class="va">day</span></span>
+<span>    occurred_at <span class="op">=</span> <span class="va">discharge_time</span> <span class="op">+</span> <span class="va">event_day</span> <span class="op">*</span> <span class="va">day</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">historical_deaths</span> <span class="op">&lt;-</span> <span class="va">historical_encounters</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>event_day <span class="op">=</span> <span class="va">death_day</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -159,8 +158,7 @@ Show simulated source-data preparation
 <span>  <span class="fu">transmute</span><span class="op">(</span></span>
 <span>    event_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"HD-"</span>, <span class="va">encounter_id</span><span class="op">)</span>, <span class="va">encounter_id</span>,</span>
 <span>    event_type <span class="op">=</span> <span class="st">"death"</span>,</span>
-<span>    occurred_at <span class="op">=</span> <span class="va">discharge_time</span> <span class="op">+</span> <span class="va">event_day</span> <span class="op">*</span> <span class="va">day</span>,</span>
-<span>    available_at <span class="op">=</span> <span class="va">occurred_at</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">2</span>, <span class="fu">n</span><span class="op">(</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">*</span> <span class="va">day</span></span>
+<span>    occurred_at <span class="op">=</span> <span class="va">discharge_time</span> <span class="op">+</span> <span class="va">event_day</span> <span class="op">*</span> <span class="va">day</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">current_patients</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span></span>
@@ -185,8 +183,7 @@ Show simulated source-data preparation
 <span>  event_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ER-E1"</span>, <span class="st">"ED-E2"</span><span class="op">)</span>,</span>
 <span>  encounter_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"E1"</span>, <span class="st">"E2"</span><span class="op">)</span>,</span>
 <span>  event_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"readmission"</span>, <span class="st">"death"</span><span class="op">)</span>,</span>
-<span>  occurred_at <span class="op">=</span> <span class="va">origin</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8.5</span>, <span class="fl">13</span><span class="op">)</span> <span class="op">*</span> <span class="va">day</span>,</span>
-<span>  available_at <span class="op">=</span> <span class="va">origin</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10.5</span>, <span class="fl">13.5</span><span class="op">)</span> <span class="op">*</span> <span class="va">day</span></span>
+<span>  occurred_at <span class="op">=</span> <span class="va">origin</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">8.5</span>, <span class="fl">13</span><span class="op">)</span> <span class="op">*</span> <span class="va">day</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">patients</span> <span class="op">&lt;-</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="va">historical_patients</span>, <span class="va">current_patients</span><span class="op">)</span></span>
@@ -198,8 +195,7 @@ Show simulated source-data preparation
 <span>  <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">anyDuplicated</a></span><span class="op">(</span><span class="va">encounters</span><span class="op">$</span><span class="va">encounter_id</span><span class="op">)</span>,</span>
 <span>  <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">anyDuplicated</a></span><span class="op">(</span><span class="va">events</span><span class="op">$</span><span class="va">event_id</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">encounters</span><span class="op">$</span><span class="va">patient_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">patients</span><span class="op">$</span><span class="va">patient_id</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">events</span><span class="op">$</span><span class="va">encounter_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">encounters</span><span class="op">$</span><span class="va">encounter_id</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">events</span><span class="op">$</span><span class="va">occurred_at</span> <span class="op">&lt;=</span> <span class="va">events</span><span class="op">$</span><span class="va">available_at</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">events</span><span class="op">$</span><span class="va">encounter_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">encounters</span><span class="op">$</span><span class="va">encounter_id</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </details><p>The current encounters and terminal events used below are:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -217,18 +213,17 @@ Show simulated source-data preparation
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> E7           C7         2026-01-15 <span style="color: #949494;">00:00:00</span>      2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> E8           C8         2026-01-01 <span style="color: #949494;">00:00:00</span>      0</span></span>
 <span><span class="va">current_events</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">encounter_id</span>, <span class="va">event_type</span>, <span class="va">occurred_at</span>, <span class="va">available_at</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
-<span><span class="co">#&gt;   encounter_id event_type  occurred_at         available_at       </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> E1           readmission 2026-01-09 <span style="color: #949494;">12:00:00</span> 2026-01-11 <span style="color: #949494;">12:00:00</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> E2           death       2026-01-14 <span style="color: #949494;">00:00:00</span> 2026-01-14 <span style="color: #949494;">12:00:00</span></span></span></code></pre></div>
-<p>The first current readmission occurs on January 9 but is not
-available until January 11. The second current terminal event is a
-death. Encounter E4 has no age; its otherwise eligible episode will
-illustrate a provider failure. E5’s follow-up window has already closed
-by the first assessment. E3, E6, and E7 enter the supplied discharge
-population on different days.</p>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">encounter_id</span>, <span class="va">event_type</span>, <span class="va">occurred_at</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 3</span></span></span>
+<span><span class="co">#&gt;   encounter_id event_type  occurred_at        </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> E1           readmission 2026-01-09 <span style="color: #949494;">12:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> E2           death       2026-01-14 <span style="color: #949494;">00:00:00</span></span></span></code></pre></div>
+<p>The first current readmission occurs on January 9. The second current
+terminal event is a death. Encounter E4 has no age; its otherwise
+eligible episode will illustrate a provider failure. E5’s follow-up
+window has already closed by the first assessment. E3, E6, and E7 enter
+the supplied discharge population on different days.</p>
 </div>
 <div class="section level2">
 <h2 id="create-a-project-and-map-the-sources">Create a project and map the sources<a class="anchor" aria-label="anchor" href="#create-a-project-and-map-the-sources"></a>
@@ -286,11 +281,11 @@ Show source-mapping code
 <span><span class="st">    )</span></span>
 <span><span class="st">  terminal_event &lt;- events |&gt;</span></span>
 <span><span class="st">    dplyr::inner_join(dplyr::select(selected, encounter_id), by = "encounter_id") |&gt;</span></span>
-<span><span class="st">    dplyr::filter(occurred_at &lt;= as_of_time, available_at &lt;= as_of_time) |&gt;</span></span>
+<span><span class="st">    dplyr::filter(occurred_at &lt;= as_of_time) |&gt;</span></span>
 <span><span class="st">    dplyr::transmute(</span></span>
 <span><span class="st">      terminal_event_id = event_id,</span></span>
 <span><span class="st">      episode_id = paste0("episode-", encounter_id),</span></span>
-<span><span class="st">      event_type, occurred_at, available_at</span></span>
+<span><span class="st">      event_type, occurred_at</span></span>
 <span><span class="st">    )</span></span>
 <span><span class="st">  list(</span></span>
 <span><span class="st">    discharge_episode = as.data.frame(discharge_episode),</span></span>
@@ -299,10 +294,9 @@ Show source-mapping code
 <span><span class="st">}</span></span>
 <span><span class="st">)---"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="va">mapper_code</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"R"</span>, <span class="st">"produce-canonical.R"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</details><p>The occurrence and availability filters ensure the January 9
-readmission is absent from the January 10 source snapshot and present on
-January 12 with its original occurrence time. These are distinct facts,
-not a later rewrite of the January 10 result. The canonical tables
+</details><p>The occurrence filter supplies the January 9 readmission in the
+January 10 source snapshot, making E1 ineligible then. Events occurring
+after an assessment are supplied at later times. The canonical tables
 contain only shared episode and event facts; the age, acuity, and
 post-discharge observation stay private to the hospital’s provider.</p>
 </div>
@@ -311,9 +305,9 @@ post-discharge observation stay private to the hospital’s provider.</p>
 </h2>
 <p>We construct <strong>landmark</strong> training rows at days 2, 7,
 and 14 after each historical discharge. A row is included while no
-readmission or death is <em>known</em> by that time. Its outcome is a
-first readmission strictly after the landmark and before a competing
-death, through that discharge’s day-30 endpoint. The outcome is learned
+readmission or death has occurred by that time. Its outcome is a first
+readmission strictly after the landmark and before a competing death,
+through that discharge’s day-30 endpoint. The outcome is learned
 retrospectively, but predictors use only information available at the
 landmark. This is a small educational logistic model of the remaining
 interval, not an unchanged discharge-time classifier. Its repeated rows
@@ -324,10 +318,10 @@ Show model-training code
 </summary><div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">historical_event_times</span> <span class="op">&lt;-</span> <span class="va">events</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">semi_join</span><span class="op">(</span><span class="va">historical_encounters</span>, by <span class="op">=</span> <span class="st">"encounter_id"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">encounter_id</span>, <span class="va">event_type</span>, <span class="va">occurred_at</span>, <span class="va">available_at</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">encounter_id</span>, <span class="va">event_type</span>, <span class="va">occurred_at</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">pivot_wider</span><span class="op">(</span></span>
 <span>    names_from <span class="op">=</span> <span class="va">event_type</span>,</span>
-<span>    values_from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">occurred_at</span>, <span class="va">available_at</span><span class="op">)</span>,</span>
+<span>    values_from <span class="op">=</span> <span class="va">occurred_at</span>,</span>
 <span>    names_glue <span class="op">=</span> <span class="st">"{.value}_{event_type}"</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
@@ -349,12 +343,8 @@ Show model-training code
 <span>    signal_as_of <span class="op">=</span> <span class="fu">if_else</span><span class="op">(</span><span class="va">signal_available_at</span> <span class="op">&lt;=</span> <span class="va">as_of_time</span>, <span class="va">signal</span>, <span class="fl">0L</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">occurred_at_readmission</span><span class="op">)</span> <span class="op">|</span></span>
-<span>      <span class="va">occurred_at_readmission</span> <span class="op">&gt;</span> <span class="va">as_of_time</span> <span class="op">|</span></span>
-<span>      <span class="va">available_at_readmission</span> <span class="op">&gt;</span> <span class="va">as_of_time</span>,</span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">occurred_at_death</span><span class="op">)</span> <span class="op">|</span></span>
-<span>      <span class="va">occurred_at_death</span> <span class="op">&gt;</span> <span class="va">as_of_time</span> <span class="op">|</span></span>
-<span>      <span class="va">available_at_death</span> <span class="op">&gt;</span> <span class="va">as_of_time</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">occurred_at_readmission</span><span class="op">)</span> <span class="op">|</span> <span class="va">occurred_at_readmission</span> <span class="op">&gt;</span> <span class="va">as_of_time</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">occurred_at_death</span><span class="op">)</span> <span class="op">|</span> <span class="va">occurred_at_death</span> <span class="op">&gt;</span> <span class="va">as_of_time</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span></span>
 <span>    outcome <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span></span>
@@ -383,13 +373,13 @@ are:</p>
 <span><span class="co">#&gt;          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>            2       0   341</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>            2       1    79</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>            7       0   340</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>            7       0   336</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>            7       1    61</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>           14       0   337</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>           14       0   332</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span>           14       1    34</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    (Intercept)     age_scaled         acuity   signal_as_of days_remaining </span></span>
-<span><span class="co">#&gt;         -4.755          0.175          0.508          0.496          0.095</span></span></code></pre></div>
+<span><span class="co">#&gt;         -4.741          0.177          0.510          0.512          0.095</span></span></code></pre></div>
 <p>The model uses remaining days and a post-discharge signal only once
 that signal is available. Death before a future readmission makes the
 training outcome zero. Harbor General’s current encounters were
@@ -458,16 +448,15 @@ those interfaces.</p>
 <h2 id="assess-repeatedly-and-inspect-history">Assess repeatedly and inspect history<a class="anchor" aria-label="anchor" href="#assess-repeatedly-and-inspect-history"></a>
 </h2>
 <p>At January 6, E3, E6, and E7 have not yet been discharged. At January
-10, E1’s readmission has occurred but is not yet available; E1 remains
-eligible based on what the process knows. By January 12 it is a known
-readmission. E2 later becomes ineligible after its known death. E4
-remains eligible but has an unavailable model estimate. The model’s
-remaining-time and newly available observation inputs can change
+10, E1’s readmission has occurred, so E1 is ineligible; four episodes
+receive accepted estimates. E2 becomes ineligible after its death
+occurs. E4 remains eligible but has an unavailable model estimate. The
+model’s remaining-time and newly available observation inputs can change
 estimates for other episodes.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/rrp_state_init.html">rrp_state_init</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -477,7 +466,7 @@ estimates for other episodes.</p>
 <span><span class="va">assessment_times</span> <span class="op">&lt;-</span> <span class="va">origin</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5.5</span>, <span class="fl">9.5</span>, <span class="fl">11.5</span>, <span class="fl">15.5</span><span class="op">)</span> <span class="op">*</span> <span class="va">day</span></span>
 <span><span class="va">runs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">assessment_times</span>, <span class="kw">function</span><span class="op">(</span><span class="va">time</span><span class="op">)</span> <span class="fu"><a href="../reference/rrp_run.html">rrp_run</a></span><span class="op">(</span><span class="va">project</span>, <span class="va">time</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -485,7 +474,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -493,7 +482,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -501,7 +490,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -509,7 +498,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -517,7 +506,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -525,7 +514,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -533,7 +522,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -551,14 +540,14 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt;   as_of_time          accepted provider_failures ineligible</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2026-01-06 <span style="color: #949494;">12:00:00</span>        3                 1          1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2026-01-10 <span style="color: #949494;">12:00:00</span>        5                 1          1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 2026-01-10 <span style="color: #949494;">12:00:00</span>        4                 1          2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 2026-01-12 <span style="color: #949494;">12:00:00</span>        4                 1          2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 2026-01-16 <span style="color: #949494;">12:00:00</span>        4                 1          3</span></span>
 <span></span>
 <span><span class="co"># A later-executed historical backfill does not replace the newest snapshot.</span></span>
 <span><span class="va">backfill</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_run.html">rrp_run</a></span><span class="op">(</span><span class="va">project</span>, <span class="va">assessment_times</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -566,7 +555,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -575,7 +564,7 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="va">status</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_project_status.html">rrp_project_status</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -590,64 +579,70 @@ estimates for other episodes.</p>
 <span><span class="co">#&gt; [1] 5</span></span>
 <span><span class="va">history</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_inspect_history.html">rrp_inspect_history</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = TRUE) (or create ~/.duckdb) to keep them (suitable for most users).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
+<span><span class="va">jan10_e1</span> <span class="op">&lt;-</span> <span class="va">history</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">run_id</span> <span class="op">==</span> <span class="va">runs</span><span class="op">[[</span><span class="fl">2L</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">run_id</span>, <span class="va">episode_id</span> <span class="op">==</span> <span class="st">"episode-E1"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">jan10_e1</span><span class="op">)</span> <span class="op">==</span> <span class="fl">1L</span>,</span>
+<span>          <span class="va">jan10_e1</span><span class="op">$</span><span class="va">disposition</span> <span class="op">==</span> <span class="st">"known_readmission"</span>,</span>
+<span>          <span class="va">jan10_e1</span><span class="op">$</span><span class="va">terminal_occurred_at</span> <span class="op">==</span> <span class="va">current_events</span><span class="op">$</span><span class="va">occurred_at</span><span class="op">[[</span><span class="fl">1L</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>          <span class="op">!</span><span class="st">"terminal_available_at"</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">history</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">history</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">patient_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C1"</span>, <span class="st">"C2"</span>, <span class="st">"C3"</span>, <span class="st">"C4"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">patient_id</span>, <span class="va">as_of_time</span>, <span class="va">disposition</span>, <span class="va">probability</span>,</span>
-<span>         <span class="va">terminal_occurred_at</span>, <span class="va">terminal_available_at</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>         <span class="va">terminal_occurred_at</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="va">patient_id</span>, <span class="va">as_of_time</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">22</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    patient_id          as_of_time       disposition probability</span></span>
-<span><span class="co">#&gt; 1          C1 2026-01-06 12:00:00          accepted  0.31295390</span></span>
-<span><span class="co">#&gt; 2          C1 2026-01-10 12:00:00          accepted  0.23734158</span></span>
-<span><span class="co">#&gt; 3          C1 2026-01-10 12:00:00          accepted  0.23734158</span></span>
+<span><span class="co">#&gt; 1          C1 2026-01-06 12:00:00          accepted  0.31761803</span></span>
+<span><span class="co">#&gt; 2          C1 2026-01-10 12:00:00 known_readmission          NA</span></span>
+<span><span class="co">#&gt; 3          C1 2026-01-10 12:00:00 known_readmission          NA</span></span>
 <span><span class="co">#&gt; 4          C1 2026-01-12 12:00:00 known_readmission          NA</span></span>
 <span><span class="co">#&gt; 5          C1 2026-01-16 12:00:00 known_readmission          NA</span></span>
-<span><span class="co">#&gt; 6          C2 2026-01-06 12:00:00          accepted  0.14928082</span></span>
-<span><span class="co">#&gt; 7          C2 2026-01-10 12:00:00          accepted  0.16452859</span></span>
-<span><span class="co">#&gt; 8          C2 2026-01-10 12:00:00          accepted  0.16452859</span></span>
-<span><span class="co">#&gt; 9          C2 2026-01-12 12:00:00          accepted  0.13998748</span></span>
+<span><span class="co">#&gt; 6          C2 2026-01-06 12:00:00          accepted  0.14938575</span></span>
+<span><span class="co">#&gt; 7          C2 2026-01-10 12:00:00          accepted  0.16712993</span></span>
+<span><span class="co">#&gt; 8          C2 2026-01-10 12:00:00          accepted  0.16712993</span></span>
+<span><span class="co">#&gt; 9          C2 2026-01-12 12:00:00          accepted  0.14240051</span></span>
 <span><span class="co">#&gt; 10         C2 2026-01-16 12:00:00       known_death          NA</span></span>
-<span><span class="co">#&gt; 11         C3 2026-01-10 12:00:00          accepted  0.09105211</span></span>
-<span><span class="co">#&gt; 12         C3 2026-01-10 12:00:00          accepted  0.09105211</span></span>
-<span><span class="co">#&gt; 13         C3 2026-01-12 12:00:00          accepted  0.11972547</span></span>
-<span><span class="co">#&gt; 14         C3 2026-01-16 12:00:00          accepted  0.08502147</span></span>
+<span><span class="co">#&gt; 11         C3 2026-01-10 12:00:00          accepted  0.09088792</span></span>
+<span><span class="co">#&gt; 12         C3 2026-01-10 12:00:00          accepted  0.09088792</span></span>
+<span><span class="co">#&gt; 13         C3 2026-01-12 12:00:00          accepted  0.12130465</span></span>
+<span><span class="co">#&gt; 14         C3 2026-01-16 12:00:00          accepted  0.08636031</span></span>
 <span><span class="co">#&gt; 15         C4 2026-01-06 12:00:00  provider_failure          NA</span></span>
 <span><span class="co">#&gt; 16         C4 2026-01-10 12:00:00  provider_failure          NA</span></span>
 <span><span class="co">#&gt; 17         C4 2026-01-10 12:00:00  provider_failure          NA</span></span>
 <span><span class="co">#&gt; 18         C4 2026-01-12 12:00:00  provider_failure          NA</span></span>
 <span><span class="co">#&gt; 19         C4 2026-01-16 12:00:00  provider_failure          NA</span></span>
-<span><span class="co">#&gt;    terminal_occurred_at terminal_available_at</span></span>
-<span><span class="co">#&gt; 1                  &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 2                  &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 3                  &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 4   2026-01-09 12:00:00   2026-01-11 12:00:00</span></span>
-<span><span class="co">#&gt; 5   2026-01-09 12:00:00   2026-01-11 12:00:00</span></span>
-<span><span class="co">#&gt; 6                  &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 7                  &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 8                  &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 9                  &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 10  2026-01-14 00:00:00   2026-01-14 12:00:00</span></span>
-<span><span class="co">#&gt; 11                 &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 12                 &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 13                 &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 14                 &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 15                 &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 16                 &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 17                 &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 18                 &lt;NA&gt;                  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 19                 &lt;NA&gt;                  &lt;NA&gt;</span></span></code></pre></div>
-<p>The retained January 10 E1 row remains an accepted assessment after
-the January 12 run records a known readmission. E4’s provider failure is
-an episode outcome, not zero risk. The backfill creates another run at
-the January 10 analytical time; history keeps both. Status reports the
-most recently <em>recorded</em> run, which is now the backfill.</p>
+<span><span class="co">#&gt;    terminal_occurred_at</span></span>
+<span><span class="co">#&gt; 1                  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2   2026-01-09 12:00:00</span></span>
+<span><span class="co">#&gt; 3   2026-01-09 12:00:00</span></span>
+<span><span class="co">#&gt; 4   2026-01-09 12:00:00</span></span>
+<span><span class="co">#&gt; 5   2026-01-09 12:00:00</span></span>
+<span><span class="co">#&gt; 6                  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 7                  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 8                  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 9                  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 10  2026-01-14 00:00:00</span></span>
+<span><span class="co">#&gt; 11                 &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 12                 &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 13                 &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 14                 &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 15                 &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 16                 &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 17                 &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 18                 &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 19                 &lt;NA&gt;</span></span></code></pre></div>
+<p>The retained January 10 E1 row records a known readmission, including
+its occurrence time. E4’s provider failure is an episode outcome, not
+zero risk. The backfill creates another run at the January 10 analytical
+time; history keeps both. Status reports the most recently
+<em>recorded</em> run, which is now the backfill.</p>
 <p>We can independently compare E3’s latest accepted probability with a
 direct prediction from the saved model. E3’s observation is available by
 January 16.</p>
@@ -677,7 +672,7 @@ January 16.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
 <span><span class="co">#&gt;   recorded direct_model_prediction</span></span>
 <span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   0.085<span style="text-decoration: underline;">0</span>                  0.085<span style="text-decoration: underline;">0</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   0.086<span style="text-decoration: underline;">4</span>                  0.086<span style="text-decoration: underline;">4</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="generate-and-interpret-the-products">Generate and interpret the products<a class="anchor" aria-label="anchor" href="#generate-and-interpret-the-products"></a>
@@ -692,7 +687,7 @@ mapper should supply the complete relevant discharge cohort.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">products</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_refresh_products.html">rrp_refresh_products</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/Rtmpxqi4XO/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRIGit6/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -707,19 +702,19 @@ mapper should supply the complete relevant discharge cohort.</p>
 <span><span class="va">current_risk</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">episode_id</span>, <span class="va">disposition</span>, <span class="va">probability</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   episode_id      disposition probability</span></span>
-<span><span class="co">#&gt; 1 episode-E3         accepted  0.08502147</span></span>
+<span><span class="co">#&gt; 1 episode-E3         accepted  0.08636031</span></span>
 <span><span class="co">#&gt; 2 episode-E4 provider_failure          NA</span></span>
-<span><span class="co">#&gt; 3 episode-E6         accepted  0.15060176</span></span>
-<span><span class="co">#&gt; 4 episode-E7         accepted  0.27454746</span></span>
-<span><span class="co">#&gt; 5 episode-E8         accepted  0.04055060</span></span>
+<span><span class="co">#&gt; 3 episode-E6         accepted  0.15285487</span></span>
+<span><span class="co">#&gt; 4 episode-E7         accepted  0.27509739</span></span>
+<span><span class="co">#&gt; 5 episode-E8         accepted  0.04086488</span></span>
 <span><span class="va">trajectory</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">episode_id</span> <span class="op">==</span> <span class="st">"episode-E3"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">episode_id</span>, <span class="va">as_of_time</span>, <span class="va">probability</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   episode_id                  as_of_time probability</span></span>
-<span><span class="co">#&gt; 1 episode-E3 2026-01-10T12:00:00.000000Z  0.09105211</span></span>
-<span><span class="co">#&gt; 2 episode-E3 2026-01-10T12:00:00.000000Z  0.09105211</span></span>
-<span><span class="co">#&gt; 3 episode-E3 2026-01-12T12:00:00.000000Z  0.11972547</span></span>
-<span><span class="co">#&gt; 4 episode-E3 2026-01-16T12:00:00.000000Z  0.08502147</span></span>
+<span><span class="co">#&gt; 1 episode-E3 2026-01-10T12:00:00.000000Z  0.09088792</span></span>
+<span><span class="co">#&gt; 2 episode-E3 2026-01-10T12:00:00.000000Z  0.09088792</span></span>
+<span><span class="co">#&gt; 3 episode-E3 2026-01-12T12:00:00.000000Z  0.12130465</span></span>
+<span><span class="co">#&gt; 4 episode-E3 2026-01-16T12:00:00.000000Z  0.08636031</span></span>
 <span><span class="va">scope</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">select</span><span class="op">(</span><span class="va">episodes_assessed</span>, <span class="va">eligible_count</span>, <span class="va">accepted_count</span>,</span>
 <span>         <span class="va">provider_failure_count</span>, <span class="va">known_readmission_count</span>,</span>
@@ -735,9 +730,9 @@ assessments for episodes still in the current pool, including both
 January 10 runs; its observations are not a continuous risk curve.
 <strong>Operational scope</strong> counts accepted, failed, and
 ineligible outcomes in the selected January 16 run. E1 and E2 are absent
-from the current pool because their terminal events are known; E5’s
-window is closed. The CSVs are derived outputs, while history retains
-each completed assessment.</p>
+from the current pool because their terminal events occurred by then;
+E5’s window is closed. The CSVs are derived outputs, while history
+retains each completed assessment.</p>
 </div>
 <div class="section level2">
 <h2 id="explore-and-customize-the-project-app">Explore and customize the project app<a class="anchor" aria-label="anchor" href="#explore-and-customize-the-project-app"></a>

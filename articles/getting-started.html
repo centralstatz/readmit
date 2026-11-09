@@ -103,9 +103,6 @@ their initial stubs below.</p>
 <span>  event_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"readmission"</span>, <span class="st">"death"</span><span class="op">)</span>,</span>
 <span>  occurred_at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"2026-01-06 12:00:00"</span>, <span class="st">"2026-01-07 12:00:00"</span></span>
-<span>  <span class="op">)</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span>,</span>
-<span>  available_at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"2026-01-07 12:00:00"</span>, <span class="st">"2026-01-08 12:00:00"</span></span>
 <span>  <span class="op">)</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>discharge_episode <span class="op">=</span> <span class="va">episodes</span>, terminal_event <span class="op">=</span> <span class="va">events</span><span class="op">)</span>,</span>
@@ -113,10 +110,14 @@ their initial stubs below.</p>
 <p>All four episodes were discharged by this assessment time. Episode 1
 is still eligible, episode 2 has a known readmission, episode 3 has
 passed its original 30-day endpoint, and episode 4 has a known death.
-The event occurrence and availability times are separate UTC facts. An
-operational source mapper should select the complete relevant discharge
-population for <em>each</em> assessment time; this saved list is only a
-one-snapshot example.</p>
+Terminal events affect eligibility when
+<code>occurred_at &lt;= as_of_time</code>. An operational source mapper
+must supply only episodes with
+<code>discharge_time &lt;= as_of_time</code> (including equality) and
+select the complete relevant discharge population for <em>each</em>
+assessment time; this saved list is only a one-snapshot example. A
+future discharge is rejected before eligibility, provider calls, or
+history writing.</p>
 <p>The project-authored mapper reads those typed facts. The provider’s
 illustrative probability is 0.30 scaled by the share of the original
 30-day interval still remaining. It uses the package’s
@@ -136,7 +137,7 @@ follow-up window. This formula has no clinical meaning.</p>
 <span><span class="fu"><a href="../reference/rrp_project_validate.html">rrp_project_validate</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/rrp_state_init.html">rrp_state_init</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpDelpJa/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpTTkmpD/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -153,7 +154,7 @@ formula, or clinical suitability.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">assessment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_run.html">rrp_run</a></span><span class="op">(</span><span class="va">project</span>, <span class="va">as_of_time</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpDelpJa/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpTTkmpD/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -161,7 +162,7 @@ formula, or clinical suitability.</p>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).</span></span>
 <span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpDelpJa/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpTTkmpD/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -183,7 +184,7 @@ formula, or clinical suitability.</p>
 <span></span>
 <span><span class="va">status</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_project_status.html">rrp_project_status</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpDelpJa/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpTTkmpD/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -198,7 +199,7 @@ formula, or clinical suitability.</p>
 <span><span class="co">#&gt; [1] 1</span></span>
 <span><span class="va">history</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_inspect_history.html">rrp_inspect_history</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpDelpJa/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpTTkmpD/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>
@@ -227,7 +228,7 @@ repeat the assessment or edit the project-owned application.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">products</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/rrp_refresh_products.html">rrp_refresh_products</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span>
 <span><span class="co">#&gt; duckdb keeps downloaded extensions and secrets in a temporary directory:</span></span>
-<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpDelpJa/duckdb</span></span>
+<span><span class="co">#&gt; <span style="color: #0000BB;">ℹ</span> /tmp/RtmpTTkmpD/duckdb</span></span>
 <span><span class="co">#&gt; This is removed when the R session ends.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Secrets are lost.</span></span>

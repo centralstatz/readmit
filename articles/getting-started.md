@@ -41,9 +41,6 @@ events <- data.frame(
   event_type = c("readmission", "death"),
   occurred_at = as.POSIXct(c(
     "2026-01-06 12:00:00", "2026-01-07 12:00:00"
-  ), tz = "UTC"),
-  available_at = as.POSIXct(c(
-    "2026-01-07 12:00:00", "2026-01-08 12:00:00"
   ), tz = "UTC")
 )
 saveRDS(list(discharge_episode = episodes, terminal_event = events),
@@ -52,11 +49,13 @@ saveRDS(list(discharge_episode = episodes, terminal_event = events),
 
 All four episodes were discharged by this assessment time. Episode 1 is
 still eligible, episode 2 has a known readmission, episode 3 has passed
-its original 30-day endpoint, and episode 4 has a known death. The event
-occurrence and availability times are separate UTC facts. An operational
-source mapper should select the complete relevant discharge population
-for *each* assessment time; this saved list is only a one-snapshot
-example.
+its original 30-day endpoint, and episode 4 has a known death. Terminal
+events affect eligibility when `occurred_at <= as_of_time`. An
+operational source mapper must supply only episodes with
+`discharge_time <= as_of_time` (including equality) and select the
+complete relevant discharge population for *each* assessment time; this
+saved list is only a one-snapshot example. A future discharge is
+rejected before eligibility, provider calls, or history writing.
 
 The project-authored mapper reads those typed facts. The provider’s
 illustrative probability is 0.30 scaled by the share of the original
@@ -79,7 +78,7 @@ writeLines(c(
 rrp_project_validate(project)
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpDelpJa/duckdb
+#> ℹ /tmp/RtmpTTkmpD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -98,7 +97,7 @@ test the supplied data, formula, or clinical suitability.
 
 assessment <- rrp_run(project, as_of_time)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpDelpJa/duckdb
+#> ℹ /tmp/RtmpTTkmpD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -106,7 +105,7 @@ assessment <- rrp_run(project, as_of_time)
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpDelpJa/duckdb
+#> ℹ /tmp/RtmpTTkmpD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -128,7 +127,7 @@ assessment[c("episodes_processed", "accepted", "provider_failures", "ineligible"
 
 status <- rrp_project_status(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpDelpJa/duckdb
+#> ℹ /tmp/RtmpTTkmpD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -143,7 +142,7 @@ status[c("state_initialized", "run_count")]
 #> [1] 1
 history <- rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpDelpJa/duckdb
+#> ℹ /tmp/RtmpTTkmpD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -175,7 +174,7 @@ repeat the assessment or edit the project-owned application.
 
 products <- rrp_refresh_products(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpDelpJa/duckdb
+#> ℹ /tmp/RtmpTTkmpD/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.

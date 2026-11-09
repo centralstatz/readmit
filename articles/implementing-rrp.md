@@ -13,10 +13,9 @@ mapping and risk model.
 For an eligible discharge episode, the target is the probability of a
 **first readmission strictly after the assessment time and through 30
 elapsed days after the original discharge**. Each assessment has less
-follow-up remaining. A known readmission or death makes an episode
-ineligible. An event’s occurrence time may differ from the time its
-record became available. The example below uses both times so earlier
-assessments do not acquire later knowledge.
+follow-up remaining. A readmission or death occurring by assessment time
+makes an episode ineligible; a later event does not yet affect
+eligibility.
 
 Everything here is simulated for teaching. The model is neither
 clinically validated nor evidence that acting on its estimates improves
@@ -32,7 +31,8 @@ separate **current** encounters for the operational walkthrough. The
 tables resemble patient demographics, encounter/discharge records,
 post-discharge observations, and terminal-event feeds. The observation
 is recorded four days after discharge and becomes available a day later.
-Event records also have distinct occurrence and availability times.
+This is hospital-owned predictor timing, separate from the platform’s
+terminal-event eligibility rule.
 
 Show simulated source-data preparation
 
@@ -85,8 +85,7 @@ historical_readmissions <- historical_encounters |>
   transmute(
     event_id = paste0("HR-", encounter_id), encounter_id,
     event_type = "readmission",
-    occurred_at = discharge_time + event_day * day,
-    available_at = occurred_at + sample(0:2, n(), replace = TRUE) * day
+    occurred_at = discharge_time + event_day * day
   )
 historical_deaths <- historical_encounters |>
   mutate(event_day = death_day) |>
@@ -94,8 +93,7 @@ historical_deaths <- historical_encounters |>
   transmute(
     event_id = paste0("HD-", encounter_id), encounter_id,
     event_type = "death",
-    occurred_at = discharge_time + event_day * day,
-    available_at = occurred_at + sample(0:2, n(), replace = TRUE) * day
+    occurred_at = discharge_time + event_day * day
   )
 
 current_patients <- tibble(
@@ -120,8 +118,7 @@ current_events <- tibble(
   event_id = c("ER-E1", "ED-E2"),
   encounter_id = c("E1", "E2"),
   event_type = c("readmission", "death"),
-  occurred_at = origin + c(8.5, 13) * day,
-  available_at = origin + c(10.5, 13.5) * day
+  occurred_at = origin + c(8.5, 13) * day
 )
 
 patients <- bind_rows(historical_patients, current_patients)
@@ -133,8 +130,7 @@ stopifnot(
   !anyDuplicated(encounters$encounter_id),
   !anyDuplicated(events$event_id),
   all(encounters$patient_id %in% patients$patient_id),
-  all(events$encounter_id %in% encounters$encounter_id),
-  all(events$occurred_at <= events$available_at)
+  all(events$encounter_id %in% encounters$encounter_id)
 )
 ```
 
@@ -156,20 +152,19 @@ current_encounters |>
 #> 7 E7           C7         2026-01-15 00:00:00      2
 #> 8 E8           C8         2026-01-01 00:00:00      0
 current_events |>
-  select(encounter_id, event_type, occurred_at, available_at)
-#> # A tibble: 2 × 4
-#>   encounter_id event_type  occurred_at         available_at       
-#>   <chr>        <chr>       <dttm>              <dttm>             
-#> 1 E1           readmission 2026-01-09 12:00:00 2026-01-11 12:00:00
-#> 2 E2           death       2026-01-14 00:00:00 2026-01-14 12:00:00
+  select(encounter_id, event_type, occurred_at)
+#> # A tibble: 2 × 3
+#>   encounter_id event_type  occurred_at        
+#>   <chr>        <chr>       <dttm>             
+#> 1 E1           readmission 2026-01-09 12:00:00
+#> 2 E2           death       2026-01-14 00:00:00
 ```
 
-The first current readmission occurs on January 9 but is not available
-until January 11. The second current terminal event is a death.
-Encounter E4 has no age; its otherwise eligible episode will illustrate
-a provider failure. E5’s follow-up window has already closed by the
-first assessment. E3, E6, and E7 enter the supplied discharge population
-on different days.
+The first current readmission occurs on January 9. The second current
+terminal event is a death. Encounter E4 has no age; its otherwise
+eligible episode will illustrate a provider failure. E5’s follow-up
+window has already closed by the first assessment. E3, E6, and E7 enter
+the supplied discharge population on different days.
 
 ## Create a project and map the sources
 
@@ -231,11 +226,11 @@ rrp_produce_canonical <- function(project_root, as_of_time) {
     )
   terminal_event <- events |>
     dplyr::inner_join(dplyr::select(selected, encounter_id), by = "encounter_id") |>
-    dplyr::filter(occurred_at <= as_of_time, available_at <= as_of_time) |>
+    dplyr::filter(occurred_at <= as_of_time) |>
     dplyr::transmute(
       terminal_event_id = event_id,
       episode_id = paste0("episode-", encounter_id),
-      event_type, occurred_at, available_at
+      event_type, occurred_at
     )
   list(
     discharge_episode = as.data.frame(discharge_episode),
@@ -246,23 +241,22 @@ rrp_produce_canonical <- function(project_root, as_of_time) {
 writeLines(mapper_code, file.path(project, "R", "produce-canonical.R"))
 ```
 
-The occurrence and availability filters ensure the January 9 readmission
-is absent from the January 10 source snapshot and present on January 12
-with its original occurrence time. These are distinct facts, not a later
-rewrite of the January 10 result. The canonical tables contain only
-shared episode and event facts; the age, acuity, and post-discharge
+The occurrence filter supplies the January 9 readmission in the January
+10 source snapshot, making E1 ineligible then. Events occurring after an
+assessment are supplied at later times. The canonical tables contain
+only shared episode and event facts; the age, acuity, and post-discharge
 observation stay private to the hospital’s provider.
 
 ## Fit a remaining-risk demonstration model
 
 We construct **landmark** training rows at days 2, 7, and 14 after each
-historical discharge. A row is included while no readmission or death is
-*known* by that time. Its outcome is a first readmission strictly after
-the landmark and before a competing death, through that discharge’s
-day-30 endpoint. The outcome is learned retrospectively, but predictors
-use only information available at the landmark. This is a small
-educational logistic model of the remaining interval, not an unchanged
-discharge-time classifier. Its repeated rows per encounter and
+historical discharge. A row is included while no readmission or death
+has occurred by that time. Its outcome is a first readmission strictly
+after the landmark and before a competing death, through that
+discharge’s day-30 endpoint. The outcome is learned retrospectively, but
+predictors use only information available at the landmark. This is a
+small educational logistic model of the remaining interval, not an
+unchanged discharge-time classifier. Its repeated rows per encounter and
 simplified source process are not a clinical validation or a claim of
 calibrated risk.
 
@@ -272,10 +266,10 @@ Show model-training code
 
 historical_event_times <- events |>
   semi_join(historical_encounters, by = "encounter_id") |>
-  select(encounter_id, event_type, occurred_at, available_at) |>
+  select(encounter_id, event_type, occurred_at) |>
   pivot_wider(
     names_from = event_type,
-    values_from = c(occurred_at, available_at),
+    values_from = occurred_at,
     names_glue = "{.value}_{event_type}"
   )
 
@@ -297,12 +291,8 @@ training <- tidyr::crossing(
     signal_as_of = if_else(signal_available_at <= as_of_time, signal, 0L)
   ) |>
   filter(
-    is.na(occurred_at_readmission) |
-      occurred_at_readmission > as_of_time |
-      available_at_readmission > as_of_time,
-    is.na(occurred_at_death) |
-      occurred_at_death > as_of_time |
-      available_at_death > as_of_time
+    is.na(occurred_at_readmission) | occurred_at_readmission > as_of_time,
+    is.na(occurred_at_death) | occurred_at_death > as_of_time
   ) |>
   mutate(
     outcome = as.integer(
@@ -334,13 +324,13 @@ training |>
 #>          <int>   <int> <int>
 #> 1            2       0   341
 #> 2            2       1    79
-#> 3            7       0   340
+#> 3            7       0   336
 #> 4            7       1    61
-#> 5           14       0   337
+#> 5           14       0   332
 #> 6           14       1    34
 round(stats::coef(model), 3)
 #>    (Intercept)     age_scaled         acuity   signal_as_of days_remaining 
-#>         -4.755          0.175          0.508          0.496          0.095
+#>         -4.741          0.177          0.510          0.512          0.095
 ```
 
 The model uses remaining days and a post-discharge signal only once that
@@ -412,18 +402,17 @@ those interfaces.
 ## Assess repeatedly and inspect history
 
 At January 6, E3, E6, and E7 have not yet been discharged. At January
-10, E1’s readmission has occurred but is not yet available; E1 remains
-eligible based on what the process knows. By January 12 it is a known
-readmission. E2 later becomes ineligible after its known death. E4
-remains eligible but has an unavailable model estimate. The model’s
-remaining-time and newly available observation inputs can change
+10, E1’s readmission has occurred, so E1 is ineligible; four episodes
+receive accepted estimates. E2 becomes ineligible after its death
+occurs. E4 remains eligible but has an unavailable model estimate. The
+model’s remaining-time and newly available observation inputs can change
 estimates for other episodes.
 
 ``` r
 
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -433,7 +422,7 @@ rrp_state_init(project)
 assessment_times <- origin + c(5.5, 9.5, 11.5, 15.5) * day
 runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -441,7 +430,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -449,7 +438,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -457,7 +446,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -465,7 +454,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -473,7 +462,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -481,7 +470,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -489,7 +478,7 @@ runs <- lapply(assessment_times, function(time) rrp_run(project, time))
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -507,14 +496,14 @@ run_summary
 #>   as_of_time          accepted provider_failures ineligible
 #>   <dttm>                 <int>             <int>      <int>
 #> 1 2026-01-06 12:00:00        3                 1          1
-#> 2 2026-01-10 12:00:00        5                 1          1
+#> 2 2026-01-10 12:00:00        4                 1          2
 #> 3 2026-01-12 12:00:00        4                 1          2
 #> 4 2026-01-16 12:00:00        4                 1          3
 
 # A later-executed historical backfill does not replace the newest snapshot.
 backfill <- rrp_run(project, assessment_times[[2L]])
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -522,7 +511,7 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -531,7 +520,7 @@ backfill <- rrp_run(project, assessment_times[[2L]])
 #> ℹ See ?duckdb_storage for details and alternatives.
 status <- rrp_project_status(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -546,66 +535,72 @@ status[c("state_initialized", "run_count")]
 #> [1] 5
 history <- rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
 #> ℹ Run duckdb(shared_home = TRUE) (or create ~/.duckdb) to keep them (suitable for most users).
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
+jan10_e1 <- history |>
+  filter(run_id == runs[[2L]]$run_id, episode_id == "episode-E1")
+stopifnot(nrow(jan10_e1) == 1L,
+          jan10_e1$disposition == "known_readmission",
+          jan10_e1$terminal_occurred_at == current_events$occurred_at[[1L]],
+          !"terminal_available_at" %in% names(history))
 history |>
   filter(patient_id %in% c("C1", "C2", "C3", "C4")) |>
   select(patient_id, as_of_time, disposition, probability,
-         terminal_occurred_at, terminal_available_at) |>
+         terminal_occurred_at) |>
   arrange(patient_id, as_of_time) |>
   head(22)
 #>    patient_id          as_of_time       disposition probability
-#> 1          C1 2026-01-06 12:00:00          accepted  0.31295390
-#> 2          C1 2026-01-10 12:00:00          accepted  0.23734158
-#> 3          C1 2026-01-10 12:00:00          accepted  0.23734158
+#> 1          C1 2026-01-06 12:00:00          accepted  0.31761803
+#> 2          C1 2026-01-10 12:00:00 known_readmission          NA
+#> 3          C1 2026-01-10 12:00:00 known_readmission          NA
 #> 4          C1 2026-01-12 12:00:00 known_readmission          NA
 #> 5          C1 2026-01-16 12:00:00 known_readmission          NA
-#> 6          C2 2026-01-06 12:00:00          accepted  0.14928082
-#> 7          C2 2026-01-10 12:00:00          accepted  0.16452859
-#> 8          C2 2026-01-10 12:00:00          accepted  0.16452859
-#> 9          C2 2026-01-12 12:00:00          accepted  0.13998748
+#> 6          C2 2026-01-06 12:00:00          accepted  0.14938575
+#> 7          C2 2026-01-10 12:00:00          accepted  0.16712993
+#> 8          C2 2026-01-10 12:00:00          accepted  0.16712993
+#> 9          C2 2026-01-12 12:00:00          accepted  0.14240051
 #> 10         C2 2026-01-16 12:00:00       known_death          NA
-#> 11         C3 2026-01-10 12:00:00          accepted  0.09105211
-#> 12         C3 2026-01-10 12:00:00          accepted  0.09105211
-#> 13         C3 2026-01-12 12:00:00          accepted  0.11972547
-#> 14         C3 2026-01-16 12:00:00          accepted  0.08502147
+#> 11         C3 2026-01-10 12:00:00          accepted  0.09088792
+#> 12         C3 2026-01-10 12:00:00          accepted  0.09088792
+#> 13         C3 2026-01-12 12:00:00          accepted  0.12130465
+#> 14         C3 2026-01-16 12:00:00          accepted  0.08636031
 #> 15         C4 2026-01-06 12:00:00  provider_failure          NA
 #> 16         C4 2026-01-10 12:00:00  provider_failure          NA
 #> 17         C4 2026-01-10 12:00:00  provider_failure          NA
 #> 18         C4 2026-01-12 12:00:00  provider_failure          NA
 #> 19         C4 2026-01-16 12:00:00  provider_failure          NA
-#>    terminal_occurred_at terminal_available_at
-#> 1                  <NA>                  <NA>
-#> 2                  <NA>                  <NA>
-#> 3                  <NA>                  <NA>
-#> 4   2026-01-09 12:00:00   2026-01-11 12:00:00
-#> 5   2026-01-09 12:00:00   2026-01-11 12:00:00
-#> 6                  <NA>                  <NA>
-#> 7                  <NA>                  <NA>
-#> 8                  <NA>                  <NA>
-#> 9                  <NA>                  <NA>
-#> 10  2026-01-14 00:00:00   2026-01-14 12:00:00
-#> 11                 <NA>                  <NA>
-#> 12                 <NA>                  <NA>
-#> 13                 <NA>                  <NA>
-#> 14                 <NA>                  <NA>
-#> 15                 <NA>                  <NA>
-#> 16                 <NA>                  <NA>
-#> 17                 <NA>                  <NA>
-#> 18                 <NA>                  <NA>
-#> 19                 <NA>                  <NA>
+#>    terminal_occurred_at
+#> 1                  <NA>
+#> 2   2026-01-09 12:00:00
+#> 3   2026-01-09 12:00:00
+#> 4   2026-01-09 12:00:00
+#> 5   2026-01-09 12:00:00
+#> 6                  <NA>
+#> 7                  <NA>
+#> 8                  <NA>
+#> 9                  <NA>
+#> 10  2026-01-14 00:00:00
+#> 11                 <NA>
+#> 12                 <NA>
+#> 13                 <NA>
+#> 14                 <NA>
+#> 15                 <NA>
+#> 16                 <NA>
+#> 17                 <NA>
+#> 18                 <NA>
+#> 19                 <NA>
 ```
 
-The retained January 10 E1 row remains an accepted assessment after the
-January 12 run records a known readmission. E4’s provider failure is an
-episode outcome, not zero risk. The backfill creates another run at the
-January 10 analytical time; history keeps both. Status reports the most
-recently *recorded* run, which is now the backfill.
+The retained January 10 E1 row records a known readmission, including
+its occurrence time. E4’s provider failure is an episode outcome, not
+zero risk. The backfill creates another run at the January 10 analytical
+time; history keeps both. Status reports the most recently *recorded*
+run, which is now the backfill.
 
 We can independently compare E3’s latest accepted probability with a
 direct prediction from the saved model. E3’s observation is available by
@@ -638,7 +633,7 @@ tibble(recorded = e3_recorded, direct_model_prediction = e3_expected)
 #> # A tibble: 1 × 2
 #>   recorded direct_model_prediction
 #>      <dbl>                   <dbl>
-#> 1   0.0850                  0.0850
+#> 1   0.0864                  0.0864
 ```
 
 ## Generate and interpret the products
@@ -656,7 +651,7 @@ relevant discharge cohort.
 
 products <- rrp_refresh_products(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/Rtmpxqi4XO/duckdb
+#> ℹ /tmp/RtmpRIGit6/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -671,19 +666,19 @@ scope <- read.csv(products$files[["scope"]])
 current_risk |>
   select(episode_id, disposition, probability)
 #>   episode_id      disposition probability
-#> 1 episode-E3         accepted  0.08502147
+#> 1 episode-E3         accepted  0.08636031
 #> 2 episode-E4 provider_failure          NA
-#> 3 episode-E6         accepted  0.15060176
-#> 4 episode-E7         accepted  0.27454746
-#> 5 episode-E8         accepted  0.04055060
+#> 3 episode-E6         accepted  0.15285487
+#> 4 episode-E7         accepted  0.27509739
+#> 5 episode-E8         accepted  0.04086488
 trajectory |>
   filter(episode_id == "episode-E3") |>
   select(episode_id, as_of_time, probability)
 #>   episode_id                  as_of_time probability
-#> 1 episode-E3 2026-01-10T12:00:00.000000Z  0.09105211
-#> 2 episode-E3 2026-01-10T12:00:00.000000Z  0.09105211
-#> 3 episode-E3 2026-01-12T12:00:00.000000Z  0.11972547
-#> 4 episode-E3 2026-01-16T12:00:00.000000Z  0.08502147
+#> 1 episode-E3 2026-01-10T12:00:00.000000Z  0.09088792
+#> 2 episode-E3 2026-01-10T12:00:00.000000Z  0.09088792
+#> 3 episode-E3 2026-01-12T12:00:00.000000Z  0.12130465
+#> 4 episode-E3 2026-01-16T12:00:00.000000Z  0.08636031
 scope |>
   select(episodes_assessed, eligible_count, accepted_count,
          provider_failure_count, known_readmission_count,
@@ -700,8 +695,8 @@ lists actual accepted assessments for episodes still in the current
 pool, including both January 10 runs; its observations are not a
 continuous risk curve. **Operational scope** counts accepted, failed,
 and ineligible outcomes in the selected January 16 run. E1 and E2 are
-absent from the current pool because their terminal events are known;
-E5’s window is closed. The CSVs are derived outputs, while history
+absent from the current pool because their terminal events occurred by
+then; E5’s window is closed. The CSVs are derived outputs, while history
 retains each completed assessment.
 
 ## Explore and customize the project app

@@ -35,10 +35,13 @@ the run ID belongs to a successfully committed run.
 Call
 [`rrp_state_init()`](https://readmit.centralstatz.com/reference/rrp_state_init.md)
 before the first run. The project owner must implement the configured
-`rrp_produce_canonical()` and `rrp_calculate_risk()` functions. A
-provider failure affects its episode, while a source or persistence
-failure stops the run without a partial completed record. Inspect
-retained rows with
+`rrp_produce_canonical()` and `rrp_calculate_risk()` functions. The
+mapper must supply only episodes with `discharge_time <= as_of_time`; a
+future discharge stops the run before eligibility, provider calls, or
+history writing. Supplied terminal events affect eligibility when
+`occurred_at <= as_of_time`. A provider failure affects its episode,
+while a source or persistence failure stops the run without a partial
+completed record. Inspect retained rows with
 [`rrp_inspect_history()`](https://readmit.centralstatz.com/reference/rrp_inspect_history.md)
 and generate analytical products separately with
 [`rrp_refresh_products()`](https://readmit.centralstatz.com/reference/rrp_refresh_products.md).
@@ -56,8 +59,7 @@ episode <- data.frame(
 )
 events <- data.frame(
   terminal_event_id = character(), episode_id = character(),
-  event_type = character(), occurred_at = time[FALSE],
-  available_at = time[FALSE]
+  event_type = character(), occurred_at = time[FALSE]
 )
 saveRDS(list(discharge_episode = episode, terminal_event = events),
         file.path(project, "canonical.rds"))
@@ -73,7 +75,7 @@ writeLines(
 )
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpxyhEeQ/duckdb
+#> ℹ /tmp/RtmpRnnQoL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -82,7 +84,7 @@ rrp_state_init(project)
 #> ℹ See ?duckdb_storage for details and alternatives.
 assessment <- rrp_run(project, time)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpxyhEeQ/duckdb
+#> ℹ /tmp/RtmpRnnQoL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -90,7 +92,7 @@ assessment <- rrp_run(project, time)
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpxyhEeQ/duckdb
+#> ℹ /tmp/RtmpRnnQoL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.

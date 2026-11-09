@@ -16,6 +16,10 @@ Useful links:
 
 **Maintainer**: Alex Zajichek <alex@centralstatz.com>
 
+Authors:
+
+- Alex Zajichek <alex@centralstatz.com>
+
 Other contributors:
 
 - CentralStatz Statistical & Data Sciences LLC \[copyright holder\]

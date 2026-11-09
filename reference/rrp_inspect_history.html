@@ -72,9 +72,9 @@ exact identifier matching and may be combined.</p>
 <code>admission_time</code>, <code>discharge_time</code>, and <code>followup_window_end</code>; outcome
 <code>disposition</code> and <code>probability</code>; provider <code>failure_kind</code> and
 <code>failure_reason</code>; selected event <code>terminal_event_id</code>,
-<code>terminal_event_type</code>, <code>terminal_occurred_at</code>, and
-<code>terminal_available_at</code>; and run context <code>project_id</code>, UTC <code>as_of_time</code>,
-UTC <code>created_at</code>, <code>source_mapping_script</code>, and <code>risk_provider_script</code>.
+<code>terminal_event_type</code>, and <code>terminal_occurred_at</code>; and run context
+<code>project_id</code>, UTC <code>as_of_time</code>, UTC <code>created_at</code>,
+<code>source_mapping_script</code>, and <code>risk_provider_script</code>.
 A probability is present for accepted outcomes; failure and event fields
 are missing when inapplicable. Empty or unmatched filtered results retain
 the same columns and types, including UTC <code>POSIXct</code> timestamps.</p>
@@ -94,7 +94,7 @@ completed assessments; <code><a href="rrp_refresh_products.html">rrp_refresh_pro
 <span class="r-in"><span><span class="fu"><a href="rrp_project_init.html">rrp_project_init</a></span><span class="op">(</span><span class="va">project</span>, <span class="st">"example-rrp"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="rrp_state_init.html">rrp_state_init</a></span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> duckdb keeps downloaded extensions and secrets in a temporary directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> /tmp/RtmpxyhEeQ/duckdb</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRnnQoL/duckdb</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> This is removed when the R session ends.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Secrets are lost.</span>
@@ -103,7 +103,7 @@ completed assessments; <code><a href="rrp_refresh_products.html">rrp_refresh_pro
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> See ?duckdb_storage for details and alternatives.</span>
 <span class="r-in"><span><span class="fu">rrp_inspect_history</span><span class="op">(</span><span class="va">project</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> duckdb keeps downloaded extensions and secrets in a temporary directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> /tmp/RtmpxyhEeQ/duckdb</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">ℹ</span> /tmp/RtmpRnnQoL/duckdb</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> This is removed when the R session ends.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Extensions are re-downloaded each session.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">•</span> Secrets are lost.</span>
@@ -114,9 +114,9 @@ completed assessments; <code><a href="rrp_refresh_products.html">rrp_refresh_pro
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [4] index_encounter_id    admission_time        discharge_time       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [7] followup_window_end   disposition           probability          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [10] failure_kind          failure_reason        terminal_event_id    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] terminal_event_type   terminal_occurred_at  terminal_available_at</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [16] project_id            as_of_time            created_at           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [19] source_mapping_script risk_provider_script </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] terminal_event_type   terminal_occurred_at  project_id           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] as_of_time            created_at            source_mapping_script</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] risk_provider_script </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">project</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 </code></pre></div>
