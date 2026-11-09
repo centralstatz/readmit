@@ -38,7 +38,7 @@ Updated the existing canonical, eligibility, run, provider, history, inspection,
 
 ## Stage 3 — Update project guidance and public documentation
 
-**Status:** Not started. No implementation recorded.
+**Status:** Detailed plan established — 2026-11-09; implementation not started. The three sequential increments for generated-project and reference guidance, executable tutorials, and public entry points are specified in [Stage 3 of the implementation plan](implementation-plan.md#stage-3--update-project-guidance-and-public-documentation). No Stage 3 implementation or verification is recorded.
 
 ## Stage 4 — Verify the integrated development candidate
 
