@@ -51,7 +51,7 @@ This is one increment because canonical validation, eligibility rows, history wr
 
 ### Stage 3 — Update project guidance and public documentation
 
-- **Status:** In progress — 2026-11-09; Increments 3.1 and 3.2 complete, Increment 3.3 not started.
+- **Status:** Complete — 2026-11-09; Increments 3.1, 3.2, and 3.3 complete.
 - **Objective:** Present the revised v1.1.0 contract consistently to project authors and package users.
 - **Scope:** Update the generated project guidance, package help and examples, READMEs, installed vignette, executable synthetic walkthrough, website source, and development NEWS. Revise examples and narrative whose results change under occurrence-only eligibility. Keep project-owned predictor timing separate from platform terminal-event semantics.
 - **Completion criteria:** User-facing materials and generated project resources describe the four required event fields, occurrence-based eligibility, and the discharge-time input rule; worked examples execute with their stated results; the website presentation remains coherent without a new information-availability framework.
@@ -77,7 +77,7 @@ This is one increment because canonical validation, eligibility rows, history wr
 
 #### Increment 3.3 — Align public entry points, website, and release notes
 
-- **Status:** Planned / Not started; follows 3.2 so public examples and links reflect the corrected tutorials.
+- **Status:** Complete — 2026-11-09; implementation and website verification are recorded in the implementation record.
 - **Objective:** Present the revised contract consistently at the package's public entry points and record the user-visible changes for the development release.
 - **Implementation scope:** Edit `README.Rmd` as the README source and regenerate tracked `README.md`; replace the claim that the platform distinguishes event occurrence from when an event became known, while preserving legitimate wording about provider predictor timing. Update the directly affected copy in `pkgdown/index.md`, especially the point-in-time event-availability claim, without changing the site's structure or visual design. Add concise notes under the existing development heading in `NEWS.md` for discharge-time rejection, four-field terminal events, occurrence-only eligibility, and the revised new-project history/inspection shape. Review other directly affected public wording or static examples found by a targeted search, including the existing app preview caption, and correct only demonstrably stale claims. Do not edit generated `docs/` as a source or add migration instructions.
 - **Regression and documentation verification coverage:** Regenerate and compare the README with its `.Rmd` source, execute any affected README examples, and build the existing pkgdown site to verify the homepage, reference, getting-started vignette, and implementation-article routes. Review rendered copy and NEWS for consistency with the implemented contract, current development status, and private predictor timing. Search user-facing sources and generated help for obsolete required event `available_at`, `terminal_available_at`, and dual-timestamp eligibility claims, distinguishing the valid `observations$available_at` example.

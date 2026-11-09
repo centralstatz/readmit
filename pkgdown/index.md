@@ -26,7 +26,7 @@
 <h2 id="rrp-why">One prediction at discharge cannot describe a changing risk pool.</h2>
 </div>
 <div class="rrp-motivation-grid">
-<p>As follow-up time passes and new information becomes available, the set of eligible discharge episodes can change. A later assessment asks about the <strong>remaining probability of a first hospital readmission strictly after that time and through 30 elapsed days after the original discharge</strong>. Each assessment keeps the original endpoint; it does not restart the 30-day window.</p>
+<p>As follow-up time passes, readmissions, deaths, and closed follow-up windows change which discharge episodes remain eligible. A hospital's model may also gain new predictor information. A later assessment asks about the <strong>remaining probability of a first hospital readmission strictly after that time and through 30 elapsed days after the original discharge</strong>. Each assessment keeps the original endpoint; it does not restart the 30-day window.</p>
 <p>RRP applies shared eligibility rules to the episodes an organization supplies, records accepted estimates and other dispositions at each chosen time, and derives current-risk, trajectory, and operational-summary products. Its trajectories are recorded assessments, not continuous predictions between runs.</p>
 </div>
 </section>
@@ -39,7 +39,7 @@
 </div>
 <div class="rrp-capability-grid">
 <article class="rrp-capability"><span class="rrp-card-index">01 / CONNECT</span><h3>Own the implementation</h3><p>Start with an ordinary project directory containing editable source-mapping and risk-provider scripts, configuration, branding, and its own Shiny app.</p></article>
-<article class="rrp-capability"><span class="rrp-card-index">02 / ASSESS</span><h3>Reassess at chosen times</h3><p>Apply discharge-anchored eligibility and point-in-time event availability before requesting risk for eligible episodes.</p></article>
+<article class="rrp-capability"><span class="rrp-card-index">02 / ASSESS</span><h3>Reassess at chosen times</h3><p>Assess episodes discharged by the chosen time and use when readmissions or deaths occurred to identify who remains eligible for a risk estimate.</p></article>
 <article class="rrp-capability"><span class="rrp-card-index">03 / RETAIN</span><h3>Keep the full history</h3><p>Retain completed runs, including accepted estimates, provider failures, and ineligible episodes, so earlier results remain inspectable.</p></article>
 <article class="rrp-capability"><span class="rrp-card-index">04 / EXPLORE</span><h3>See the pool and its trajectories</h3><p>Refresh CSV products from history and explore current remaining risk, recorded episode trajectories, and operational scope in the project app.</p></article>
 </div>
