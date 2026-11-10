@@ -1,8 +1,8 @@
-# readmit v1.1.0 — High-Level Implementation Plan
+# readmit v1.1.0 — Implementation Plan
 
 - **Target release:** `readmit` v1.1.0
 - **Current development version:** `1.0.0.9000`
-- **Status:** Accepted; Stages 1–3 complete and Stage 4 in progress
+- **Status:** Accepted; Stages 1–4 complete and Stage 5 planned / not started
 - **Starting point:** The published v1.0.0 RRP platform is implemented; its project lifecycle, provider interface, history, products, Shiny app, and release procedure are already in place.
 
 ## Purpose and approach
@@ -128,14 +128,68 @@ Handle findings within the affected increment: correct a demonstrated package de
 
 ### Stage 5 — Prepare and publish v1.1.0
 
-- **Status:** High-level / Not started.
+- **Status:** Planned / Not started; detailed increments proposed for maintainer review.
 - **Objective:** Carry the verified candidate through the established CRAN and GitHub release procedure.
 - **Scope:** Set and review the exact `1.1.0` version and release metadata only at final preparation; build and check the committed release-version source; submit and confirm the CRAN submission with maintainer approval; respond to actual CRAN correspondence if needed. After acceptance, publish the matching GitHub tag/release, update public release-status wording, verify publication, and return to the development version derived from the accepted release.
 - **Completion criteria:** CRAN has accepted a known version and source commit; the matching GitHub release and tag are verified; public status is accurate; the next development version and temporary submission-record disposition follow [the release procedure](release-procedure.md).
 - **Dependency:** Requires an approved Stage 4 candidate. CRAN acceptance precedes GitHub publication and the subsequent development-version transition.
 
+The approved development candidate is `1.0.0.9000` from source commit `3cf9bfede7fbde6ddd184787aa1124fa8a804b0e`, built as `/private/tmp/readmit-stage4-3cf9bfed/readmit_1.0.0.9000.tar.gz` with SHA-256 `7427abb4cfee25777a16da3cc53b7406bf2991d51b4ae41821ffef438e883e2c`; its evidence is in the [Stage 4 record](implementation-record.md#stage-4--verify-the-integrated-development-candidate). Its passing checks do not replace checks on a future committed release-version source. The [release procedure](release-procedure.md) governs the sequence below. Its Stage 6.7/6.8 labels, `0.0.1.9000` to `1.0.0` major-version command, first-release submission context, and example version table describe the prior RRP release. For this subsequent minor release, verify the intended `1.0.0.9000` to `1.1.0` transition and derive the next development version from whichever version CRAN actually accepts.
+
+#### Increment 5.1 — Prepare and commit the release-version source
+
+- **Status:** Planned / Not started.
+- **Objective:** Establish a reviewed, committed `1.1.0` source state for exact-version verification.
+- **Implementation scope:** Following release-procedure sections 2–3, review the branch, Git status, current version, and latest commit; resolve unrelated work before changing the version. Use the appropriate minor-version transition for `1.0.0.9000` to `1.1.0`, then inspect the actual `DESCRIPTION` version and `NEWS.md` heading rather than relying on helper prompts or automatic commits. Preserve the 1.0.0 and 0.0.1 NEWS entries. Replace `cran-comments.md`'s 1.0.0 submission context with a concise 1.1.0 draft describing the two analytical changes and any relevant existing CRAN context; leave test environments, final check results, and reverse-dependency findings pending until actually established. Review release-facing package documentation for necessary version wording; retain the current public CRAN release status until acceptance. Commit the reviewed release source on the normal development branch and record its SHA; no release branch is needed.
+- **Regression and documentation verification coverage:** Confirm the version and NEWS heading agree, the v1.1.0 notes match the approved Stage 4 candidate, and submission comments make no unsupported check, acceptance, or old-project compatibility claim. A version/metadata-only change does not call for a new analytical test suite at this step; exact package checks follow in 5.2.
+- **Verification:** Inspect `DESCRIPTION`, `NEWS.md`, `cran-comments.md`, relevant public wording, `git diff --check`, Git status and log, and the committed diff. Confirm that any `usethis` prompt actually produced the intended commit and that the source is clean before building.
+- **Completion criteria:** The intended `1.1.0` source and release notes are reviewed and committed at a known SHA; the working tree is clean; CRAN comments are an accurate draft with unverified results clearly pending.
+- **Dependency:** Follows approved Stage 4 and precedes the exact-version build. This increment does not authorize CRAN submission.
+
+#### Increment 5.2 — Verify and approve the exact release candidate
+
+- **Status:** Planned / Not started.
+- **Objective:** Establish local release readiness for the actual committed release-version source and obtain maintainer approval of the exact candidate before submission.
+- **Implementation scope:** Following release-procedure section 4, build the `1.1.0` source package from the clean committed tree and run `R CMD check --as-cran` on that bundle in a temporary directory. Inspect the full log, examples, tests, installed-workflow scripts, vignette and manual results, source archive contents, and every ERROR, WARNING, or NOTE. Review the current CRAN check page and affected reverse dependencies, if any, and use additional platform checks only when indicated by actual release needs or findings. Fill `cran-comments.md` with the actual test environments, exact-version results, relevant reverse-dependency information, and concise explanations of remaining notes. If findings require a source or comment change, commit the reviewed change, update the candidate SHA, and repeat the appropriate release-version build or checks under the procedure; distinguish excluded comment changes from changes to package-bundle inputs. Record the checked bundle path, checksum, source SHA, environment, command, and results in the implementation record.
+- **Regression and documentation verification coverage:** The exact-version package check covers the conventional package tests, installed workflows, examples, built vignette, help, and package structure. Rerun only verification affected by a correction; do not repeat Stage 4's separate development-version scenarios without a reason. Check final release NEWS, submission comments, and package metadata against the bundle and results.
+- **Verification:** Confirm the final checked package is `1.1.0`, its built contents correspond to a known committed source, any later commit has been reconciled with the checked bundle, and the final Git source is clean. Present the exact candidate SHA, bundle/check evidence, CRAN comments, and any limitations for explicit maintainer approval before moving to submission.
+- **Completion criteria:** No unresolved release-blocking check finding remains; the exact candidate and its verification are recorded; the maintainer has approved that candidate for submission. Approval of the candidate alone is not authorization to upload.
+- **Dependency:** Follows 5.1. A substantive correction returns to the affected preparation and verification steps before the candidate can be approved again.
+
+#### Increment 5.3 — Submit to CRAN and confirm the submission
+
+- **Status:** Planned / Not started.
+- **Objective:** Submit the approved source through the established CRAN workflow and complete the maintainer's email confirmation.
+- **Implementation scope:** Obtain explicit maintainer authorization to submit. Reconfirm the clean tree, final `1.1.0` version, and approved source SHA, then use `devtools::submit_cran()` as in release-procedure section 5. Review its prompts and upload result. Inspect the temporary `CRAN-SUBMISSION` version, UTC time, and SHA against the approved commit; keep it excluded via `.Rbuildignore` and do not commit it. The maintainer follows the CRAN email link and reports the confirmation outcome. Record actual upload and confirmation evidence separately from later CRAN acceptance.
+- **Regression and documentation verification coverage:** Confirm the submitted source still corresponds to the checked and approved package inputs. `submit_cran()` makes a fresh build; do not assert that its archive is byte-identical to the checked bundle or rerun local checks solely because the helper rebuilt it.
+- **Verification:** Inspect the upload response, `CRAN-SUBMISSION`, Git status, and maintainer-confirmed email outcome. If upload or confirmation fails, address the observed problem before claiming submission complete.
+- **Completion criteria:** The approved version and SHA were uploaded, the maintainer completed CRAN's confirmation, and the repository record matches; CRAN review remains pending. Upload or email confirmation is not CRAN acceptance.
+- **Dependency:** Requires completed 5.2, approval of the exact candidate, and separate authorization to submit.
+
+#### Increment 5.4 — Resolve CRAN review and establish acceptance
+
+- **Status:** Planned / Not started.
+- **Objective:** Respond to actual CRAN correspondence and establish the accepted version and source before public GitHub publication.
+- **Implementation scope:** Wait for CRAN's response without imposing a deadline or submitting a replacement while review is pending. If CRAN requests a change, review the specific feedback with the maintainer and obtain approval for substantive corrections or any material workflow deviation. Apply only the needed correction. For a rejected submission, follow release-procedure section 6: normally advance the patch version unless CRAN directs otherwise, review NEWS and a concise `cran-comments.md` resubmission explanation, commit the corrected source, rebuild, rerun appropriate exact-version checks, obtain approval of the revised candidate and resubmission, upload, and reconfirm by email. Keep each attempted version and source SHA distinct. On acceptance, retain the actual CRAN notice and reconcile the accepted version with the final submitted source and `CRAN-SUBMISSION` record.
+- **Regression and documentation verification coverage:** Recheck the corrected release source and any affected behavior or documentation; do not add speculative tests for feedback that has not occurred. Verify that a rejected version is not treated as the accepted GitHub release.
+- **Verification:** Inspect actual correspondence, final submission record, candidate/check evidence after any correction, and the CRAN acceptance notice or published package information. Record what happened and any remaining discrepancy before proceeding.
+- **Completion criteria:** CRAN has explicitly accepted a known version and submitted source commit, with any required corrections checked and confirmed. This increment can remain pending while CRAN review continues.
+- **Dependency:** Follows confirmed submission in 5.3. Acceptance must precede Increment 5.5.
+
+#### Increment 5.5 — Publish the accepted release and return to development
+
+- **Status:** Planned / Not started.
+- **Objective:** Publish the GitHub counterpart of the CRAN-accepted release, verify public status, and establish the next development version.
+- **Implementation scope:** Following release-procedure sections 7–8, reconcile the CRAN-accepted version and source SHA with the latest `CRAN-SUBMISSION` record; investigate any mismatch before publication. Obtain explicit maintainer authorization for GitHub publication. Use `usethis::use_github_release()` only after acceptance, and verify its tag and release target the accepted SHA and version. Confirm the temporary submission record was removed or investigate any exception. Update public release-status wording only where the accepted version makes it inaccurate; use the existing README/pkgdown sources and publication workflow, then inspect the live release and website rather than redesigning or rebuilding the site without a reason. After the GitHub release succeeds, use the established development-version transition and review its NEWS heading, version, commit, and intended push. If CRAN accepts `1.1.0`, the next development version is `1.1.0.9000`; if a later patch is accepted, derive `<accepted version>.9000` from that version instead.
+- **Regression and documentation verification coverage:** Check the tag, GitHub release notes, public wording and website routes against the accepted CRAN version. Verify that the next development NEWS heading sits above the preserved accepted-release notes. A website build or package recheck is needed only if actual changed source or deployment evidence warrants it.
+- **Verification:** Compare the CRAN acceptance, final submitted SHA, GitHub tag/release target, public website status, `DESCRIPTION`, NEWS, `CRAN-SUBMISSION` disposition, and Git status/log. Record the actual publication and post-release transition results.
+- **Completion criteria:** The matching GitHub release and tag are verified after CRAN acceptance, public status is accurate, the temporary submission record is resolved, and the next development version and intended commit/push are complete.
+- **Dependency:** Requires 5.4 acceptance and separate maintainer authorization for GitHub publication. No publication follows an unaccepted submission.
+
+Handle demonstrated release findings narrowly: identify affected source and evidence, correct the issue, rerun the appropriate checks, update the candidate identity, and obtain maintainer review before continuing. Record environmental limitations separately from package defects. The procedure already resolves the release sequence and version convention; no additional planning decision is currently open. Actual CRAN correspondence and the explicit candidate, submission, correction, and publication approvals are future decision points, not assumptions made by this plan.
+
 ## Scope and planning boundaries
 
 The two issues are separate workstreams even where they share canonical source files and tests. Additional canonical columns remain permitted but have no special event-availability meaning. Compatibility with project databases or persisted state created under v1.0.0 is outside scope: do not plan migration, schema detection, conditional inspection, or old-database compatibility tests. Use new project state for integration verification.
 
-The existing remaining-readmission-risk estimand, user-owned project structure, provider interface, analytical products, Shiny app, and public operations remain in place. No replacement availability mechanism, new feature, generalized validation framework, broad persistence refactor, or custom release process is planned. Detailed increments are defined for Stage 4 only; Stage 5 remains high-level until Stage 4 is complete and reviewed.
+The existing remaining-readmission-risk estimand, user-owned project structure, provider interface, analytical products, Shiny app, and public operations remain in place. No replacement availability mechanism, new feature, generalized validation framework, broad persistence refactor, or custom release process is planned. Stages 1–4 are complete. The detailed Stage 5 increments above are proposed and not started; release activity requires their review and the approvals specified at each external milestone.
