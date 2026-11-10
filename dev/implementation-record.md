@@ -68,7 +68,7 @@ Rendered the getting-started vignette and website article again with `rmarkdown:
 
 ## Stage 4 — Verify the integrated development candidate
 
-**Status:** In progress — 2026-11-09. Increments 4.1 and 4.2 are complete; Increment 4.3 technical reconciliation awaits maintainer review.
+**Status:** Complete — 2026-11-09. Increments 4.1–4.3 are complete; the maintainer approved the development candidate for transition to Stage 5 planning.
 
 ### Increment 4.1 — Verify the installed project lifecycle and app
 
@@ -96,7 +96,7 @@ Rendered the getting-started vignette and website article again with `rmarkdown:
 
 ### Increment 4.3 — Reconcile the release candidate
 
-**Status:** In progress / Awaiting maintainer review — 2026-11-09. Technical reconciliation is complete; the required maintainer readiness decision has not been given.
+**Status:** Complete — 2026-11-09. Technical reconciliation and the required maintainer review are complete.
 
 **Candidate identity and source continuity:** The reviewed candidate is `readmit` `1.0.0.9000` from clean source commit `3cf9bfede7fbde6ddd184787aa1124fa8a804b0e`, built as `/private/tmp/readmit-stage4-3cf9bfed/readmit_1.0.0.9000.tar.gz`. Its rechecked SHA-256 is `7427abb4cfee25777a16da3cc53b7406bf2991d51b4ae41821ffef438e883e2c`, matching both earlier records. Before this documentation update, `HEAD` was `d474b9f8792defece575ab36a5a50ea5dd2b7924`, the working tree was clean, and the local branch was one commit ahead of `origin/main`. The commits since the candidate source changed only `dev/implementation-plan.md` and `dev/implementation-record.md`, both excluded by `.Rbuildignore`; no package-bundle file changed. The 4.1 and 4.2 results therefore still apply to the current package source. This review modifies only those same two excluded files and does not change the verified bundle.
 
@@ -106,7 +106,7 @@ Rendered the getting-started vignette and website article again with `rmarkdown:
 
 **CRAN-facing review and limits:** `cran-comments.md` still describes the accepted 1.0.0 submission, its earlier R 4.4.1 check and reverse-dependency observation from 2026-11-03. Those facts are historical, not v1.1.0 submission evidence. It was left unchanged; Stage 5 must replace its context and obtain exact `1.1.0` check environments/results and current reverse-dependency information as applicable. `dev/release-procedure.md` documents the first RRP release and explicitly directs later releases to choose an appropriate version increment; its first-release Stage 6.7/6.8 labels and 1.0.0 examples must be read in that context during Stage 5, but its sequence of exact-version checks, CRAN confirmation, acceptance before GitHub publication, and subsequent development transition remains usable. The initial loopback, CRAN DNS, and Pandoc-path obstacles were environmental and resolved for the governing checks; DuckDB messages and one Sass cache warning were nonfatal. No visual browser inspection, other-platform check, current reverse-dependency review, release-version build/check, or final CRAN comments were established by Stage 4. These are nonblocking for advancement to release preparation; the exact-version and submission work belongs to Stage 5. No release-blocking package defect was identified.
 
-**Readiness recommendation:** The accepted development-version integrated workflow, documentation, Shiny smoke, and package-check gates have technical evidence and no unresolved blocker. Recommend advancing this candidate to Stage 5 planning, where the exact `1.1.0` version and release checks are still required. This recommendation is not approval for immediate CRAN submission. Maintainer review is required before Increment 4.3 or Stage 4 can be marked complete; approval remains pending. Stage 5 remains high-level and not started.
+**Readiness decision:** The accepted development-version integrated workflow, documentation, Shiny smoke, and package-check gates have technical evidence and no unresolved blocker. On 2026-11-09, the maintainer explicitly approved the Increment 4.3 release-candidate assessment and authorized closure of Stage 4. The final Stage 4 decision is that the verified development candidate is ready for Stage 5 planning, with the documented nonblocking limitations retained above. This approval does not authorize immediate CRAN submission; the exact `1.1.0` version and release checks still belong to Stage 5. Stage 5 remains high-level and not started.
 
 ## Stage 5 — Prepare and publish v1.1.0
 
