@@ -128,7 +128,7 @@ Handle findings within the affected increment: correct a demonstrated package de
 
 ### Stage 5 — Prepare and publish v1.1.0
 
-- **Status:** In progress — 2026-11-09; the maintainer approved the five-increment plan, Increment 5.1 is complete, and Increments 5.2–5.5 have not started.
+- **Status:** In progress — 2026-11-09; Increment 5.1 is complete, Increment 5.2 technical verification awaits maintainer approval, and Increments 5.3–5.5 have not started.
 - **Objective:** Carry the verified candidate through the established CRAN and GitHub release procedure.
 - **Scope:** Set and review the exact `1.1.0` version and release metadata only at final preparation; build and check the committed release-version source; submit and confirm the CRAN submission with maintainer approval; respond to actual CRAN correspondence if needed. After acceptance, publish the matching GitHub tag/release, update public release-status wording, verify publication, and return to the development version derived from the accepted release.
 - **Completion criteria:** CRAN has accepted a known version and source commit; the matching GitHub release and tag are verified; public status is accurate; the next development version and temporary submission-record disposition follow [the release procedure](release-procedure.md).
@@ -150,7 +150,7 @@ The approved development candidate is `1.0.0.9000` from source commit `3cf9bfede
 
 #### Increment 5.2 — Verify and approve the exact release candidate
 
-- **Status:** Planned / Not started.
+- **Status:** In progress / Awaiting maintainer approval — 2026-11-09; exact-version build, check, and candidate review are recorded in the implementation record.
 - **Objective:** Establish local release readiness for the actual committed release-version source and obtain maintainer approval of the exact candidate before submission.
 - **Implementation scope:** Following release-procedure section 4, build the `1.1.0` source package from the clean committed tree and run `R CMD check --as-cran` on that bundle in a temporary directory. Inspect the full log, examples, tests, installed-workflow scripts, vignette and manual results, source archive contents, and every ERROR, WARNING, or NOTE. Review the current CRAN check page and affected reverse dependencies, if any, and use additional platform checks only when indicated by actual release needs or findings. Fill `cran-comments.md` with the actual test environments, exact-version results, relevant reverse-dependency information, and concise explanations of remaining notes. If findings require a source or comment change, commit the reviewed change, update the candidate SHA, and repeat the appropriate release-version build or checks under the procedure; distinguish excluded comment changes from changes to package-bundle inputs. Record the checked bundle path, checksum, source SHA, environment, command, and results in the implementation record.
 - **Regression and documentation verification coverage:** The exact-version package check covers the conventional package tests, installed workflows, examples, built vignette, help, and package structure. Rerun only verification affected by a correction; do not repeat Stage 4's separate development-version scenarios without a reason. Check final release NEWS, submission comments, and package metadata against the bundle and results.
