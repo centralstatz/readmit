@@ -1,6 +1,6 @@
 Package: readmit
 Title: Readmission Risk Pool Platform
-Version: 1.1.0
+Version: 1.1.0.9000
 Authors@R: c(person("Alex", "Zajichek", email = "alex@centralstatz.com", role = c("aut", "cre")), person("CentralStatz Statistical & Data Sciences LLC", role = "cph"))
 Description: Provides the R implementation of the Readmission Risk Pool (RRP)
     analytical platform for reassessing the remaining probability of a first
