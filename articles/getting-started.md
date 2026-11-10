@@ -87,7 +87,7 @@ writeLines(c(
 rrp_project_validate(project)
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpzcDQR3/duckdb
+#> ℹ /tmp/RtmpHX9hCL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -106,7 +106,7 @@ test the supplied data, formula, or clinical suitability.
 
 assessment <- rrp_run(project, as_of_time)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpzcDQR3/duckdb
+#> ℹ /tmp/RtmpHX9hCL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -114,7 +114,7 @@ assessment <- rrp_run(project, as_of_time)
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpzcDQR3/duckdb
+#> ℹ /tmp/RtmpHX9hCL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -136,7 +136,7 @@ assessment[c("episodes_processed", "accepted", "provider_failures", "ineligible"
 
 status <- rrp_project_status(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpzcDQR3/duckdb
+#> ℹ /tmp/RtmpHX9hCL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -151,7 +151,7 @@ status[c("state_initialized", "run_count")]
 #> [1] 1
 history <- rrp_inspect_history(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpzcDQR3/duckdb
+#> ℹ /tmp/RtmpHX9hCL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -185,7 +185,7 @@ application; it does not reassess anyone or edit the application.
 
 products <- rrp_refresh_products(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpzcDQR3/duckdb
+#> ℹ /tmp/RtmpHX9hCL/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
