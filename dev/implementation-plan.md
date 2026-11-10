@@ -1,8 +1,8 @@
 # readmit v1.1.0 — Implementation Plan
 
 - **Target release:** `readmit` v1.1.0
-- **Current development version:** `1.0.0.9000`
-- **Status:** Accepted; Stages 1–4 complete and Stage 5 planned / not started
+- **Current prepared release version:** `1.1.0`
+- **Status:** Accepted; Stages 1–4 complete and Stage 5 in progress
 - **Starting point:** The published v1.0.0 RRP platform is implemented; its project lifecycle, provider interface, history, products, Shiny app, and release procedure are already in place.
 
 ## Purpose and approach
@@ -128,17 +128,19 @@ Handle findings within the affected increment: correct a demonstrated package de
 
 ### Stage 5 — Prepare and publish v1.1.0
 
-- **Status:** Planned / Not started; detailed increments proposed for maintainer review.
+- **Status:** In progress — 2026-11-09; the maintainer approved the five-increment plan, Increment 5.1 is complete, and Increments 5.2–5.5 have not started.
 - **Objective:** Carry the verified candidate through the established CRAN and GitHub release procedure.
 - **Scope:** Set and review the exact `1.1.0` version and release metadata only at final preparation; build and check the committed release-version source; submit and confirm the CRAN submission with maintainer approval; respond to actual CRAN correspondence if needed. After acceptance, publish the matching GitHub tag/release, update public release-status wording, verify publication, and return to the development version derived from the accepted release.
 - **Completion criteria:** CRAN has accepted a known version and source commit; the matching GitHub release and tag are verified; public status is accurate; the next development version and temporary submission-record disposition follow [the release procedure](release-procedure.md).
 - **Dependency:** Requires an approved Stage 4 candidate. CRAN acceptance precedes GitHub publication and the subsequent development-version transition.
 
+The maintainer approved this five-increment plan and authorized Increment 5.1 release-source preparation on 2026-11-09. The remaining increments retain their separate approval and external-event boundaries.
+
 The approved development candidate is `1.0.0.9000` from source commit `3cf9bfede7fbde6ddd184787aa1124fa8a804b0e`, built as `/private/tmp/readmit-stage4-3cf9bfed/readmit_1.0.0.9000.tar.gz` with SHA-256 `7427abb4cfee25777a16da3cc53b7406bf2991d51b4ae41821ffef438e883e2c`; its evidence is in the [Stage 4 record](implementation-record.md#stage-4--verify-the-integrated-development-candidate). Its passing checks do not replace checks on a future committed release-version source. The [release procedure](release-procedure.md) governs the sequence below. Its Stage 6.7/6.8 labels, `0.0.1.9000` to `1.0.0` major-version command, first-release submission context, and example version table describe the prior RRP release. For this subsequent minor release, verify the intended `1.0.0.9000` to `1.1.0` transition and derive the next development version from whichever version CRAN actually accepts.
 
 #### Increment 5.1 — Prepare and commit the release-version source
 
-- **Status:** Planned / Not started.
+- **Status:** Complete — 2026-11-09; the reviewed `1.1.0` release source is committed locally at `f2f66a57849224720fc9e6c572e78074e2354352`, with the preparation and limits recorded in the implementation record.
 - **Objective:** Establish a reviewed, committed `1.1.0` source state for exact-version verification.
 - **Implementation scope:** Following release-procedure sections 2–3, review the branch, Git status, current version, and latest commit; resolve unrelated work before changing the version. Use the appropriate minor-version transition for `1.0.0.9000` to `1.1.0`, then inspect the actual `DESCRIPTION` version and `NEWS.md` heading rather than relying on helper prompts or automatic commits. Preserve the 1.0.0 and 0.0.1 NEWS entries. Replace `cran-comments.md`'s 1.0.0 submission context with a concise 1.1.0 draft describing the two analytical changes and any relevant existing CRAN context; leave test environments, final check results, and reverse-dependency findings pending until actually established. Review release-facing package documentation for necessary version wording; retain the current public CRAN release status until acceptance. Commit the reviewed release source on the normal development branch and record its SHA; no release branch is needed.
 - **Regression and documentation verification coverage:** Confirm the version and NEWS heading agree, the v1.1.0 notes match the approved Stage 4 candidate, and submission comments make no unsupported check, acceptance, or old-project compatibility claim. A version/metadata-only change does not call for a new analytical test suite at this step; exact package checks follow in 5.2.
@@ -192,4 +194,4 @@ Handle demonstrated release findings narrowly: identify affected source and evid
 
 The two issues are separate workstreams even where they share canonical source files and tests. Additional canonical columns remain permitted but have no special event-availability meaning. Compatibility with project databases or persisted state created under v1.0.0 is outside scope: do not plan migration, schema detection, conditional inspection, or old-database compatibility tests. Use new project state for integration verification.
 
-The existing remaining-readmission-risk estimand, user-owned project structure, provider interface, analytical products, Shiny app, and public operations remain in place. No replacement availability mechanism, new feature, generalized validation framework, broad persistence refactor, or custom release process is planned. Stages 1–4 are complete. The detailed Stage 5 increments above are proposed and not started; release activity requires their review and the approvals specified at each external milestone.
+The existing remaining-readmission-risk estimand, user-owned project structure, provider interface, analytical products, Shiny app, and public operations remain in place. No replacement availability mechanism, new feature, generalized validation framework, broad persistence refactor, or custom release process is planned. Stages 1–4 are complete. The five-increment Stage 5 plan is approved; Increment 5.1 is complete, and the later increments remain unstarted. Each external milestone retains the approval specified above.

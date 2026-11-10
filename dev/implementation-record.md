@@ -2,8 +2,8 @@
 
 - **Project:** `readmit` / Readmission Risk Pool (RRP)
 - **Target release:** v1.1.0
-- **Current development version:** `1.0.0.9000`
-- **Status:** Stages 1–3 complete; Stage 4 in progress
+- **Current prepared release version:** `1.1.0`
+- **Status:** Stages 1–4 complete; Stage 5 in progress
 - **Starting point:** The published v1.0.0 platform and current development source.
 
 ## Purpose and boundaries
@@ -110,4 +110,14 @@ Rendered the getting-started vignette and website article again with `rmarkdown:
 
 ## Stage 5 — Prepare and publish v1.1.0
 
-**Status:** Not started. No implementation recorded.
+**Status:** In progress — 2026-11-09. The maintainer approved the five-increment Stage 5 plan and authorized Increment 5.1. Increments 5.2–5.5 have not started.
+
+### Increment 5.1 — Prepare and commit the release-version source
+
+**Status:** Complete — 2026-11-09. The maintainer approved the detailed Stage 5 plan and authorized preparation and a local commit of the `1.1.0` release source. At the start, `main` was clean and aligned with `origin/main` at `ec05db2ebcc444c6622cb543b62f38de8af0c151`; `DESCRIPTION` was `1.0.0.9000` and NEWS began with the development heading. No unrelated working-tree changes were present.
+
+**Release preparation:** The installed `usethis` 3.2.2 `use_version("minor")` helper changed only `DESCRIPTION` to `1.1.0` and the NEWS heading to `# readmit 1.1.0`; it did not create a commit or push. The three v1.1.0 NEWS bullets retain the approved future-discharge boundary, four required terminal-event fields, occurrence-only eligibility, and new-history inspection shape. A sentence clarifies that additional event columns remain permitted. The 1.0.0 and 0.0.1 entries remain intact. Replaced `cran-comments.md`'s prior 1.0.0 submission details with a concise 1.1.0 draft; exact-version test environments and results and current reverse-dependency findings are explicitly pending. Reviewed `README.Rmd`, generated `README.md`, and `pkgdown/index.md`; their statements that 1.0.0 is the current CRAN and GitHub release remain accurate until acceptance, so no public copy or website source changed. No package function, dependency, template, or app file changed.
+
+**Source identity and verification:** The reviewed release-source commit is `f2f66a57849224720fc9e6c572e78074e2354352` (`Prepare readmit 1.1.0 release source`) on `main`. Its committed diff contains only `DESCRIPTION`, `NEWS.md`, and `cran-comments.md`. The subsequent plan and record update is documentation-only under `dev/`, which `.Rbuildignore` excludes from the source package; the release-source commit remains the package candidate for Increment 5.2. Reviewed the full release-source diff, confirmed `DESCRIPTION` and the NEWS heading both say `1.1.0`, and ran `git diff --check` successfully before committing. The final documentation diff and clean working tree were also checked before finishing this increment.
+
+**Outstanding work:** No `1.1.0` source bundle has been built and no exact-version `R CMD check` has run. The CRAN comments draft awaits actual results and current reverse-dependency review. The future checked release candidate will require maintainer approval, followed by separate authorization for CRAN submission. There has been no CRAN submission or acceptance, GitHub release or tag, push, or website deployment.
