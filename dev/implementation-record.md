@@ -3,7 +3,7 @@
 - **Project:** `readmit` / Readmission Risk Pool (RRP)
 - **Target release:** v1.1.0
 - **Current development version:** `1.0.0.9000`
-- **Status:** Stages 1–2 complete; v1.1.0 implementation in progress
+- **Status:** Stages 1–3 complete; Stage 4 in progress
 - **Starting point:** The published v1.0.0 platform and current development source.
 
 ## Purpose and boundaries
@@ -68,7 +68,19 @@ Rendered the getting-started vignette and website article again with `rmarkdown:
 
 ## Stage 4 — Verify the integrated development candidate
 
-**Status:** Not started. No implementation recorded.
+**Status:** In progress — 2026-11-09. Increment 4.1 is complete; Increments 4.2 and 4.3 have not started.
+
+### Increment 4.1 — Verify the installed project lifecycle and app
+
+**Status:** Complete — 2026-11-09. Built the clean development source at commit `3cf9bfede7fbde6ddd184787aa1124fa8a804b0e` once with `R CMD build` and installed `readmit` `1.0.0.9000` from `/private/tmp/readmit-stage4-3cf9bfed/readmit_1.0.0.9000.tar.gz` using `R CMD INSTALL --library=/private/tmp/readmit-stage4-3cf9bfed/lib`. The bundle is retained at that path for 4.2; its SHA-256 is `7427abb4cfee25777a16da3cc53b7406bf2991d51b4ae41821ffef438e883e2c`. The installed package resolved to `/private/tmp/readmit-stage4-3cf9bfed/lib/readmit`, not another installation. Verification used R 4.6.2 on `aarch64-apple-darwin23` (Darwin 25.5.0). No package source, test, template, or dependency change was needed.
+
+**Installed workflow:** `R_LIBS=/private/tmp/readmit-stage4-3cf9bfed/lib Rscript --vanilla tests/stage3-installed-workflow.R` and the corresponding `tests/stage5-installed-workflow.R` both passed against fresh temporary projects, which their scripts removed on exit. The first script verified project validation, state initialization, source and provider calls, repeated assessments, accepted/provider-failed/ineligible outcomes, event identity/type/occurrence in new history without `terminal_available_at`, fresh-process inspection, three CSV schemas and values, zero-episode products, and preservation of project-owned files and source/provider logs across refresh. The second verified copied app files, empty and populated CSV reading, overview and pool output, episode selection, trajectory, filters, reload, missing/mismatched products, all-failed current estimates, and a zero-episode snapshot. All five Shiny runtime packages (`shiny`, `bslib`, `reactable`, `plotly`, `yaml`) were available, so its optional app checks executed rather than skipping.
+
+**Focused regression:** `devtools::test(filter = "canonical-source|episode-eligibility|rrp-run|product-refresh", reporter = "summary")` passed. These four files assert four-field events and uninterpreted extra `available_at`, future-discharge rejection before provider/history, discharge-time equality, occurrence-only eligibility, readmission/death tie ordering, the original 30-elapsed-day endpoint, provider failures versus ineligibility, and selection by analytical time after a later-executed backfill. The full package check remains for 4.2.
+
+**Direct app smoke and inspected values:** A separate temporary project used the same seven-episode and two-event fixture as the installed app workflow. It launched through `shiny::runApp()` on local loopback before products and again after refresh; HTTP responses contained the Current Risk Pool and Overview navigation and app entry markup both times. Empty-state messages were verified by the existing `shiny::testServer()` assertions, not by visual browser inspection. After January 10 and January 15 assessments and a later-executed January 10 backfill, refresh selected the January 15 run. Its seven current history rows had two accepted estimates, two provider failures, and readmission, death, and closed-window ineligibility; selected event IDs, types, and occurrence times were present, with no `terminal_available_at`. The current-risk CSV contained episodes 1–4 with probabilities `NA`, `0`, `0.8`, `NA`; the trajectory CSV had eight accepted rows; the scope CSV counted seven assessed, four eligible, two accepted, two provider failures, and three ineligible. Server assertions against that project confirmed the four-row pool, overview counts, selected provider failure, trajectory, and reload. Project-owned file checksums stayed fixed across refresh, and source/provider log hashes stayed fixed across app loading. The smoke project and both local servers were stopped and removed after inspection.
+
+**Findings and limits:** No package defect or correction was identified. The fixture provider made its own request-time choices; the platform did not interpret an event-availability field, and the tutorial's separate project-owned predictor availability was not rerun in this increment. The sandbox initially denied local socket binding; approved local-only execution allowed both app launches and HTTP inspection. No visual browser inspection was performed, so the direct evidence is process startup and served navigation HTML, complemented by server-rendered empty/populated assertions. DuckDB emitted informational shared-home messages, and one Sass cache write warning was nonfatal. The verified bundle remains available at the path above. Increment 4.2's `R CMD check --as-cran` and Increment 4.3's candidate review have not begun.
 
 ## Stage 5 — Prepare and publish v1.1.0
 

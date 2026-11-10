@@ -88,7 +88,7 @@ These increments follow source ownership and generation order: the project templ
 
 ### Stage 4 — Verify the integrated development candidate
 
-- **Status:** Planned / Not started; detailed increments proposed for maintainer review.
+- **Status:** In progress — 2026-11-09; Increment 4.1 complete, Increments 4.2 and 4.3 not started.
 - **Objective:** Establish that the complete v1.1.0 behavior works across the existing project lifecycle before changing the package version.
 - **Scope:** Exercise a newly initialized project from canonical mapping through assessment, history inspection, product refresh, and empty and populated Shiny views. Verify documentation and website output, run focused tests and conventional package checks, review actual findings, and prepare the release candidate and applicable CRAN-facing information.
 - **Completion criteria:** The development-version source passes the relevant integrated workflow, documentation, Shiny smoke, and `R CMD check` gates; the release candidate and any material limitations are reviewed. `DESCRIPTION` remains `1.0.0.9000`.
@@ -96,7 +96,7 @@ These increments follow source ownership and generation order: the project templ
 
 #### Increment 4.1 — Verify the installed project lifecycle and app
 
-- **Status:** Planned / Not started.
+- **Status:** Complete — 2026-11-09; installed-workflow, focused-test, and Shiny smoke results are recorded in the implementation record.
 - **Objective:** Confirm that a user of the installed development package can operate a newly initialized project through assessment, history, products, and the project-owned app.
 - **Implementation scope:** Build the current `1.0.0.9000` source bundle once in a temporary directory and install it into a separate temporary R library. Run the existing `tests/stage3-installed-workflow.R` and `tests/stage5-installed-workflow.R` against that installation and fresh temporary projects. Ensure `shiny`, `bslib`, `reactable`, `plotly`, and `yaml` are available so the app checks in the latter script actually run rather than take its optional-dependency skip path. Inspect the copied configuration, authoring scripts, branding, and app files; use the scripts' project validation, canonical mapper, provider, state, run, history, and CSV assertions as the primary integrated scenario. Briefly launch the copied app with ordinary `shiny::runApp()` before products and after refresh to inspect its Current Risk Pool and Overview navigation and visible empty/populated views. Use the existing `shiny::testServer()` checks for repeatable output, selection, reload, and product-reading evidence; no browser automation or second synthetic dataset is required.
 - **Regression and documentation verification coverage:** The installed scripts already cover four-field terminal events, occurrence-based changes across assessment times, accepted estimates and provider failures, selected event identity/type/occurrence in history, repeated runs, snapshot selection, product CSV schemas, fresh-process inspection, and unchanged user-owned files. Rerun the focused `testthat` files for canonical production, eligibility, and run behavior to confirm future-discharge rejection before provider/history, equality at discharge, event ordering, and the fixed 30-day endpoint; the existing history, inspection, product, and app assertions supply the remaining cross-component coverage. Do not recreate every boundary case in one new end-to-end fixture.
