@@ -9,7 +9,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/centralstatz/readmit/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/centralstatz/readmit/blob/v1.1.0/DESCRIPTION)
 
 Zajichek A (2026). *readmit: Readmission Risk Pool Platform*. R package
 version 1.1.0, <https://readmit.centralstatz.com/>.
