@@ -9,15 +9,15 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/centralstatz/readmit/blob/v1.1.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/centralstatz/readmit/blob/main/DESCRIPTION)
 
 Zajichek A (2026). *readmit: Readmission Risk Pool Platform*. R package
-version 1.1.0, <https://readmit.centralstatz.com/>.
+version 1.1.0.9000, <https://readmit.centralstatz.com/>.
 
     @Manual{,
       title = {readmit: Readmission Risk Pool Platform},
       author = {Alex Zajichek},
       year = {2026},
-      note = {R package version 1.1.0},
+      note = {R package version 1.1.0.9000},
       url = {https://readmit.centralstatz.com/},
     }

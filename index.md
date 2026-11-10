@@ -100,10 +100,10 @@ START WITH READMIT
 
 ## Build an RRP project around your data and model.
 
-Install `readmit` 1.0.0 from CRAN, then use the short walkthrough or the
+Install `readmit` 1.1.0 from CRAN, then use the short walkthrough or the
 complete simulated-hospital guide.
 
-CRAN RELEASE 1.0.0
+CRAN RELEASE 1.1.0
 
     install.packages("readmit")
 
@@ -120,8 +120,8 @@ examples.](https://readmit.centralstatz.com/reference/index.md)
 [**GitHub repository**Source code, issues, and the current development
 version.](https://github.com/centralstatz/readmit)
 
-**Current status: `readmit` 1.0.0 is available on
+**Current status: `readmit` 1.1.0 is available on
 [CRAN](https://CRAN.R-project.org/package=readmit).** The corresponding
-[GitHub v1.0.0
-release](https://github.com/centralstatz/readmit/releases/tag/v1.0.0) is
+[GitHub v1.1.0
+release](https://github.com/centralstatz/readmit/releases/tag/v1.1.0) is
 also available.
