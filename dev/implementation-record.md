@@ -2,8 +2,8 @@
 
 - **Project:** `readmit` / Readmission Risk Pool (RRP)
 - **Target release:** v1.1.0
-- **Current prepared release version:** `1.1.0`
-- **Status:** Stages 1–4 complete; Stage 5 in progress
+- **Published release:** `1.1.0`; current development version: `1.1.0.9000`
+- **Status:** Stages 1–5 complete
 - **Starting point:** The published v1.0.0 platform and current development source.
 
 ## Purpose and boundaries
@@ -110,7 +110,7 @@ Rendered the getting-started vignette and website article again with `rmarkdown:
 
 ## Stage 5 — Prepare and publish v1.1.0
 
-**Status:** In progress — 2026-11-10. The maintainer approved the five-increment Stage 5 plan. Increments 5.1–5.4 are complete; Increment 5.5 has not started.
+**Status:** Complete — 2026-11-10. The maintainer approved the five-increment Stage 5 plan; Increments 5.1–5.5 are complete.
 
 ### Increment 5.1 — Prepare and commit the release-version source
 
@@ -159,3 +159,13 @@ Rendered the getting-started vignette and website article again with `rmarkdown:
 **Submitted-source reconciliation:** `CRAN-SUBMISSION` remains locally available and records `Version: 1.1.0`, `Date: 2026-11-10 02:59:50 UTC`, and `SHA: 21f7067a6d5cecebdf610ef26e49c605d647c214`. That submitted SHA exists in Git history. The approved release-source commit is `f2f66a57849224720fc9e6c572e78074e2354352`; the checked archive had SHA-256 `be7612c37f1a4024f4be6059e4879e1be1b8bb91ff9f34dbc09d559500ca65ae`. Git changes between those commits affect only `cran-comments.md`, `dev/implementation-plan.md`, and `dev/implementation-record.md`, all excluded by `.Rbuildignore`. Thus the submitted 1.1.0 package inputs correspond to the approved candidate and the published 1.1.0 version. The CRAN-hosted archive is not asserted to be byte-identical to the earlier checked archive. The submission record remains uncommitted and excluded from package builds.
 
 **Review outcome and release boundary:** The available submission record, Git history, maintainer report, and official CRAN listing show acceptance of the confirmed 1.1.0 submission. No correction request, rejection, replacement submission, or superseding candidate is evident; no correction or resubmission was required based on the available evidence, and the rejected-submission workflow was not invoked. **CRAN acceptance is complete. The matching GitHub release, public website updates, and return to a development version belong to Increment 5.5 and have not yet been authorized or performed.**
+
+### Increment 5.5 — Publish the accepted release and return to development
+
+**Status:** Complete — 2026-11-10. The maintainer separately authorized the `v1.1.0` GitHub release, the required branch pushes, and the post-release public-documentation and development-version work.
+
+**Accepted release and GitHub publication:** [CRAN](https://cran.r-project.org/web/packages/readmit/index.html) published `readmit` 1.1.0 on 2026-11-10. The approved package-source commit was `f2f66a57849224720fc9e6c572e78074e2354352`; `CRAN-SUBMISSION` recorded the final submitted repository SHA `21f7067a6d5cecebdf610ef26e49c605d647c214` at `2026-11-10 02:59:50 UTC`. Only build-excluded release documentation changed between those commits. The established `usethis::use_github_release()` helper read that record, pushed the pending 5.4 documentation commit `4cf987e265e0b9aeabe88a7659d6056e3bf09cf6`, and published [GitHub release `v1.1.0`](https://github.com/centralstatz/readmit/releases/tag/v1.1.0) with title `readmit 1.1.0`. The live release is published, not a draft or prerelease; its tag and `target_commitish` were independently verified as `21f7067a6d5cecebdf610ef26e49c605d647c214`, distinct from the later development HEAD. Its three notes match the accepted 1.1.0 NEWS entry: future-discharge rejection, the four required terminal-event fields and occurrence-based eligibility, and the revised retained history fields. The helper removed `CRAN-SUBMISSION` after publication; its absence was verified locally. The submitted version, UTC time, and SHA remain preserved above.
+
+**Public documentation and website:** Updated the authoritative `README.Rmd` and regenerated `README.md` to identify 1.1.0 as the current CRAN release, link the verified GitHub release, and retain `install.packages("readmit")`. Updated `pkgdown/index.md`'s installation card and release-status text and link from 1.0.0 to 1.1.0. Historical 1.0.0 NEWS and submission-comment statements remain historical; no unrelated public or package source changed. The README render completed with external badge-fetch warnings caused by local DNS access; the reviewed generated diff contains only the intended release wording. The public-documentation commit is `d8a092ba2dcc1e74ec6539fa25644ce81a5d15a9`. The existing [pkgdown workflow](https://github.com/centralstatz/readmit/actions/runs/42824382259) built and deployed the site successfully after the authorized `main` push. The live [homepage](https://readmit.centralstatz.com/) shows the 1.1.0 CRAN release and GitHub link and retains the standard CRAN install command. The existing getting-started, implementation-guide, reference, and news routes returned HTTP 200.
+
+**Development transition and final distinction:** After verifying the GitHub release, `usethis::use_dev_version(push = FALSE)` set `DESCRIPTION` to `1.1.0.9000` and added one `# readmit (development version)` heading above the intact 1.1.0 release notes. Its separate commit is `486a654220b4109fb899a124d0a6b02cc2ea7ecd` (`Increment version number to 1.1.0.9000`); it and the public-documentation commit were pushed to `origin/main` with maintainer authorization. Before this administrative record update, `main` and `origin/main` matched at that development commit with a clean working tree; `git diff --check` passed. No package functionality changed, and no new development stage was started. The accepted CRAN package inputs are from `f2f66a57849224720fc9e6c572e78074e2354352`, the GitHub release tag points to the equivalent submitted SHA `21f7067a6d5cecebdf610ef26e49c605d647c214`, and subsequent `main` commits contain public release wording and development-version metadata.

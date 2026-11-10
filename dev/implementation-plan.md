@@ -1,8 +1,8 @@
 # readmit v1.1.0 — Implementation Plan
 
 - **Target release:** `readmit` v1.1.0
-- **Current prepared release version:** `1.1.0`
-- **Status:** Accepted; Stages 1–4 complete and Stage 5 in progress
+- **Published release:** `1.1.0`; current development version: `1.1.0.9000`
+- **Status:** Accepted; Stages 1–5 complete
 - **Starting point:** The published v1.0.0 RRP platform is implemented; its project lifecycle, provider interface, history, products, Shiny app, and release procedure are already in place.
 
 ## Purpose and approach
@@ -128,7 +128,7 @@ Handle findings within the affected increment: correct a demonstrated package de
 
 ### Stage 5 — Prepare and publish v1.1.0
 
-- **Status:** In progress — 2026-11-10; Increments 5.1–5.4 are complete, and Increment 5.5 has not started.
+- **Status:** Complete — 2026-11-10; Increments 5.1–5.5 are complete. CRAN and GitHub publish the matching 1.1.0 release, public wording is current, and development has resumed at 1.1.0.9000.
 - **Objective:** Carry the verified candidate through the established CRAN and GitHub release procedure.
 - **Scope:** Set and review the exact `1.1.0` version and release metadata only at final preparation; build and check the committed release-version source; submit and confirm the CRAN submission with maintainer approval; respond to actual CRAN correspondence if needed. After acceptance, publish the matching GitHub tag/release, update public release-status wording, verify publication, and return to the development version derived from the accepted release.
 - **Completion criteria:** CRAN has accepted a known version and source commit; the matching GitHub release and tag are verified; public status is accurate; the next development version and temporary submission-record disposition follow [the release procedure](release-procedure.md).
@@ -180,7 +180,7 @@ The approved development candidate is `1.0.0.9000` from source commit `3cf9bfede
 
 #### Increment 5.5 — Publish the accepted release and return to development
 
-- **Status:** Planned / Not started.
+- **Status:** Complete — 2026-11-10; the matching GitHub `v1.1.0` release and updated website are verified, the temporary submission record is resolved, and the 1.1.0.9000 development transition is committed and pushed.
 - **Objective:** Publish the GitHub counterpart of the CRAN-accepted release, verify public status, and establish the next development version.
 - **Implementation scope:** Following release-procedure sections 7–8, reconcile the CRAN-accepted version and source SHA with the latest `CRAN-SUBMISSION` record; investigate any mismatch before publication. Obtain explicit maintainer authorization for GitHub publication. Use `usethis::use_github_release()` only after acceptance, and verify its tag and release target the accepted SHA and version. Confirm the temporary submission record was removed or investigate any exception. Update public release-status wording only where the accepted version makes it inaccurate; use the existing README/pkgdown sources and publication workflow, then inspect the live release and website rather than redesigning or rebuilding the site without a reason. After the GitHub release succeeds, use the established development-version transition and review its NEWS heading, version, commit, and intended push. If CRAN accepts `1.1.0`, the next development version is `1.1.0.9000`; if a later patch is accepted, derive `<accepted version>.9000` from that version instead.
 - **Regression and documentation verification coverage:** Check the tag, GitHub release notes, public wording and website routes against the accepted CRAN version. Verify that the next development NEWS heading sits above the preserved accepted-release notes. A website build or package recheck is needed only if actual changed source or deployment evidence warrants it.
