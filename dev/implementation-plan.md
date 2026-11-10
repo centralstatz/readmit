@@ -88,7 +88,7 @@ These increments follow source ownership and generation order: the project templ
 
 ### Stage 4 — Verify the integrated development candidate
 
-- **Status:** In progress — 2026-11-09; Increments 4.1 and 4.2 complete, Increment 4.3 not started.
+- **Status:** In progress — 2026-11-09; Increments 4.1 and 4.2 complete, Increment 4.3 awaiting maintainer review.
 - **Objective:** Establish that the complete v1.1.0 behavior works across the existing project lifecycle before changing the package version.
 - **Scope:** Exercise a newly initialized project from canonical mapping through assessment, history inspection, product refresh, and empty and populated Shiny views. Verify documentation and website output, run focused tests and conventional package checks, review actual findings, and prepare the release candidate and applicable CRAN-facing information.
 - **Completion criteria:** The development-version source passes the relevant integrated workflow, documentation, Shiny smoke, and `R CMD check` gates; the release candidate and any material limitations are reviewed. `DESCRIPTION` remains `1.0.0.9000`.
@@ -116,7 +116,7 @@ These increments follow source ownership and generation order: the project templ
 
 #### Increment 4.3 — Reconcile the release candidate
 
-- **Status:** Planned / Not started.
+- **Status:** In progress / Awaiting maintainer review — 2026-11-09; technical reconciliation and readiness recommendation are recorded in the implementation record.
 - **Objective:** Decide whether the verified development source is ready for the separate v1.1.0 release-preparation stage.
 - **Implementation scope:** Review the 4.1–4.2 results and any corrections against the accepted architecture, with attention to `DESCRIPTION` metadata and dependencies, `NAMESPACE` and help, `NEWS.md`, package build contents, and actual `R CMD check` findings. Review the existing `cran-comments.md` and release procedure for v1.1.0-relevant submission context; update a development-stage draft only as supported by facts, leaving exact release-version environments, checks, version change, and final submission details to Stage 5. Check the source diff and working-tree status, document material limitations and candidate identity in the implementation record, and obtain maintainer review of readiness before closing Stage 4. Do not create a tag, submit to CRAN, publish a GitHub release, or deploy a website.
 - **Regression and documentation verification coverage:** Ensure any narrowly scoped defect or documentation correction from 4.1–4.2 has appropriate focused regression evidence and that affected integrated or package checks were repeated. Reconcile current development NEWS and public wording with the candidate; do not promise compatibility with v1.0.0 project databases or add migration machinery. External platform results or reverse-dependency information may inform review if available, but do not substitute for the local candidate checks or invent current findings.
@@ -128,6 +128,7 @@ Handle findings within the affected increment: correct a demonstrated package de
 
 ### Stage 5 — Prepare and publish v1.1.0
 
+- **Status:** High-level / Not started.
 - **Objective:** Carry the verified candidate through the established CRAN and GitHub release procedure.
 - **Scope:** Set and review the exact `1.1.0` version and release metadata only at final preparation; build and check the committed release-version source; submit and confirm the CRAN submission with maintainer approval; respond to actual CRAN correspondence if needed. After acceptance, publish the matching GitHub tag/release, update public release-status wording, verify publication, and return to the development version derived from the accepted release.
 - **Completion criteria:** CRAN has accepted a known version and source commit; the matching GitHub release and tag are verified; public status is accurate; the next development version and temporary submission-record disposition follow [the release procedure](release-procedure.md).
