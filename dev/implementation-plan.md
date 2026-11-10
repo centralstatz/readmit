@@ -2,7 +2,7 @@
 
 - **Target release:** `readmit` v1.1.0
 - **Current development version:** `1.0.0.9000`
-- **Status:** Proposed / Pending maintainer review
+- **Status:** Accepted; Stages 1–3 complete and Stage 4 in progress
 - **Starting point:** The published v1.0.0 RRP platform is implemented; its project lifecycle, provider interface, history, products, Shiny app, and release procedure are already in place.
 
 ## Purpose and approach
@@ -88,7 +88,7 @@ These increments follow source ownership and generation order: the project templ
 
 ### Stage 4 — Verify the integrated development candidate
 
-- **Status:** In progress — 2026-11-09; Increment 4.1 complete, Increments 4.2 and 4.3 not started.
+- **Status:** In progress — 2026-11-09; Increments 4.1 and 4.2 complete, Increment 4.3 not started.
 - **Objective:** Establish that the complete v1.1.0 behavior works across the existing project lifecycle before changing the package version.
 - **Scope:** Exercise a newly initialized project from canonical mapping through assessment, history inspection, product refresh, and empty and populated Shiny views. Verify documentation and website output, run focused tests and conventional package checks, review actual findings, and prepare the release candidate and applicable CRAN-facing information.
 - **Completion criteria:** The development-version source passes the relevant integrated workflow, documentation, Shiny smoke, and `R CMD check` gates; the release candidate and any material limitations are reviewed. `DESCRIPTION` remains `1.0.0.9000`.
@@ -106,7 +106,7 @@ These increments follow source ownership and generation order: the project templ
 
 #### Increment 4.2 — Check the combined package and documentation
 
-- **Status:** Planned / Not started.
+- **Status:** Complete — 2026-11-09; package-check and documentation evidence are recorded in the implementation record.
 - **Objective:** Verify that the same development candidate passes conventional package checks and that its public documentation remains consistent with the installed behavior.
 - **Implementation scope:** Run `R CMD check --as-cran` on the source bundle built in 4.1 in a temporary check directory; it executes the package tests, installed-workflow scripts, examples, and built vignette. Inspect its full results, including any ERROR, WARNING, or NOTE, without treating an external service or local clock problem as a package defect by default. Compare `DESCRIPTION`, `NAMESPACE`, roxygen source, generated `man/` help, development `NEWS.md`, and the README source/output for consistency and unexpected generated changes. Confirm the already verified getting-started and Harbor General tutorial results and the homepage/reference/article routes against the candidate; rerender or rebuild only affected documentation if a correction or source change makes the Stage 3 output stale. The established site command is `pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)`; if the CRAN date lookup is unavailable, use only a call-local `news.cran_dates = FALSE` override and report the limitation rather than changing site configuration. Existing cached assets may be needed when the network is unavailable.
 - **Regression and documentation verification coverage:** `R CMD check` covers the full `testthat` suite, package examples, vignette build, installability, and standard R package structure. The limited documentation review protects the four-field event contract, discharge-time boundary, occurrence-only eligibility, selected history fields, and private predictor timing across help, tutorials, README, and website. Do not run a separate full `devtools::test()` or repeat every Stage 3 render merely to duplicate a passing check; use those commands to diagnose a concrete issue.
