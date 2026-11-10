@@ -1,14 +1,14 @@
 # Changelog
 
-## readmit (development version)
+## readmit 1.1.0
 
 - Canonical production now rejects discharge episodes with
   `discharge_time > as_of_time` before eligibility, risk-provider calls,
   or history writes. A discharge exactly at `as_of_time` remains valid.
 - Canonical terminal events now require only `terminal_event_id`,
-  `episode_id`, `event_type`, and `occurred_at`. Eligibility uses
-  `occurred_at <= as_of_time`; an event-availability timestamp is no
-  longer required or interpreted.
+  `episode_id`, `event_type`, and `occurred_at`. Additional columns
+  remain permitted. Eligibility uses `occurred_at <= as_of_time`; an
+  event-availability timestamp is no longer required or interpreted.
 - Newly initialized assessment history and
   [`rrp_inspect_history()`](https://readmit.centralstatz.com/reference/rrp_inspect_history.md)
   retain selected terminal-event identity, type, and occurrence time
