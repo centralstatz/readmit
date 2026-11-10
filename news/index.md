@@ -2,6 +2,8 @@
 
 ## readmit 1.1.0
 
+CRAN release: 2026-11-10
+
 - Canonical production now rejects discharge episodes with
   `discharge_time > as_of_time` before eligibility, risk-provider calls,
   or history writes. A discharge exactly at `as_of_time` remains valid.
