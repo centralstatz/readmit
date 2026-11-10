@@ -74,7 +74,7 @@ writeLines(
 )
 rrp_state_init(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpCi4pvl/duckdb
+#> ℹ /tmp/Rtmp0q4V1G/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -83,7 +83,7 @@ rrp_state_init(project)
 #> ℹ See ?duckdb_storage for details and alternatives.
 rrp_run(project, time)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpCi4pvl/duckdb
+#> ℹ /tmp/Rtmp0q4V1G/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -91,7 +91,7 @@ rrp_run(project, time)
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpCi4pvl/duckdb
+#> ℹ /tmp/Rtmp0q4V1G/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
@@ -99,7 +99,7 @@ rrp_run(project, time)
 #> ℹ Run duckdb(shared_home = FALSE) to accept the temporary directory (and silence this message).
 #> ℹ See ?duckdb_storage for details and alternatives.
 #> $run_id
-#> [1] "2806308b-0ec7-4d46-8b93-6d4538722dca"
+#> [1] "63df6499-0b7e-4974-af26-e6787843d284"
 #> 
 #> $as_of_time
 #> [1] "2026-01-10 12:00:00 UTC"
@@ -118,7 +118,7 @@ rrp_run(project, time)
 #> 
 products <- rrp_refresh_products(project)
 #> duckdb keeps downloaded extensions and secrets in a temporary directory:
-#> ℹ /tmp/RtmpCi4pvl/duckdb
+#> ℹ /tmp/Rtmp0q4V1G/duckdb
 #> This is removed when the R session ends.
 #> • Extensions are re-downloaded each session.
 #> • Secrets are lost.
