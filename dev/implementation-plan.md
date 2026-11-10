@@ -128,7 +128,7 @@ Handle findings within the affected increment: correct a demonstrated package de
 
 ### Stage 5 — Prepare and publish v1.1.0
 
-- **Status:** In progress — 2026-11-09; Increments 5.1–5.3 are complete, and Increments 5.4–5.5 have not started.
+- **Status:** In progress — 2026-11-10; Increments 5.1–5.4 are complete, and Increment 5.5 has not started.
 - **Objective:** Carry the verified candidate through the established CRAN and GitHub release procedure.
 - **Scope:** Set and review the exact `1.1.0` version and release metadata only at final preparation; build and check the committed release-version source; submit and confirm the CRAN submission with maintainer approval; respond to actual CRAN correspondence if needed. After acceptance, publish the matching GitHub tag/release, update public release-status wording, verify publication, and return to the development version derived from the accepted release.
 - **Completion criteria:** CRAN has accepted a known version and source commit; the matching GitHub release and tag are verified; public status is accurate; the next development version and temporary submission-record disposition follow [the release procedure](release-procedure.md).
@@ -170,7 +170,7 @@ The approved development candidate is `1.0.0.9000` from source commit `3cf9bfede
 
 #### Increment 5.4 — Resolve CRAN review and establish acceptance
 
-- **Status:** Planned / Not started.
+- **Status:** Complete — 2026-11-10; CRAN published the accepted `readmit` 1.1.0 source release, and its submitted source was reconciled with the approved candidate.
 - **Objective:** Respond to actual CRAN correspondence and establish the accepted version and source before public GitHub publication.
 - **Implementation scope:** Wait for CRAN's response without imposing a deadline or submitting a replacement while review is pending. If CRAN requests a change, review the specific feedback with the maintainer and obtain approval for substantive corrections or any material workflow deviation. Apply only the needed correction. For a rejected submission, follow release-procedure section 6: normally advance the patch version unless CRAN directs otherwise, review NEWS and a concise `cran-comments.md` resubmission explanation, commit the corrected source, rebuild, rerun appropriate exact-version checks, obtain approval of the revised candidate and resubmission, upload, and reconfirm by email. Keep each attempted version and source SHA distinct. On acceptance, retain the actual CRAN notice and reconcile the accepted version with the final submitted source and `CRAN-SUBMISSION` record.
 - **Regression and documentation verification coverage:** Recheck the corrected release source and any affected behavior or documentation; do not add speculative tests for feedback that has not occurred. Verify that a rejected version is not treated as the accepted GitHub release.
