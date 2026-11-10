@@ -128,7 +128,7 @@ Handle findings within the affected increment: correct a demonstrated package de
 
 ### Stage 5 — Prepare and publish v1.1.0
 
-- **Status:** In progress — 2026-11-09; Increments 5.1 and 5.2 are complete, and Increments 5.3–5.5 have not started.
+- **Status:** In progress — 2026-11-09; Increments 5.1 and 5.2 are complete, Increment 5.3 has upload authorization and is in progress, and Increments 5.4–5.5 have not started.
 - **Objective:** Carry the verified candidate through the established CRAN and GitHub release procedure.
 - **Scope:** Set and review the exact `1.1.0` version and release metadata only at final preparation; build and check the committed release-version source; submit and confirm the CRAN submission with maintainer approval; respond to actual CRAN correspondence if needed. After acceptance, publish the matching GitHub tag/release, update public release-status wording, verify publication, and return to the development version derived from the accepted release.
 - **Completion criteria:** CRAN has accepted a known version and source commit; the matching GitHub release and tag are verified; public status is accurate; the next development version and temporary submission-record disposition follow [the release procedure](release-procedure.md).
@@ -160,7 +160,7 @@ The approved development candidate is `1.0.0.9000` from source commit `3cf9bfede
 
 #### Increment 5.3 — Submit to CRAN and confirm the submission
 
-- **Status:** Planned / Not started.
+- **Status:** In progress / Submission authorized — 2026-11-09; the maintainer authorized upload after reviewing the pre-submission assessment. Upload and email confirmation remain pending.
 - **Objective:** Submit the approved source through the established CRAN workflow and complete the maintainer's email confirmation.
 - **Implementation scope:** Obtain explicit maintainer authorization to submit. Reconfirm the clean tree, final `1.1.0` version, and approved source SHA, then use `devtools::submit_cran()` as in release-procedure section 5. Review its prompts and upload result. Inspect the temporary `CRAN-SUBMISSION` version, UTC time, and SHA against the approved commit; keep it excluded via `.Rbuildignore` and do not commit it. The maintainer follows the CRAN email link and reports the confirmation outcome. Record actual upload and confirmation evidence separately from later CRAN acceptance.
 - **Regression and documentation verification coverage:** Confirm the submitted source still corresponds to the checked and approved package inputs. `submit_cran()` makes a fresh build; do not assert that its archive is byte-identical to the checked bundle or rerun local checks solely because the helper rebuilt it.
