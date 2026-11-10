@@ -53,7 +53,7 @@ The project application explores those products.
 
 ## Get started
 
-`readmit` 1.0.0 is available on
+`readmit` 1.1.0 is available on
 [CRAN](https://CRAN.R-project.org/package=readmit). Install the RRP
 package with:
 
@@ -61,10 +61,11 @@ package with:
 install.packages("readmit")
 ```
 
-The corresponding [GitHub v1.0.0
-release](https://github.com/centralstatz/readmit/releases/tag/v1.0.0)
-provides the release source and notes. Version 1.0.0 substantially
-changes the earlier 0.0.1 functionality and uses Apache License 2.0.
+The corresponding [GitHub v1.1.0
+release](https://github.com/centralstatz/readmit/releases/tag/v1.1.0)
+provides the release source and notes. Version 1.1.0 tightens the
+assessment-time discharge boundary and terminal-event handling; see
+[NEWS.md](NEWS.md) for the release details.
 
 Choose a new project path whose parent directory already exists:
 

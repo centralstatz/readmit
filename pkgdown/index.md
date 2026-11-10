@@ -61,10 +61,10 @@
 <div class="rrp-section-heading">
 <p class="rrp-kicker">START WITH READMIT</p>
 <h2 id="rrp-start">Build an RRP project around your data and model.</h2>
-<p>Install <code>readmit</code> 1.0.0 from CRAN, then use the short walkthrough or the complete simulated-hospital guide.</p>
+<p>Install <code>readmit</code> 1.1.0 from CRAN, then use the short walkthrough or the complete simulated-hospital guide.</p>
 </div>
 <div class="rrp-start-grid">
-<div class="rrp-install-card"><span class="rrp-card-index">CRAN RELEASE 1.0.0</span><pre><code>install.packages("readmit")</code></pre><p>Project authors supply source mapping and a risk provider. RRP does not include a clinically validated model.</p></div>
+<div class="rrp-install-card"><span class="rrp-card-index">CRAN RELEASE 1.1.0</span><pre><code>install.packages("readmit")</code></pre><p>Project authors supply source mapping and a risk provider. RRP does not include a clinically validated model.</p></div>
 <div class="rrp-doc-links">
 <a href="articles/getting-started.html"><strong>Getting started</strong><span>A short, installed vignette for the project workflow.</span></a>
 <a href="articles/implementing-rrp.html"><strong>Implementation guide</strong><span>A full simulated-hospital walkthrough with source mapping and a demonstration model.</span></a>
@@ -76,7 +76,7 @@
 
 <aside class="rrp-release-note" aria-label="Release status">
 <span class="rrp-status-dot" aria-hidden="true"></span>
-<div><strong>Current status: <code>readmit</code> 1.0.0 is available on <a href="https://CRAN.R-project.org/package=readmit">CRAN</a>.</strong> The corresponding <a href="https://github.com/centralstatz/readmit/releases/tag/v1.0.0">GitHub v1.0.0 release</a> is also available.</div>
+<div><strong>Current status: <code>readmit</code> 1.1.0 is available on <a href="https://CRAN.R-project.org/package=readmit">CRAN</a>.</strong> The corresponding <a href="https://github.com/centralstatz/readmit/releases/tag/v1.1.0">GitHub v1.1.0 release</a> is also available.</div>
 </aside>
 
 </div>
